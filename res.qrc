@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>exit.ico</file>
+        <file>gear.ico</file>
+        <file>refresh.ico</file>
+        <file>if_start.ico</file>
+        <file>if_stop-red.ico</file>
+        <file>player_play.png</file>
+        <file>player_stop.png</file>
+        <file>notepad.ico</file>
+        <file>Add.ico</file>
+        <file>Delete.ico</file>
+        <file>Save.ico</file>
+        <file>accept.ico</file>
+        <file>charcoal.ico</file>
+    </qresource>
+    <qresource prefix="/wavs">
+        <file>error.wav</file>
+        <file>start.wav</file>
+        <file>stop.wav</file>
+    </qresource>
+    <qresource prefix="/"/>
+</RCC>

@@ -1,0 +1,41 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/exit.svg</file>
+        <file>images/gemo.png</file>
+        <file>images/microphone.png</file>
+        <file>images/configure.png</file>
+        <file>images/about.png</file>
+        <file>images/ru.png</file>
+        <file>images/ua.png</file>
+        <file>images/en.png</file>
+        <file>images/media-playback-pause.png</file>
+        <file>images/media-playback-start.png</file>
+        <file>images/media-playback-stop.png</file>
+        <file>images/tile.png</file>
+        <file>images/cascade.png</file>
+        <file>images/close.png</file>
+        <file>images/drive-removable-media-usb-pendrive.png</file>
+        <file>images/document-open.png</file>
+        <file>images/document-save.png</file>
+        <file>images/report.png</file>
+        <file>images/audio-volume-muted.png</file>
+        <file>images/audio-volume-high.png</file>
+        <file>images/arrow-left.png</file>
+        <file>images/arrow-right.png</file>
+        <file>images/edit-delete.png</file>
+        <file>images/audio-x-wav.png</file>
+        <file>images/user-properties.png</file>
+        <file>images/sw_close.png</file>
+        <file>images/sw_maximize.png</file>
+        <file>images/sw_minimize.png</file>
+        <file>images/ch_off.png</file>
+        <file>images/ch_on.png</file>
+        <file>images/reverb.png</file>
+        <file>images/add_marker.png</file>
+        <file>images/marker.png</file>
+        <file>images/delete_marker.png</file>
+        <file>images/double_marker.png</file>
+        <file>images/document-preview.png</file>
+        <file>images/zoom-in.png</file>
+    </qresource>
+</RCC>
