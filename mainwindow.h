@@ -12,14 +12,14 @@
 #include "dialogconfig.h"
 
 
-#define X_RANGETEST 180  //стартовая ширина полотна графика по х для режима тестов 180 minutes
+#define X_RANGETEST 60  //стартовая ширина полотна графика по х для режима тестов 180 minutes
 //#define X_RANGEVIEW 3600   //стартовая ширина полотна графика по х для режима просмотра
-#define X_TICKSTEP 20  //деления на шкале интервал 20 минут
+#define X_TICKSTEP 5  //20  //деления на шкале интервал 20 минут
 
-#define Y_MOVEMENT_RANGE_MAX 50  //стартовая ширина полотна графика по y  units mm
-#define Y_MOVEMENT_RANGE_MIN -50
+//#define Y_MOVEMENT_RANGE_MAX 50  //стартовая ширина полотна графика по y  units mm
+//#define Y_MOVEMENT_RANGE_MIN -50
 
-#define Y_TEMPERATURE_RANGE_MAX 1000  //стартовая ширина полотна графика по y  units mm
+#define Y_TEMPERATURE_RANGE_MAX 1300  //стартовая ширина полотна графика по y  units mm
 #define Y_TEMPERATURE_RANGE_MIN 0
 
 QT_BEGIN_NAMESPACE
@@ -66,7 +66,9 @@ private:
 
     QDateTime startTestDT;
     QString startTestDT_str;
-    QDateTime startModeViewDT;
+    QDateTime startViewDT;
+    QString startViewDT_str;
+
 
     QVector<OperatorPoint> levelUpPoints_1;
     QVector<OperatorPoint> levelDownPoints_1;
@@ -135,6 +137,10 @@ private slots:
     void ButtonReports();
     void ViewDialogConfig();
 
+    //void CheckBoxTemperature1Changed(bool newState);
+    //void CheckBoxTemperature2Changed(bool newState);
+    //void CheckBoxTemperature3Changed(bool newState);
+    //void CheckBoxTemperature4Changed(bool newState);
 
 
     void ValueChanged(QString str);

@@ -419,6 +419,16 @@ void ModbusReader::run()
 */
 
 
+
+//ICP DAS 7018 Simulate
+
+        emit readICP_7018_ch1(700.0+qrand()%10, ValueStatus::ValueOk);
+        emit readICP_7018_ch2(750.0+qrand()%5, ValueStatus::ValueOk);
+        emit readICP_7018_ch3(600.0+qrand()%50, ValueStatus::ValueOk);
+        emit readICP_7018_ch4(650.0+qrand()%100, ValueStatus::ValueOk);
+
+
+/*
         //ICP DAS 7018
 
         msleep(20);
@@ -467,7 +477,7 @@ void ModbusReader::run()
             }
             //read errorppm
         }
-
+*/
 
 
 /*
@@ -676,7 +686,7 @@ void ModbusReader::run()
 
 
 
-        msleep(2000);  //sleep должен біть после всех emit
+        msleep(200);  //sleep должен біть после всех emit
 
 
         if (CheckThreadStop())

@@ -26,8 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
     //connect(ui->lineEditOperatorPoint_1,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
     //connect(ui->lineEditOperatorPoint_2,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
 
-    double operatorInputMin=Y_MOVEMENT_RANGE_MIN;
-    double operatorInputMax=Y_MOVEMENT_RANGE_MAX;
+    //double operatorInputMin=Y_MOVEMENT_RANGE_MIN;
+    //double operatorInputMax=Y_MOVEMENT_RANGE_MAX;
 
     temperature_1.SetConfigFileName(qApp->applicationDirPath()+"/"+"temperature_1.ch");
     temperature_2.SetConfigFileName(qApp->applicationDirPath()+"/"+"temperature_2.ch");
@@ -58,8 +58,8 @@ MainWindow::MainWindow(QWidget *parent)
 */
     connect(&mbReader, &ModbusReader::readICP_7018_ch1, &temperature_1, &AnalogInputChannel::RawValueReaded);
     connect(&mbReader, &ModbusReader::readICP_7018_ch2, &temperature_2, &AnalogInputChannel::RawValueReaded);
-    connect(&mbReader, &ModbusReader::readICP_7018_ch3,&temperature_3, &AnalogInputChannel::RawValueReaded);
-    connect(&mbReader, &ModbusReader::readICP_7018_ch4,&temperature_4, &AnalogInputChannel::RawValueReaded);
+    connect(&mbReader, &ModbusReader::readICP_7018_ch3, &temperature_3, &AnalogInputChannel::RawValueReaded);
+    connect(&mbReader, &ModbusReader::readICP_7018_ch4, &temperature_4, &AnalogInputChannel::RawValueReaded);
 
     qDebug() << "port:" << comPort;
 
@@ -139,7 +139,7 @@ MainWindow::MainWindow(QWidget *parent)
      wGraphic_1->addPlottable(graphicTemperature_1);  // Устанавливаем график на полотно
      QPen penTemperature_1=graphicTemperature_1->pen();
      penTemperature_1.setColor(Qt::red);
-     penTemperature_1.setWidth(1);
+     penTemperature_1.setWidth(2);
      graphicTemperature_1->setPen(penTemperature_1); // Устанавливаем цвет графика
      graphicTemperature_1->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
      graphicTemperature_1->setLineStyle(QCPGraph::lsLine);
@@ -150,7 +150,7 @@ MainWindow::MainWindow(QWidget *parent)
      wGraphic_1->addPlottable(graphicTemperature_2);  // Устанавливаем график на полотно
      QPen penTemperature_2=graphicTemperature_2->pen();
      penTemperature_2.setColor(Qt::blue);
-     penTemperature_2.setWidth(1);
+     penTemperature_2.setWidth(2);
      graphicTemperature_2->setPen(penTemperature_2); // Устанавливаем цвет графика
      graphicTemperature_2->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
      graphicTemperature_2->setLineStyle(QCPGraph::lsLine);
@@ -161,7 +161,7 @@ MainWindow::MainWindow(QWidget *parent)
      wGraphic_1->addPlottable(graphicTemperature_3);  // Устанавливаем график на полотно
      QPen penTemperature_3=graphicTemperature_3->pen();
      penTemperature_3.setColor(Qt::darkBlue);
-     penTemperature_3.setWidth(1);
+     penTemperature_3.setWidth(2);
      graphicTemperature_3->setPen(penTemperature_3); // Устанавливаем цвет графика
      graphicTemperature_3->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
      graphicTemperature_3->setLineStyle(QCPGraph::lsLine);
@@ -172,7 +172,7 @@ MainWindow::MainWindow(QWidget *parent)
      wGraphic_1->addPlottable(graphicTemperature_4);  // Устанавливаем график на полотно
      QPen penTemperature_4=graphicTemperature_4->pen();
      penTemperature_4.setColor(Qt::magenta);
-     penTemperature_4.setWidth(1);
+     penTemperature_4.setWidth(2);
      graphicTemperature_4->setPen(penTemperature_4); // Устанавливаем цвет графика
      graphicTemperature_4->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
      graphicTemperature_4->setLineStyle(QCPGraph::lsLine);
@@ -198,7 +198,7 @@ MainWindow::MainWindow(QWidget *parent)
       ui->labelTemperature_4->setText(temperature_4.GetChName());
 
 
-      wGraphic_1->yAxis->setLabel("Температура , гр.С");
+ //     wGraphic_1->yAxis->setLabel("Температура , гр.С");
  //     wGraphic_1->yAxis->setLabel(temperature_1.GetChName()+", "+temperature_1.GetEU());
  //     wGraphic_2->yAxis->setLabel(movement_2.GetChName()+", "+movement_2.GetEU());
 
@@ -209,7 +209,33 @@ MainWindow::MainWindow(QWidget *parent)
       wGraphic_1->yAxis2->setLabelFont(font);
 
 
-      timer200ms.start(3000);
+      graphicTemperature_1->setVisible(true);    ui->checkBoxTemperature1->setChecked(true);
+      graphicTemperature_2->setVisible(true);    ui->checkBoxTemperature2->setChecked(true);
+      graphicTemperature_3->setVisible(false);   ui->checkBoxTemperature3->setChecked(false);
+      graphicTemperature_4->setVisible(false);   ui->checkBoxTemperature4->setChecked(false);
+
+
+
+      connect(ui->checkBoxTemperature1,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_1->setVisible(checked);wGraphic_1->replot();});
+      connect(ui->checkBoxTemperature2,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_2->setVisible(checked);wGraphic_1->replot();});
+      connect(ui->checkBoxTemperature3,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_3->setVisible(checked);wGraphic_1->replot();});
+      connect(ui->checkBoxTemperature4,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_4->setVisible(checked);wGraphic_1->replot();});
+     // connect(ui->checkBoxTemperature1,SIGNAL(toggled(bool)),this,SLOT(CheckBoxTemperature1Changed(bool)));
+
+      connect(ui->sliderPowerSet,QSlider::valueChanged,this,[&](int value) {ui->labelPowerSet->setText(QString("Потужність нагріву: ")+QString::number((float)value/10)+"%");});
+
+      timer200ms.start(3000);  //дадим время для первого опроса датчиков, далее будет установлено 1000 мс.
+
+      startViewDT=QDateTime::currentDateTime();
+
+      infoText="СТАРТ ПРОГРАМИ";
+      startViewDT=QDateTime::currentDateTime();
+      infoText+="\n" + startViewDT.toString("hh:mm:ss dd.MM.yy");
+
+
+      //startViewDT_str=startViewDT.toString("yyyy.MM.dd_hh.mm.ss");
+      infoText+="\nОЧІКУЄМ СТАБІЛІЗАЦІЇ...";
+
 
 }
 //=======================================================================================
@@ -294,7 +320,7 @@ void MainWindow::slotRangeChanged(const QCPRange &newRange)
 void MainWindow::Timer200ms()
 {
 
-    timer200ms.setInterval(2000);
+    timer200ms.setInterval(1000);
 
     ui->labelTemperature_1->setText(temperature_1.GetChName());
     ui->labelTemperature_2->setText(temperature_2.GetChName());
@@ -317,7 +343,7 @@ void MainWindow::Timer200ms()
          ui->buttonStartStop->setText("Стоп");
          runningMode=ModeTest;
          //controlPoints.clear();
-         infoText="ВИПРОБУВАННЯ";
+         infoText+="\nВИПРОБУВАННЯ\n";
          startTestDT=QDateTime::currentDateTime();
          startTestDT_str=startTestDT.toString("yyyy.MM.dd_hh.mm.ss");
          infoText+="\nПочаток:\n"+startTestDT.toString("hh:mm dd.MM.yy");
@@ -332,7 +358,7 @@ void MainWindow::Timer200ms()
          //ui->listWidgetInfo->addItem(QTime::currentTime().toString()+ QString(" Started Test Mode"));
          //ui->listWidgetInfo->addItem(QTime::currentTime().toString()+ QString(" Wait temperature:"));
          wGraphic_1->xAxis->setRange(0,X_RANGETEST);//xInterval);
-         wGraphic_1->yAxis->setRange(Y_MOVEMENT_RANGE_MIN,Y_MOVEMENT_RANGE_MAX);
+         wGraphic_1->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
          //wGraphic->yAxis2->setRange(0,Y_TEMPERATURE_RANGE);
          //graphicMovement_1->clearData();
          //graphicMovement_2->clearData();
@@ -362,26 +388,29 @@ void MainWindow::Timer200ms()
 
     if (runningMode==ModeView)
     {
-        //добавляем данные на график
-        /*
-        double seconds_from_start;
-        seconds_from_start=startModeViewDT.msecsTo(QDateTime::currentDateTime())/1000.0;
+         //добавляем данные на график
+         double seconds_from_start;
 
-        graphicPpm_pwm1->addData(seconds_from_start,co2_ch1.GetValue());
-        graphicPpm_pwm2->addData(seconds_from_start,co2_ch2.GetValue());
-        graphicPpm_pwm3->addData(seconds_from_start,co2_ch3.GetValue());
-        graphicPressure_1->addData(seconds_from_start,pressure_1.GetValue());
-        graphicPressure_2->addData(seconds_from_start,pressure_2.GetValue());
-        graphicAirFlow_1->addData(seconds_from_start,airFlow_1.GetValue());
-        graphicAirFlow_2->addData(seconds_from_start,airFlow_2.GetValue());
-        graphicHeatFlow->addData(seconds_from_start,heatFlow.GetValue());
-        graphicForce->addData(seconds_from_start,force.GetValue());
+         seconds_from_start=startViewDT.msecsTo(QDateTime::currentDateTime())/1000.0;
+         double minutes_from_start=seconds_from_start/60.0;
 
-        //new in GemobudMaskTest3
-        graphicTemperature_1->addData(seconds_from_start,temperature_1.GetValue());
-        graphicTemperature_2->addData(seconds_from_start,temperature_2.GetValue());
-        graphicPpm_O2->addData(seconds_from_start,o2_ch1.GetValue());
-        */
+         //graphicMovement_1->addData(minutes_from_start,movement_1.GetValue());
+         //graphicMovement_2->addData(minutes_from_start,movement_2.GetValue());
+
+         graphicTemperature_1->addData(minutes_from_start,temperature_1.GetValue());
+         graphicTemperature_2->addData(minutes_from_start,temperature_2.GetValue());
+         graphicTemperature_3->addData(minutes_from_start,temperature_3.GetValue());
+         graphicTemperature_4->addData(minutes_from_start,temperature_4.GetValue());
+
+
+         //автоизменение шкалы по Х
+         if (minutes_from_start >= wGraphic_1->xAxis->range().upper)
+         {
+            double newMaxRange=wGraphic_1->xAxis->range().upper + 10;
+            wGraphic_1->xAxis->setRange(0,newMaxRange);
+
+         }
+
 
         /*
         //автоизменение шкалы вверх - увеличиваем так, чтоб график не біл на верхней границе
@@ -432,10 +461,23 @@ void MainWindow::Timer200ms()
             graphicTemperature_2->removeDataBefore(seconds_from_start-X_RANGEVIEW-1);
             graphicPpm_O2->removeDataBefore(seconds_from_start-X_RANGEVIEW-1);
         }
-
-        wGraphic->replot();           // Отрисовываем график
-
         */
+        wGraphic_1->replot();           // Отрисовываем график
+
+         int viewRunningSecs=startViewDT.secsTo(QDateTime::currentDateTime());
+         QString viewRunningStr="";
+         if (viewRunningSecs / 3600 < 10) viewRunningStr+="0";
+         viewRunningStr+=QString::number(viewRunningSecs / 3600) + ":";
+
+         viewRunningSecs=viewRunningSecs % 3600;
+         if (viewRunningSecs / 60 < 10) viewRunningStr+="0";
+         viewRunningStr+=QString::number(viewRunningSecs / 60) + ":";
+
+         viewRunningSecs=viewRunningSecs % 60;
+         if (viewRunningSecs < 10) viewRunningStr+="0";
+         viewRunningStr+=QString::number(viewRunningSecs);
+
+         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr);
 
 
 
@@ -581,7 +623,7 @@ void MainWindow::ButtonReset()
 
 
     wGraphic_1->xAxis->setRange(0,X_RANGETEST);//xInterval);
-    wGraphic_1->yAxis->setRange(Y_MOVEMENT_RANGE_MIN,Y_MOVEMENT_RANGE_MAX);
+    wGraphic_1->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
     //wGraphic->yAxis2->setRange(0, Y_CO2_RANGE_PROCENTS);
 
     startTestDT=QDateTime::currentDateTime();
