@@ -12,9 +12,9 @@
 #include "dialogconfig.h"
 
 
-#define X_RANGETEST 60  //стартовая ширина полотна графика по х для режима тестов 180 minutes
+#define X_RANGETEST 3600  //seconds стартовая ширина полотна графика по х для режима тестов 180 minutes
 //#define X_RANGEVIEW 3600   //стартовая ширина полотна графика по х для режима просмотра
-#define X_TICKSTEP 5  //20  //деления на шкале интервал 20 минут
+#define X_TICKSTEP 200  //20  //деления на шкале интервал 20 минут
 
 //#define Y_MOVEMENT_RANGE_MAX 50  //стартовая ширина полотна графика по y  units mm
 //#define Y_MOVEMENT_RANGE_MIN -50
@@ -93,7 +93,7 @@ private:
     QString iniFile;
     QString comPort;
 
-    QTimer timer200ms;
+    QTimer timer1000ms;
 
     AnalogInputChannel temperature_1;
     AnalogInputChannel temperature_2;
@@ -128,7 +128,10 @@ private:
 
 private slots:
 
-    void Timer200ms();
+    void Timer1000ms();
+    double calcAverage(QVector<double> vec);
+    double calcMaxDeviate(double average, QVector<double> vec);
+    double calcRegression(QVector<double> vec);
 
 
     void ButtonExit();

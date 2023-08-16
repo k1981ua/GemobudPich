@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->buttonReports,  SIGNAL(clicked()),this,SLOT(ButtonReports()));
 
 
-    connect(&timer200ms,SIGNAL(timeout()),this,SLOT(Timer200ms()));
+    connect(&timer1000ms,&QTimer::timeout,this,&MainWindow::Timer1000ms);
 
     //connect(&timer3000ms,SIGNAL(timeout()),this,SLOT(Timer3000ms()));
 
@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
     wGraphic_1->axisRect()->setBackground(QColor(255,251,240));  //оригинал - слоновая кость - 255,251,240
 
     ui->verticalLayoutGraphic_1->addWidget(wGraphic_1);
-    wGraphic_1->xAxis->setLabel("Час, хв.");
+    wGraphic_1->xAxis->setLabel("Час, сек.");
     wGraphic_1->xAxis->setRange(0,X_RANGETEST);
     wGraphic_1->xAxis->setTickStep(X_TICKSTEP);
     wGraphic_1->xAxis->setAutoTickStep(false);
@@ -160,7 +160,7 @@ MainWindow::MainWindow(QWidget *parent)
      graphicTemperature_3 = new QCPGraph(wGraphic_1->xAxis, wGraphic_1->yAxis);
      wGraphic_1->addPlottable(graphicTemperature_3);  // Устанавливаем график на полотно
      QPen penTemperature_3=graphicTemperature_3->pen();
-     penTemperature_3.setColor(Qt::darkBlue);
+     penTemperature_3.setColor(Qt::darkGreen);
      penTemperature_3.setWidth(2);
      graphicTemperature_3->setPen(penTemperature_3); // Устанавливаем цвет графика
      graphicTemperature_3->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
@@ -189,7 +189,10 @@ MainWindow::MainWindow(QWidget *parent)
      //wGraphic_1->axisRect()->setRangeZoom(Qt::Horizontal);   // Включаем удаление/приближение только по горизонтальной оси
      wGraphic_1->replot();
 
-
+     ui->lineEditValueTemperature_1->setStyleSheet("QLineEdit{border: 3px solid red; border-radius:10px;}");
+     ui->lineEditValueTemperature_2->setStyleSheet("QLineEdit{border: 3px solid blue; border-radius:10px;}");
+     ui->lineEditValueTemperature_3->setStyleSheet("QLineEdit{border: 3px solid darkgreen; border-radius:10px;}");
+     ui->lineEditValueTemperature_4->setStyleSheet("QLineEdit{border: 3px solid magenta; border-radius:10px;}");
 
       ButtonReset();
       ui->labelTemperature_1->setText(temperature_1.GetChName());
@@ -224,7 +227,7 @@ MainWindow::MainWindow(QWidget *parent)
 
       connect(ui->sliderPowerSet,QSlider::valueChanged,this,[&](int value) {ui->labelPowerSet->setText(QString("Потужність нагріву: ")+QString::number((float)value/10)+"%");});
 
-      timer200ms.start(3000);  //дадим время для первого опроса датчиков, далее будет установлено 1000 мс.
+      timer1000ms.start(3000);  //дадим время для первого опроса датчиков, далее будет установлено 1000 мс.
 
       startViewDT=QDateTime::currentDateTime();
 
@@ -317,10 +320,31 @@ void MainWindow::slotRangeChanged(const QCPRange &newRange)
 */
 }
 //=======================================================================================
-void MainWindow::Timer200ms()
+double MainWindow::calcAverage(QVector<double> vec)
+{
+    if (vec.empty()) {
+        return 0;
+    }
+    return std::accumulate(vec.begin(), vec.end(), 0.0) / vec.size();
+
+    //QVector::
+}
+//=======================================================================================
+double MainWindow::calcMaxDeviate(double average, QVector<double> vec)
 {
 
-    timer200ms.setInterval(1000);
+}
+//=======================================================================================
+double MainWindow::calcRegression(QVector<double> vec)
+{
+
+}
+//=======================================================================================
+
+void MainWindow::Timer1000ms()
+{
+
+    timer1000ms.setInterval(1000);
 
     ui->labelTemperature_1->setText(temperature_1.GetChName());
     ui->labelTemperature_2->setText(temperature_2.GetChName());
@@ -392,19 +416,19 @@ void MainWindow::Timer200ms()
          double seconds_from_start;
 
          seconds_from_start=startViewDT.msecsTo(QDateTime::currentDateTime())/1000.0;
-         double minutes_from_start=seconds_from_start/60.0;
+         //double minutes_from_start=seconds_from_start/60.0;
 
          //graphicMovement_1->addData(minutes_from_start,movement_1.GetValue());
          //graphicMovement_2->addData(minutes_from_start,movement_2.GetValue());
 
-         graphicTemperature_1->addData(minutes_from_start,temperature_1.GetValue());
-         graphicTemperature_2->addData(minutes_from_start,temperature_2.GetValue());
-         graphicTemperature_3->addData(minutes_from_start,temperature_3.GetValue());
-         graphicTemperature_4->addData(minutes_from_start,temperature_4.GetValue());
+         graphicTemperature_1->addData(seconds_from_start,temperature_1.GetValue());
+         graphicTemperature_2->addData(seconds_from_start,temperature_2.GetValue());
+         graphicTemperature_3->addData(seconds_from_start,temperature_3.GetValue());
+         graphicTemperature_4->addData(seconds_from_start,temperature_4.GetValue());
 
 
          //автоизменение шкалы по Х
-         if (minutes_from_start >= wGraphic_1->xAxis->range().upper)
+         if (seconds_from_start >= wGraphic_1->xAxis->range().upper)
          {
             double newMaxRange=wGraphic_1->xAxis->range().upper + 10;
             wGraphic_1->xAxis->setRange(0,newMaxRange);
@@ -477,7 +501,69 @@ void MainWindow::Timer200ms()
          if (viewRunningSecs < 10) viewRunningStr+="0";
          viewRunningStr+=QString::number(viewRunningSecs);
 
-         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr);
+
+
+         //calc
+         //double aveT=calcAverage(graphicTemperature_1->data()->values().toVector());
+
+         if (graphicTemperature_1->data()->values().size()==0)
+         {
+            ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n n/d");
+            return;
+         }
+
+         double accuT1=0.0;
+         double avgT1=0.0;
+         double minT1=graphicTemperature_1->data()->values().first().value;
+         double maxT1=graphicTemperature_1->data()->values().first().value;
+
+         //for regression
+         double S1=graphicTemperature_1->data()->values().size();
+         double S2=0.0;   //sum(t_i)
+         double S3=0.0;
+         double S4=0.0;
+         double S5=0.0;
+
+         foreach(QCPData cpdata, graphicTemperature_1->data()->values())
+         {
+            accuT1+=cpdata.value;
+
+            if (minT1>cpdata.value) minT1=cpdata.value;
+            if (maxT1<cpdata.value) maxT1=cpdata.value;
+
+            S2+=cpdata.key;
+            S3+=cpdata.value;
+            S4+=cpdata.key * cpdata.key;
+            S5+=cpdata.value * cpdata.key;
+
+         }
+         avgT1=accuT1 / graphicTemperature_1->data()->values().size();
+
+
+         if ((S1*S4 - S2*S2) == 0.0) return;
+
+
+         //в присланном Геннадием документе для рассчета линейной регрессии перепутаны а и в коэффициенты,
+         //смотреть рассчет коэффициентов в http://mathprofi.ru/linejnyj_koefficient_korrelyacii.html
+         //T- temperature, t- time
+         //T(t)=a*t+b
+         double b = (S3*S4 - S5*S2) / (S1*S4 - S2*S2);
+         double a = (S1*S5 - S2*S3) / (S1*S4 - S2*S2);
+
+
+
+         //regression = (a*t_last+b) - (a*t_first + b) ==  a*t_last - a*t_first
+         double lineRegression= (a*graphicTemperature_1->data()->values().last().key + b) - (a*graphicTemperature_1->data()->values().first().key + b);
+
+
+         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n   avgT1="+QString::number(avgT1,'f',3) +
+                                                                             "\n   minT1="+QString::number(minT1,'f',3) +
+                                                                             "\n   maxT1="+QString::number(maxT1,'f',3) +
+                                                                             "\n   T(t) = "+QString::number(a,'f',7) + "*t + " + QString::number(b,'f',3)+
+                                                                             "\n   lineRegress = "+QString::number(lineRegression,'f',7) +
+                                                                             "\n   t = "+QString::number(graphicTemperature_1->data()->values().last().key,'f',3) + "    T = " + QString::number(graphicTemperature_1->data()->values().last().value,'f',3));
+
+
 
 
 
@@ -491,19 +577,19 @@ void MainWindow::Timer200ms()
         double seconds_from_start;
 
         seconds_from_start=startTestDT.msecsTo(QDateTime::currentDateTime())/1000.0;
-        double minutes_from_start=seconds_from_start/60.0;
+        //double minutes_from_start=seconds_from_start/60.0;
 
         //graphicMovement_1->addData(minutes_from_start,movement_1.GetValue());
         //graphicMovement_2->addData(minutes_from_start,movement_2.GetValue());
 
-        graphicTemperature_1->addData(minutes_from_start,temperature_1.GetValue());
-        graphicTemperature_2->addData(minutes_from_start,temperature_2.GetValue());
-        graphicTemperature_3->addData(minutes_from_start,temperature_3.GetValue());
-        graphicTemperature_4->addData(minutes_from_start,temperature_4.GetValue());
+        graphicTemperature_1->addData(seconds_from_start,temperature_1.GetValue());
+        graphicTemperature_2->addData(seconds_from_start,temperature_2.GetValue());
+        graphicTemperature_3->addData(seconds_from_start,temperature_3.GetValue());
+        graphicTemperature_4->addData(seconds_from_start,temperature_4.GetValue());
 
 
         //автоизменение шкалы по Х
-        if (minutes_from_start >= wGraphic_1->xAxis->range().upper)
+        if (seconds_from_start >= wGraphic_1->xAxis->range().upper)
         {
             double newMaxRange=wGraphic_1->xAxis->range().upper + 10;
             wGraphic_1->xAxis->setRange(0,newMaxRange);
