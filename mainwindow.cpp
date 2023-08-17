@@ -430,7 +430,7 @@ void MainWindow::Timer1000ms()
          //автоизменение шкалы по Х
          if (seconds_from_start >= wGraphic_1->xAxis->range().upper)
          {
-            double newMaxRange=wGraphic_1->xAxis->range().upper + 10;
+            double newMaxRange=wGraphic_1->xAxis->range().upper + 100;
             wGraphic_1->xAxis->setRange(0,newMaxRange);
 
          }

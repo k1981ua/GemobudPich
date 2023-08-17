@@ -12,7 +12,7 @@
 #include "dialogconfig.h"
 
 
-#define X_RANGETEST 3600  //seconds стартовая ширина полотна графика по х для режима тестов 180 minutes
+#define X_RANGETEST 1800  //seconds стартовая ширина полотна графика по х для режима тестов 180 minutes
 //#define X_RANGEVIEW 3600   //стартовая ширина полотна графика по х для режима просмотра
 #define X_TICKSTEP 200  //20  //деления на шкале интервал 20 минут
 

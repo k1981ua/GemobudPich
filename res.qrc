@@ -13,6 +13,8 @@
         <file>Save.ico</file>
         <file>accept.ico</file>
         <file>charcoal.ico</file>
+        <file>pich.ico</file>
+        <file>pich.png</file>
     </qresource>
     <qresource prefix="/wavs">
         <file>error.wav</file>

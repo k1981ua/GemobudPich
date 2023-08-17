@@ -16,11 +16,11 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>GemobudCoal</string>
+   <string>Gemobud ISO 1182:2022</string>
   </property>
   <property name="windowIcon">
    <iconset resource="res.qrc">
-    <normaloff>:/icons/charcoal.ico</normaloff>:/icons/charcoal.ico</iconset>
+    <normaloff>:/icons/pich.ico</normaloff>:/icons/pich.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,100,1">

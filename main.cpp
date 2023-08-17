@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
     //show at center
     w.move(QApplication::desktop()->screen()->rect().center() - w.rect().center());
 
-    w.showFullScreen();
+    //w.showFullScreen();
+    w.show();
 
     return a.exec();
 }
