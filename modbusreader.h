@@ -58,11 +58,15 @@
 
 //7018
 
-#define ICP_7018_ADDRESS 2
+#define ICP_7018_ADDRESS 1
 #define ICP_7018_START_REGISTER 0   //40001, 40002, 40003 ... - все по 1reg, int
 #define ICP_7018_NUM_REGISTERS 8
 
+//7024
 
+#define ICP_7024_ADDRESS 2
+#define ICP_7024_VOLTAGE_REGISTER 0   //40001, 40002, 40003 ... - все по 1reg, int
+//#define ICP_7024_NUM_REGISTERS 8
 
 //=============================================================================
 
@@ -75,6 +79,12 @@ enum ValueStatus
 };
 
 Q_DECLARE_METATYPE(ValueStatus)
+
+enum VoltageSetCommand
+{
+    VOLTSET_NONE_CMD=0,
+    VOLTSET_SET_CMD
+};
 
 //=============================================================================
 
@@ -107,7 +117,7 @@ public:
     void StopPoll();
     void SetComPort(QString serPort);
 
-
+    void VoltageSet(float newVoltage);
 
 private:
     QString serialPort;
@@ -128,6 +138,11 @@ private:
 
     uint numReads;
     uint numErrorReads;
+
+
+    VoltageSetCommand voltageSetCommand;
+    float voltageToSet=0.0;
+
 
 private slots:
     void Release();
@@ -157,6 +172,8 @@ signals:
     void readICP_7018_ch2(double newValue, ValueStatus newValueStatus);
     void readICP_7018_ch3(double newValue, ValueStatus newValueStatus);
     void readICP_7018_ch4(double newValue, ValueStatus newValueStatus);
+
+    void voltageSetCmdExecuted();
 };
 
 #endif // MODBUSREADER_H

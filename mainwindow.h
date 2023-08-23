@@ -133,6 +133,9 @@ private slots:
     double calcMaxDeviate(double average, QVector<double> vec);
     double calcRegression(QVector<double> vec);
 
+    void SliderSetVoltage(int value);
+    void VoltageSetted();
+
 
     void ButtonExit();
     void ButtonReset();

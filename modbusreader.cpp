@@ -70,6 +70,17 @@ bool ModbusReader::Connect()
     return true;
 }
 //=======================================================================
+//=======================================================================
+void ModbusReader::VoltageSet(float newVoltage)
+{
+
+    voltageSetCommand = VoltageSetCommand::VOLTSET_SET_CMD;
+    voltageToSet=newVoltage;
+
+    //GemobudMaskTest3 - в єтой конфигурации частотников по модбасу  нет
+    //QMessageBox::information(NULL,"Помилка конфігурації","В цій конфігурації немає цього частотного перетворювача!");
+}
+//==========================================================================
 void ModbusReader::run()
 {
 
@@ -421,14 +432,14 @@ void ModbusReader::run()
 
 
 //ICP DAS 7018 Simulate
-
+/*
         emit readICP_7018_ch1(700.0+(qrand()%1000) / 100.0, ValueStatus::ValueOk);
         emit readICP_7018_ch2(750.0+qrand()%5, ValueStatus::ValueOk);
         emit readICP_7018_ch3(600.0+qrand()%50, ValueStatus::ValueOk);
         emit readICP_7018_ch4(650.0+qrand()%100, ValueStatus::ValueOk);
+*/
 
 
-/*
         //ICP DAS 7018
 
         msleep(20);
@@ -477,7 +488,7 @@ void ModbusReader::run()
             }
             //read errorppm
         }
-*/
+
 
 
 /*
@@ -685,6 +696,24 @@ void ModbusReader::run()
 */
 
 
+        //Voltage SET
+        msleep(200);
+        if (voltageSetCommand==VoltageSetCommand::VOLTSET_SET_CMD)
+        {
+            uint16_t value_to_write=static_cast<uint16_t>(voltageToSet*1000);
+
+            modbus_set_slave(ctx, ICP_7024_ADDRESS);
+            int write_result=modbus_write_register(ctx,ICP_7024_VOLTAGE_REGISTER,value_to_write);
+            //modbus_write_register return 1 if succesfull
+            if (write_result==1)
+            {
+                voltageSetCommand=VoltageSetCommand::VOLTSET_NONE_CMD;// обязательно сбрасываем команду после успешной записи
+                    //при неуспешной записи попытка будет повторена
+                emit voltageSetCmdExecuted();
+            }
+        }
+
+
 
         msleep(200);  //sleep должен біть после всех emit
 
@@ -697,6 +726,8 @@ void ModbusReader::run()
         }
     }
 }
+//=======================================================================
+
 //=======================================================================
 void ModbusReader::Release()
 {

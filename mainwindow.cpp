@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&mbReader, &ModbusReader::readICP_7018_ch2, &temperature_2, &AnalogInputChannel::RawValueReaded);
     connect(&mbReader, &ModbusReader::readICP_7018_ch3, &temperature_3, &AnalogInputChannel::RawValueReaded);
     connect(&mbReader, &ModbusReader::readICP_7018_ch4, &temperature_4, &AnalogInputChannel::RawValueReaded);
+    connect(&mbReader, &ModbusReader::voltageSetCmdExecuted, this, &MainWindow::VoltageSetted);
 
     qDebug() << "port:" << comPort;
 
@@ -225,7 +226,7 @@ MainWindow::MainWindow(QWidget *parent)
       connect(ui->checkBoxTemperature4,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_4->setVisible(checked);wGraphic_1->replot();});
      // connect(ui->checkBoxTemperature1,SIGNAL(toggled(bool)),this,SLOT(CheckBoxTemperature1Changed(bool)));
 
-      connect(ui->sliderPowerSet,QSlider::valueChanged,this,[&](int value) {ui->labelPowerSet->setText(QString("Потужність нагріву: ")+QString::number((float)value/10)+"%");});
+      connect(ui->sliderPowerSet,QSlider::valueChanged,this,MainWindow::SliderSetVoltage);
 
       timer1000ms.start(3000);  //дадим время для первого опроса датчиков, далее будет установлено 1000 мс.
 
@@ -241,6 +242,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 }
+
 //=======================================================================================
 MainWindow::~MainWindow()
 {
@@ -340,7 +342,19 @@ double MainWindow::calcRegression(QVector<double> vec)
 
 }
 //=======================================================================================
+//=======================================================================================
+void MainWindow::SliderSetVoltage(int value)
+{
+    ui->labelPowerSet->setText(QString("Потужність нагріву: ")+QString::number((float)value/1000)+" B" + "  запис...");
 
+    mbReader.VoltageSet((float)value/1000);
+}
+//=======================================================================================
+void MainWindow::VoltageSetted()
+{
+    ui->labelPowerSet->setText(ui->labelPowerSet->text() + " OK");
+}
+//=======================================================================================
 void MainWindow::Timer1000ms()
 {
 
