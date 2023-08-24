@@ -240,6 +240,7 @@ MainWindow::MainWindow(QWidget *parent)
       //startViewDT_str=startViewDT.toString("yyyy.MM.dd_hh.mm.ss");
       infoText+="\nОЧІКУЄМ СТАБІЛІЗАЦІЇ...";
 
+      //add test text
 
 }
 
