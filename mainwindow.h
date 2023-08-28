@@ -86,6 +86,7 @@ private:
     QCPGraph *graphicTemperature_3;
     QCPGraph *graphicTemperature_4;
 
+    QCPGraph *graphicRegress_1;
 
     DialogConfig dialogConfig;
 

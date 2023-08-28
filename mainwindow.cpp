@@ -147,6 +147,18 @@ MainWindow::MainWindow(QWidget *parent)
      graphicTemperature_1->setLineStyle(QCPGraph::lsLine);
 
 
+     // Инициализируем график Regress 1 и привязываем его к Осям
+     graphicRegress_1 = new QCPGraph(wGraphic_1->xAxis, wGraphic_1->yAxis);
+     wGraphic_1->addPlottable(graphicRegress_1);  // Устанавливаем график на полотно
+     QPen penRegress_1=graphicRegress_1->pen();
+     penRegress_1.setColor(Qt::gray);
+     penRegress_1.setWidth(2);
+     graphicRegress_1->setPen(penRegress_1); // Устанавливаем цвет графика
+     graphicRegress_1->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+     graphicRegress_1->setLineStyle(QCPGraph::lsLine);
+
+
+
      // Инициализируем график Temperature 2 и привязываем его к Осям
      graphicTemperature_2 = new QCPGraph(wGraphic_1->xAxis, wGraphic_1->yAxis);
      wGraphic_1->addPlottable(graphicTemperature_2);  // Устанавливаем график на полотно
@@ -220,6 +232,8 @@ MainWindow::MainWindow(QWidget *parent)
       graphicTemperature_4->setVisible(false);   ui->checkBoxTemperature4->setChecked(false);
 
 
+      //wGraphic_1->setInteraction(QCP::iRangeDrag, true);
+      wGraphic_1->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 
       connect(ui->checkBoxTemperature1,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_1->setVisible(checked);wGraphic_1->replot();});
       connect(ui->checkBoxTemperature2,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_2->setVisible(checked);wGraphic_1->replot();});
@@ -227,7 +241,7 @@ MainWindow::MainWindow(QWidget *parent)
       connect(ui->checkBoxTemperature4,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_4->setVisible(checked);wGraphic_1->replot();});
      // connect(ui->checkBoxTemperature1,SIGNAL(toggled(bool)),this,SLOT(CheckBoxTemperature1Changed(bool)));
 
-      connect(ui->sliderPowerSet,QSlider::valueChanged,this,MainWindow::SliderSetVoltage);
+     // connect(ui->sliderPowerSet,QSlider::valueChanged,this,MainWindow::SliderSetVoltage);
       connect(ui->doubleSpinBoxPowerSet, SIGNAL(valueChanged(double)),this,SLOT(DoubleSpinBoxSetVoltage(double)));
 
      // connect(ui->doubleSpinBoxPowerSet,QDoubleSpinBox::valueChanged, this, MainWindow::DoubleSpinBoxSetVoltage);
@@ -350,20 +364,28 @@ double MainWindow::calcRegression(QVector<double> vec)
 //=======================================================================================
 void MainWindow::SliderSetVoltage(int value)
 {
-    ui->labelPowerSet->setText(QString("Потужність нагріву: ")+QString::number((float)value/1000)+" B" + "  запис...");
+    double value_proc=(double)value/100.0;
+    double value_volt=(double)value/1000.0;
+    ui->labelPowerSet->setText(QString("Потужність: ")+QString::number(value_proc,'f',1)+" %" + " ...");
 
-    ui->doubleSpinBoxPowerSet->setValue((float)value/1000);
+    //ui->doubleSpinBoxPowerSet->setValue(value_proc);
 
-    mbReader.VoltageSet((float)value/1000);
+
+    qDebug() << "SliderSetVoltage set=" << value_proc << value_volt;
+    mbReader.VoltageSet(value_volt);
 }
 //=======================================================================================
 void MainWindow::DoubleSpinBoxSetVoltage(double value)
 {
-    ui->labelPowerSet->setText(QString("Потужність нагріву: ")+QString::number((float)value/1000)+" B" + "  запис...");
 
-    ui->sliderPowerSet->setValue(value*1000);
+    double value_proc=value;
+    double value_volt=value/10.0;
 
-    mbReader.VoltageSet((float)value);
+    ui->labelPowerSet->setText(QString("Потужність: ")+QString::number(value_proc,'f',1)+" %" + " ...");
+
+    ui->sliderPowerSet->setValue(value_volt*1000);
+    qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << value_volt;
+    mbReader.VoltageSet(value_volt);
 }
 //=======================================================================================
 void MainWindow::VoltageSetted()
@@ -516,7 +538,7 @@ void MainWindow::Timer1000ms()
             graphicPpm_O2->removeDataBefore(seconds_from_start-X_RANGEVIEW-1);
         }
         */
-        wGraphic_1->replot();           // Отрисовываем график
+
 
          int viewRunningSecs=startViewDT.secsTo(QDateTime::currentDateTime());
          QString viewRunningStr="";
@@ -536,7 +558,16 @@ void MainWindow::Timer1000ms()
          //calc
          //double aveT=calcAverage(graphicTemperature_1->data()->values().toVector());
 
-         if (graphicTemperature_1->data()->values().size()==0)
+
+         //данные за последние 10 минут
+         QList<QCPData> temp_1_data;
+         foreach(QCPData cpdata, graphicTemperature_1->data()->values())
+         {
+            if (cpdata.key >= seconds_from_start - 600) temp_1_data.append(cpdata);
+         }
+
+
+         if (temp_1_data.size()==0)
          {
             ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n n/d");
             return;
@@ -544,18 +575,20 @@ void MainWindow::Timer1000ms()
 
          double accuT1=0.0;
          double avgT1=0.0;
-         double minT1=graphicTemperature_1->data()->values().first().value;
-         double maxT1=graphicTemperature_1->data()->values().first().value;
+         double minT1=temp_1_data.first().value;
+         double maxT1=temp_1_data.first().value;
 
          //for regression
-         double S1=graphicTemperature_1->data()->values().size();
+         double S1=temp_1_data.size();
          double S2=0.0;   //sum(t_i)
          double S3=0.0;
          double S4=0.0;
          double S5=0.0;
 
-         foreach(QCPData cpdata, graphicTemperature_1->data()->values())
+         foreach(QCPData cpdata, temp_1_data)
          {
+            //
+
             accuT1+=cpdata.value;
 
             if (minT1>cpdata.value) minT1=cpdata.value;
@@ -567,7 +600,7 @@ void MainWindow::Timer1000ms()
             S5+=cpdata.value * cpdata.key;
 
          }
-         avgT1=accuT1 / graphicTemperature_1->data()->values().size();
+         avgT1=accuT1 / temp_1_data.size();
 
 
          if ((S1*S4 - S2*S2) == 0.0) return;
@@ -583,7 +616,7 @@ void MainWindow::Timer1000ms()
 
 
          //regression = (a*t_last+b) - (a*t_first + b) ==  a*t_last - a*t_first
-         double lineRegression= (a*graphicTemperature_1->data()->values().last().key + b) - (a*graphicTemperature_1->data()->values().first().key + b);
+         double lineRegression= (a*temp_1_data.last().key + b) - (a*temp_1_data.first().key + b);
 
 
          ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n   avgT1="+QString::number(avgT1,'f',3) +
@@ -595,8 +628,11 @@ void MainWindow::Timer1000ms()
 
 
 
+         graphicRegress_1->clearData();
+         graphicRegress_1->addData(temp_1_data.first().key, a*temp_1_data.first().key + b);
+         graphicRegress_1->addData(temp_1_data.last().key, a*temp_1_data.last().key + b);
 
-
+        wGraphic_1->replot();           // Отрисовываем график
     } //if (runningMode==ModeView)
 
 

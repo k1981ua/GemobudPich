@@ -437,8 +437,8 @@ void ModbusReader::run()
         emit readICP_7018_ch2(750.0+qrand()%5, ValueStatus::ValueOk);
         emit readICP_7018_ch3(600.0+qrand()%50, ValueStatus::ValueOk);
         emit readICP_7018_ch4(650.0+qrand()%100, ValueStatus::ValueOk);
-*/
 
+*/
 
         //ICP DAS 7018
 
