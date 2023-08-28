@@ -134,6 +134,7 @@ private slots:
     double calcRegression(QVector<double> vec);
 
     void SliderSetVoltage(int value);
+    void DoubleSpinBoxSetVoltage(double value);
     void VoltageSetted();
 
 

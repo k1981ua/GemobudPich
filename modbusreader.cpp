@@ -459,7 +459,7 @@ void ModbusReader::run()
 
             for(int i=0;i<4;++i) //читаем только 4 канала
             {
-                readed_icp_7018_channels[i]=regICP_7018[i];
+                readed_icp_7018_channels[i]=regICP_7018[i]/10.0;   //температура, десятичная точка на один разряд
             }
 
             if (!qIsNaN(readed_icp_7018_channels[0])) emit readICP_7018_ch1(readed_icp_7018_channels[0], ValueStatus::ValueOk);

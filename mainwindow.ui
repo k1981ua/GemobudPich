@@ -25,7 +25,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,100,1">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="10,10,10,10,20,20">
+     <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="10,10,10,10,20,0">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="topMargin">
@@ -340,18 +340,31 @@
          <string>Регулятор нагріву</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
-         <property name="topMargin">
-          <number>1</number>
-         </property>
-         <property name="bottomMargin">
-          <number>1</number>
-         </property>
          <item>
-          <widget class="QCheckBox" name="checkBoxPower">
-           <property name="text">
-            <string>Дозвіл керування</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QCheckBox" name="checkBoxPower">
+             <property name="text">
+              <string>Дозвіл керування</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxPowerSet">
+             <property name="font">
+              <font>
+               <pointsize>16</pointsize>
+              </font>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <double>10.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QLabel" name="labelPowerSet">

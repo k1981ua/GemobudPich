@@ -5,6 +5,7 @@
 
 #include <QPainter>
 #include <QTextEdit>
+#include <QDoubleSpinBox>
 
 ModbusReader mbReader;
 
@@ -227,6 +228,9 @@ MainWindow::MainWindow(QWidget *parent)
      // connect(ui->checkBoxTemperature1,SIGNAL(toggled(bool)),this,SLOT(CheckBoxTemperature1Changed(bool)));
 
       connect(ui->sliderPowerSet,QSlider::valueChanged,this,MainWindow::SliderSetVoltage);
+      connect(ui->doubleSpinBoxPowerSet, SIGNAL(valueChanged(double)),this,SLOT(DoubleSpinBoxSetVoltage(double)));
+
+     // connect(ui->doubleSpinBoxPowerSet,QDoubleSpinBox::valueChanged, this, MainWindow::DoubleSpinBoxSetVoltage);
 
       timer1000ms.start(3000);  //дадим время для первого опроса датчиков, далее будет установлено 1000 мс.
 
@@ -348,7 +352,18 @@ void MainWindow::SliderSetVoltage(int value)
 {
     ui->labelPowerSet->setText(QString("Потужність нагріву: ")+QString::number((float)value/1000)+" B" + "  запис...");
 
+    ui->doubleSpinBoxPowerSet->setValue((float)value/1000);
+
     mbReader.VoltageSet((float)value/1000);
+}
+//=======================================================================================
+void MainWindow::DoubleSpinBoxSetVoltage(double value)
+{
+    ui->labelPowerSet->setText(QString("Потужність нагріву: ")+QString::number((float)value/1000)+" B" + "  запис...");
+
+    ui->sliderPowerSet->setValue(value*1000);
+
+    mbReader.VoltageSet((float)value);
 }
 //=======================================================================================
 void MainWindow::VoltageSetted()
