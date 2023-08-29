@@ -502,12 +502,15 @@ void MainWindow::Timer1000ms()
          graphicTemperature_4->addData(seconds_from_start,temperature_4.GetValue());
 
 
-         //автоизменение шкалы по Х
-         if (seconds_from_start >= wGraphic_1->xAxis->range().upper)
+         if (!ui->buttonTrendZoom->isChecked())
          {
-            double newMaxRange=wGraphic_1->xAxis->range().upper + 100;
-            wGraphic_1->xAxis->setRange(0,newMaxRange);
+             //автоизменение шкалы по Х
+             if (seconds_from_start >= wGraphic_1->xAxis->range().upper)
+             {
+                double newMaxRange=wGraphic_1->xAxis->range().upper + 100;
+                wGraphic_1->xAxis->setRange(0,newMaxRange);
 
+             }
          }
 
 
