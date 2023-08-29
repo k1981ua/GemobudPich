@@ -296,12 +296,18 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
     if (toggled)
     {
         wGraphic_1->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);// | QCP::iSelectAxes);
+        wGraphic_1->xAxis->setAutoTickStep(true);
+        wGraphic_1->yAxis->setAutoTickStep(true);
     }
     else
     {
         wGraphic_1->setInteractions(NULL);
         wGraphic_1->xAxis->setRange(0,X_RANGETEST);//xInterval);
+        wGraphic_1->xAxis->setTickStep(X_TICKSTEP);
+        wGraphic_1->xAxis->setAutoTickStep(false);
         wGraphic_1->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
+        wGraphic_1->yAxis->setAutoTickStep(false);
+        wGraphic_1->yAxis->setTickStep(100.0);
 
         wGraphic_1->replot();
     }
