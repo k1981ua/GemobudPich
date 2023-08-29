@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->buttonReset,    SIGNAL(clicked()),this,SLOT(ButtonReset()));
     connect(ui->buttonStartStop,SIGNAL(clicked()),this,SLOT(ButtonStartStop()));
     connect(ui->buttonReports,  SIGNAL(clicked()),this,SLOT(ButtonReports()));
-
+    connect(ui->buttonTrendZoom,  SIGNAL(toggled(bool)),this,SLOT(ButtonTrendZoomOnOff(bool)));
 
     connect(&timer1000ms,&QTimer::timeout,this,&MainWindow::Timer1000ms);
 
@@ -232,8 +232,7 @@ MainWindow::MainWindow(QWidget *parent)
       graphicTemperature_4->setVisible(false);   ui->checkBoxTemperature4->setChecked(false);
 
 
-      //wGraphic_1->setInteraction(QCP::iRangeDrag, true);
-      wGraphic_1->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
 
       connect(ui->checkBoxTemperature1,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_1->setVisible(checked);wGraphic_1->replot();});
       connect(ui->checkBoxTemperature2,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_2->setVisible(checked);wGraphic_1->replot();});
@@ -288,6 +287,24 @@ void MainWindow::SaveIniFile()
     settings.beginGroup("main");
 
     settings.setValue("comPort",comPort);
+
+}
+//=======================================================================================
+void MainWindow::ButtonTrendZoomOnOff(bool toggled)
+{
+    //wGraphic_1->setInteraction(QCP::iRangeDrag, true);
+    if (toggled)
+    {
+        wGraphic_1->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);// | QCP::iSelectAxes);
+    }
+    else
+    {
+        wGraphic_1->setInteractions(NULL);
+        wGraphic_1->xAxis->setRange(0,X_RANGETEST);//xInterval);
+        wGraphic_1->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
+
+        wGraphic_1->replot();
+    }
 
 }
 //=======================================================================================

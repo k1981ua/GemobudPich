@@ -143,7 +143,9 @@ private slots:
     void ButtonReset();
     void ButtonStartStop();
     void ButtonReports();
+    void ButtonTrendZoomOnOff(bool toggled);
     void ViewDialogConfig();
+
 
     //void CheckBoxTemperature1Changed(bool newState);
     //void CheckBoxTemperature2Changed(bool newState);
