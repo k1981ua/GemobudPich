@@ -15,6 +15,7 @@
         <file>charcoal.ico</file>
         <file>pich.ico</file>
         <file>pich.png</file>
+        <file>measurement.ico</file>
     </qresource>
     <qresource prefix="/wavs">
         <file>error.wav</file>

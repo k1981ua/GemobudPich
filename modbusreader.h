@@ -172,6 +172,9 @@ signals:
     void readICP_7018_ch2(double newValue, ValueStatus newValueStatus);
     void readICP_7018_ch3(double newValue, ValueStatus newValueStatus);
     void readICP_7018_ch4(double newValue, ValueStatus newValueStatus);
+    void readICP_7018_ch5(double newValue, ValueStatus newValueStatus);
+    void readICP_7018_ch6(double newValue, ValueStatus newValueStatus);
+
 
     void voltageSetCmdExecuted();
 };

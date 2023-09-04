@@ -34,11 +34,16 @@ MainWindow::MainWindow(QWidget *parent)
     temperature_2.SetConfigFileName(qApp->applicationDirPath()+"/"+"temperature_2.ch");
     temperature_3.SetConfigFileName(qApp->applicationDirPath()+"/"+"temperature_3.ch");
     temperature_4.SetConfigFileName(qApp->applicationDirPath()+"/"+"temperature_4.ch");
+    temperature_5.SetConfigFileName(qApp->applicationDirPath()+"/"+"temperature_5.ch");
+    temperature_6.SetConfigFileName(qApp->applicationDirPath()+"/"+"temperature_6.ch");
+
 
     temperature_1.LoadChannelConfigFile();
     temperature_2.LoadChannelConfigFile();
     temperature_3.LoadChannelConfigFile();
     temperature_4.LoadChannelConfigFile();
+    temperature_5.LoadChannelConfigFile();
+    temperature_6.LoadChannelConfigFile();
 
     if (qApp->arguments().count()>1)
     {
@@ -61,6 +66,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&mbReader, &ModbusReader::readICP_7018_ch2, &temperature_2, &AnalogInputChannel::RawValueReaded);
     connect(&mbReader, &ModbusReader::readICP_7018_ch3, &temperature_3, &AnalogInputChannel::RawValueReaded);
     connect(&mbReader, &ModbusReader::readICP_7018_ch4, &temperature_4, &AnalogInputChannel::RawValueReaded);
+    connect(&mbReader, &ModbusReader::readICP_7018_ch5, &temperature_5, &AnalogInputChannel::RawValueReaded);
+    connect(&mbReader, &ModbusReader::readICP_7018_ch6, &temperature_6, &AnalogInputChannel::RawValueReaded);
     connect(&mbReader, &ModbusReader::voltageSetCmdExecuted, this, &MainWindow::VoltageSetted);
 
     qDebug() << "port:" << comPort;
@@ -77,6 +84,9 @@ MainWindow::MainWindow(QWidget *parent)
     hashAnalogInputChannels[QString("temperature_2") + "(" + temperature_2.GetChName()+")"]=&temperature_2;
     hashAnalogInputChannels[QString("temperature_3") + "(" + temperature_3.GetChName()+")"]=&temperature_3;
     hashAnalogInputChannels[QString("temperature_4") + "(" + temperature_4.GetChName()+")"]=&temperature_4;
+    hashAnalogInputChannels[QString("temperature_5") + "(" + temperature_5.GetChName()+")"]=&temperature_5;
+    hashAnalogInputChannels[QString("temperature_6") + "(" + temperature_6.GetChName()+")"]=&temperature_6;
+
 
     connect(ui->buttonExit,     SIGNAL(clicked()),this,SLOT(ButtonExit()));
     connect(ui->buttonConfig,   SIGNAL(clicked()),this,SLOT(ViewDialogConfig()));
@@ -84,6 +94,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->buttonStartStop,SIGNAL(clicked()),this,SLOT(ButtonStartStop()));
     connect(ui->buttonReports,  SIGNAL(clicked()),this,SLOT(ButtonReports()));
     connect(ui->buttonTrendZoom,  SIGNAL(toggled(bool)),this,SLOT(ButtonTrendZoomOnOff(bool)));
+
+    connect(ui->buttonCalibr, SIGNAL(toggled(bool)),this,SLOT(ButtonPageCalibr(bool)));
 
     connect(&timer1000ms,&QTimer::timeout,this,&MainWindow::Timer1000ms);
 
@@ -203,17 +215,169 @@ MainWindow::MainWindow(QWidget *parent)
      //wGraphic_1->axisRect()->setRangeZoom(Qt::Horizontal);   // Включаем удаление/приближение только по горизонтальной оси
      wGraphic_1->replot();
 
+
+
+
+
+
+
+
+
+
+   //ГРАФИК 56
+    // Инициализируем объект полотна для графика ...
+    wGraphic_56 = new QCustomPlot();
+    wGraphic_56->setBackground(QColor(221,221,221));//Qt::lightGray);
+    wGraphic_56->axisRect()->setBackground(QColor(255,251,240));  //оригинал - слоновая кость - 255,251,240
+
+    ui->verticalLayoutGraphic_56->addWidget(wGraphic_56);
+    wGraphic_56->xAxis->setLabel("Час, сек.");
+    wGraphic_56->xAxis->setRange(0,X_RANGETEST);
+    wGraphic_56->xAxis->setTickStep(X_TICKSTEP);
+    wGraphic_56->xAxis->setAutoTickStep(false);
+
+
+     //шкалы слева, гр.С
+     wGraphic_56->yAxis->setLabel("Температура, °C");//+calEU);
+     wGraphic_56->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
+     wGraphic_56->yAxis->setAutoTickStep(false);
+     wGraphic_56->yAxis->setTickStep(100.0);
+     //wGraphic->yAxis->setTickLabelColor(Qt::transparent);
+     wGraphic_56->yAxis->setVisible(true);
+
+
+     // Инициализируем график Temperature 1 и привязываем его к Осям
+     graphicTemperature_5 = new QCPGraph(wGraphic_56->xAxis, wGraphic_56->yAxis);
+     wGraphic_56->addPlottable(graphicTemperature_5);  // Устанавливаем график на полотно
+     QPen penTemperature_5=graphicTemperature_5->pen();
+     penTemperature_5.setColor(Qt::red);
+     penTemperature_5.setWidth(2);
+     graphicTemperature_5->setPen(penTemperature_5); // Устанавливаем цвет графика
+     graphicTemperature_5->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+     graphicTemperature_5->setLineStyle(QCPGraph::lsLine);
+
+
+     // Инициализируем график Temperature 2 и привязываем его к Осям
+     graphicTemperature_6 = new QCPGraph(wGraphic_56->xAxis, wGraphic_56->yAxis);
+     wGraphic_56->addPlottable(graphicTemperature_6);  // Устанавливаем график на полотно
+     QPen penTemperature_6=graphicTemperature_6->pen();
+     penTemperature_6.setColor(Qt::blue);
+     penTemperature_6.setWidth(2);
+     graphicTemperature_6->setPen(penTemperature_6); // Устанавливаем цвет графика
+     graphicTemperature_6->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+     graphicTemperature_6->setLineStyle(QCPGraph::lsLine);
+
+
+     wGraphic_56->setInteraction(QCP::iRangeZoom,false);   // Выключаем взаимодействие удаления/приближения
+     wGraphic_56->setInteraction(QCP::iRangeDrag, false);  // Выключаем взаимодействие перетаскивания графика
+     //wGraphic_1->axisRect()->setRangeDrag(Qt::Horizontal);   // Включаем перетаскивание только по горизонтальной оси
+     //wGraphic_1->axisRect()->setRangeZoom(Qt::Horizontal);   // Включаем удаление/приближение только по горизонтальной оси
+     wGraphic_56->replot();
+
+
+
+
+
+
+
+
+
+
+   //ГРАФИК Curve
+    // Инициализируем объект полотна для графика ...
+    wGraphic_Curve = new QCustomPlot();
+    wGraphic_Curve->setBackground(QColor(221,221,221));//Qt::lightGray);
+    wGraphic_Curve->axisRect()->setBackground(QColor(255,251,240));  //оригинал - слоновая кость - 255,251,240
+
+    ui->verticalLayoutGraphic_Curve->addWidget(wGraphic_Curve);
+    wGraphic_Curve->xAxis->setLabel("Температура, °C");
+    wGraphic_Curve->xAxis->setRange(550, 775);
+    wGraphic_Curve->xAxis->setTickStep(25);
+    wGraphic_Curve->xAxis->setAutoTickStep(false);
+
+
+     //шкалы слева, гр.С
+     wGraphic_Curve->yAxis->setLabel("Висота печі, мм");//+calEU);
+     wGraphic_Curve->yAxis->setRange(0,150);
+     wGraphic_Curve->yAxis->setAutoTickStep(false);
+     wGraphic_Curve->yAxis->setTickStep(10.0);
+     //wGraphic->yAxis->setTickLabelColor(Qt::transparent);
+     wGraphic_Curve->yAxis->setVisible(true);
+
+
+     // Инициализируем график CurveMin и привязываем его к Осям
+     graphicCurveMin = new QCPCurve(wGraphic_Curve->xAxis, wGraphic_Curve->yAxis);
+     wGraphic_Curve->addPlottable(graphicCurveMin);  // Устанавливаем график на полотно
+     QPen penCurveMin=graphicCurveMin->pen();
+     penCurveMin.setColor(Qt::green);
+     penCurveMin.setWidth(2);
+     graphicCurveMin->setPen(penCurveMin); // Устанавливаем цвет графика
+     graphicCurveMin->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+     //graphicCurveMin->setLineStyle(QCPGraph::lsLine);
+
+
+
+
+     // Инициализируем график CurveMax и привязываем его к Осям
+     graphicCurveMax = new QCPCurve(wGraphic_Curve->xAxis, wGraphic_Curve->yAxis);
+     wGraphic_Curve->addPlottable(graphicCurveMax);  // Устанавливаем график на полотно
+     QPen penCurveMax=graphicCurveMax->pen();
+     penCurveMax.setColor(Qt::red);
+     penCurveMax.setWidth(2);
+     graphicCurveMax->setPen(penCurveMax); // Устанавливаем цвет графика
+     graphicCurveMax->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+     //graphicCurveMax->setLineStyle(QCPGraph::lsLine);
+
+
+     // Инициализируем график CurveMin и привязываем его к Осям
+     graphicCurve = new QCPCurve(wGraphic_Curve->xAxis, wGraphic_Curve->yAxis);
+     wGraphic_Curve->addPlottable(graphicCurve);  // Устанавливаем график на полотно
+     QPen penCurve=graphicCurve->pen();
+     penCurve.setColor(Qt::green);
+     penCurve.setWidth(2);
+     graphicCurve->setPen(penCurve); // Устанавливаем цвет графика
+     graphicCurve->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+     //graphicCurve->setLineStyle(QCPGraph::lsLine);
+
+     wGraphic_Curve->setInteraction(QCP::iRangeZoom,false);   // Выключаем взаимодействие удаления/приближения
+     wGraphic_Curve->setInteraction(QCP::iRangeDrag, false);  // Выключаем взаимодействие перетаскивания графика
+     //wGraphic_1->axisRect()->setRangeDrag(Qt::Horizontal);   // Включаем перетаскивание только по горизонтальной оси
+     //wGraphic_1->axisRect()->setRangeZoom(Qt::Horizontal);   // Включаем удаление/приближение только по горизонтальной оси
+
+     //заполним графики
+     for(int h=0;h<=150;++h)
+     {
+        double Tmin=541.653+(5.901*h)-(0.067*h*h)+(3.375*0.0001*h*h*h)-(8.553*0.0000001*h*h*h*h);
+        double Tmax=614.167+(5.347*h)-(0.08138*h*h)+(5.826*0.0001*h*h*h)-(1.772*0.000001*h*h*h*h);
+        graphicCurveMin->addData(Tmin, (double)h );
+        graphicCurveMax->addData(Tmax, (double)h );
+     }
+
+     wGraphic_Curve->replot();
+
+
+
+
+
+
+
+
+
+
      ui->lineEditValueTemperature_1->setStyleSheet("QLineEdit{border: 3px solid red; border-radius:10px;}");
      ui->lineEditValueTemperature_2->setStyleSheet("QLineEdit{border: 3px solid blue; border-radius:10px;}");
      ui->lineEditValueTemperature_3->setStyleSheet("QLineEdit{border: 3px solid darkgreen; border-radius:10px;}");
      ui->lineEditValueTemperature_4->setStyleSheet("QLineEdit{border: 3px solid magenta; border-radius:10px;}");
+     ui->lineEditValueTemperature_5->setStyleSheet("QLineEdit{border: 3px solid red; border-radius:10px;}");
+     ui->lineEditValueTemperature_6->setStyleSheet("QLineEdit{border: 3px solid blue; border-radius:10px;}");
 
       ButtonReset();
       ui->labelTemperature_1->setText(temperature_1.GetChName());
       ui->labelTemperature_2->setText(temperature_2.GetChName());
       ui->labelTemperature_3->setText(temperature_3.GetChName());
       ui->labelTemperature_4->setText(temperature_4.GetChName());
-
+      ui->labelTemperature_5->setText(temperature_5.GetChName());
+      ui->labelTemperature_6->setText(temperature_6.GetChName());
 
  //     wGraphic_1->yAxis->setLabel("Температура , гр.С");
  //     wGraphic_1->yAxis->setLabel(temperature_1.GetChName()+", "+temperature_1.GetEU());
@@ -295,9 +459,18 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
     //wGraphic_1->setInteraction(QCP::iRangeDrag, true);
     if (toggled)
     {
-        wGraphic_1->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);// | QCP::iSelectAxes);
+        wGraphic_1->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom); // | QCP::iRangeZoom);//QCP::iSelectPlottables | QCP::iSelectAxes);
         wGraphic_1->xAxis->setAutoTickStep(true);
         wGraphic_1->yAxis->setAutoTickStep(true);
+
+        wGraphic_56->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom); // | QCP::iRangeZoom);//QCP::iSelectPlottables | QCP::iSelectAxes);
+        wGraphic_56->xAxis->setAutoTickStep(true);
+        wGraphic_56->yAxis->setAutoTickStep(true);
+
+        wGraphic_Curve->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom); // | QCP::iRangeZoom);//QCP::iSelectPlottables | QCP::iSelectAxes);
+        wGraphic_Curve->xAxis->setAutoTickStep(true);
+        wGraphic_Curve->yAxis->setAutoTickStep(true);
+
     }
     else
     {
@@ -309,9 +482,39 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
         wGraphic_1->yAxis->setAutoTickStep(false);
         wGraphic_1->yAxis->setTickStep(100.0);
 
+
         wGraphic_1->replot();
+
+
+        wGraphic_56->setInteractions(NULL);
+        wGraphic_56->xAxis->setRange(0,X_RANGETEST);//xInterval);
+        wGraphic_56->xAxis->setTickStep(X_TICKSTEP);
+        wGraphic_56->xAxis->setAutoTickStep(false);
+        wGraphic_56->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
+        wGraphic_56->yAxis->setAutoTickStep(false);
+        wGraphic_56->yAxis->setTickStep(100.0);
+
+
+        wGraphic_56->replot();
+
+        wGraphic_Curve->setInteractions(NULL);
+        wGraphic_Curve->xAxis->setRange(550,775);//xInterval);
+        wGraphic_Curve->xAxis->setTickStep(25);
+        wGraphic_Curve->xAxis->setAutoTickStep(false);
+        wGraphic_Curve->yAxis->setRange(0,150);
+        wGraphic_Curve->yAxis->setAutoTickStep(false);
+        wGraphic_Curve->yAxis->setTickStep(10.0);
+
+
+        wGraphic_Curve->replot();
+
     }
 
+}
+//=======================================================================================
+void MainWindow::ButtonPageCalibr(bool toggled)
+{
+    ui->stackedWidget->setCurrentIndex(toggled?1:0);
 }
 //=======================================================================================
 void MainWindow::ViewDialogConfig()
@@ -407,7 +610,7 @@ void MainWindow::DoubleSpinBoxSetVoltage(double value)
     ui->labelPowerSet->setText(QString("Потужність: ")+QString::number(value_proc,'f',1)+" %" + " ...");
 
     ui->sliderPowerSet->setValue(value_volt*1000);
-    qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << value_volt;
+    qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
     mbReader.VoltageSet(value_volt);
 }
 //=======================================================================================
@@ -425,7 +628,8 @@ void MainWindow::Timer1000ms()
     ui->labelTemperature_2->setText(temperature_2.GetChName());
     ui->labelTemperature_3->setText(temperature_3.GetChName());
     ui->labelTemperature_4->setText(temperature_4.GetChName());
-
+    ui->labelTemperature_5->setText(temperature_5.GetChName());
+    ui->labelTemperature_6->setText(temperature_6.GetChName());
 
     //wGraphic_1->yAxis->setLabel(movement_1.GetChName()+", "+movement_1.GetEU());
     //wGraphic_2->yAxis->setLabel(movement_2.GetChName()+", "+movement_2.GetEU());
@@ -434,7 +638,8 @@ void MainWindow::Timer1000ms()
     ui->lineEditValueTemperature_2->setText(temperature_2.GetValueString(2));
     ui->lineEditValueTemperature_3->setText(temperature_3.GetValueString(2));
     ui->lineEditValueTemperature_4->setText(temperature_4.GetValueString(2));
-
+    ui->lineEditValueTemperature_5->setText(temperature_5.GetValueString(2));
+    ui->lineEditValueTemperature_6->setText(temperature_6.GetValueString(2));
 
     if (cmdButton==StartCmd)
     {
@@ -500,7 +705,8 @@ void MainWindow::Timer1000ms()
          graphicTemperature_2->addData(seconds_from_start,temperature_2.GetValue());
          graphicTemperature_3->addData(seconds_from_start,temperature_3.GetValue());
          graphicTemperature_4->addData(seconds_from_start,temperature_4.GetValue());
-
+         graphicTemperature_5->addData(seconds_from_start,temperature_5.GetValue());
+         graphicTemperature_6->addData(seconds_from_start,temperature_6.GetValue());
 
          if (!ui->buttonTrendZoom->isChecked())
          {

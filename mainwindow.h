@@ -79,14 +79,23 @@ private:
 
     QCustomPlot *wGraphic_1;
 
-
-
     QCPGraph *graphicTemperature_1;
     QCPGraph *graphicTemperature_2;
     QCPGraph *graphicTemperature_3;
     QCPGraph *graphicTemperature_4;
-
     QCPGraph *graphicRegress_1;
+
+
+
+    QCustomPlot *wGraphic_56;
+    QCPGraph *graphicTemperature_5;
+    QCPGraph *graphicTemperature_6;
+
+
+    QCustomPlot *wGraphic_Curve;
+    QCPCurve *graphicCurve;
+    QCPCurve *graphicCurveMin;
+    QCPCurve *graphicCurveMax;
 
     DialogConfig dialogConfig;
 
@@ -100,6 +109,8 @@ private:
     AnalogInputChannel temperature_2;
     AnalogInputChannel temperature_3;
     AnalogInputChannel temperature_4;
+    AnalogInputChannel temperature_5;
+    AnalogInputChannel temperature_6;
 
     QHash<QString, AnalogInputChannel *> hashAnalogInputChannels;
 
@@ -145,7 +156,7 @@ private slots:
     void ButtonReports();
     void ButtonTrendZoomOnOff(bool toggled);
     void ViewDialogConfig();
-
+    void ButtonPageCalibr(bool toggled);
 
     //void CheckBoxTemperature1Changed(bool newState);
     //void CheckBoxTemperature2Changed(bool newState);

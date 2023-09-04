@@ -457,7 +457,7 @@ void ModbusReader::run()
 
             float readed_icp_7018_channels[8]={0,0,0,0,0,0,0,0};
 
-            for(int i=0;i<4;++i) //читаем только 4 канала
+            for(int i=0;i<6;++i) //читаем только 4 канала
             {
                 readed_icp_7018_channels[i]=regICP_7018[i]/10.0;   //температура, десятичная точка на один разряд
             }
@@ -465,7 +465,9 @@ void ModbusReader::run()
             if (!qIsNaN(readed_icp_7018_channels[0])) emit readICP_7018_ch1(readed_icp_7018_channels[0], ValueStatus::ValueOk);
             if (!qIsNaN(readed_icp_7018_channels[1])) emit readICP_7018_ch2(readed_icp_7018_channels[1], ValueStatus::ValueOk);
             if (!qIsNaN(readed_icp_7018_channels[2])) emit readICP_7018_ch3(readed_icp_7018_channels[2], ValueStatus::ValueOk);
-            if (!qIsNaN(readed_icp_7018_channels[3])) emit readICP_7018_ch4(readed_icp_7018_channels[2], ValueStatus::ValueOk);
+            if (!qIsNaN(readed_icp_7018_channels[3])) emit readICP_7018_ch4(readed_icp_7018_channels[3], ValueStatus::ValueOk);
+            if (!qIsNaN(readed_icp_7018_channels[4])) emit readICP_7018_ch5(readed_icp_7018_channels[4], ValueStatus::ValueOk);
+            if (!qIsNaN(readed_icp_7018_channels[5])) emit readICP_7018_ch6(readed_icp_7018_channels[5], ValueStatus::ValueOk);
             errorsICP_7018=0;
         }
         else
@@ -479,6 +481,8 @@ void ModbusReader::run()
                 emit readICP_7018_ch2(qQNaN(), ValueStatus::ValueErrorRead);
                 emit readICP_7018_ch3(qQNaN(), ValueStatus::ValueErrorRead);
                 emit readICP_7018_ch4(qQNaN(), ValueStatus::ValueErrorRead);
+                emit readICP_7018_ch5(qQNaN(), ValueStatus::ValueErrorRead);
+                emit readICP_7018_ch6(qQNaN(), ValueStatus::ValueErrorRead);
                 //msleep(200);
                 //Release();
                 //msleep(200);
@@ -701,6 +705,8 @@ void ModbusReader::run()
         if (voltageSetCommand==VoltageSetCommand::VOLTSET_SET_CMD)
         {
             uint16_t value_to_write=static_cast<uint16_t>(voltageToSet*1000);
+
+            qDebug() << "mbreader setvoltage=" << value_to_write << "mV";
 
             modbus_set_slave(ctx, ICP_7024_ADDRESS);
             int write_result=modbus_write_register(ctx,ICP_7024_VOLTAGE_REGISTER,value_to_write);
