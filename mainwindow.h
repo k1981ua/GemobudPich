@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QHash>
+#include <QMap>
 
 #include "qcustomplot.h"
 #include "modbusreader.h"
@@ -29,7 +30,7 @@ QT_END_NAMESPACE
 
 enum RunningMode
 {
-    ModeView=0,
+    ModePreTest=0,
     ModeTest,
     ModeTestStopped
 };
@@ -60,7 +61,7 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    RunningMode runningMode=ModeView;
+    RunningMode runningMode=ModePreTest;
     CommandButton cmdButton=NoCmd;
     QString infoText;
 
@@ -84,7 +85,7 @@ private:
     QCPGraph *graphicTemperature_3;
     QCPGraph *graphicTemperature_4;
     QCPGraph *graphicRegress_1;
-
+    QCPGraph *graphicRegress_2;
 
 
     QCustomPlot *wGraphic_56;
@@ -96,6 +97,8 @@ private:
     QCPCurve *graphicCurve;
     QCPCurve *graphicCurveMin;
     QCPCurve *graphicCurveMax;
+
+    QMap<int,int> curveMax, curveMin;
 
     DialogConfig dialogConfig;
 
@@ -145,10 +148,12 @@ private slots:
     double calcMaxDeviate(double average, QVector<double> vec);
     double calcRegression(QVector<double> vec);
 
+    bool calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b);
+
     void SliderSetVoltage(int value);
     void DoubleSpinBoxSetVoltage(double value);
-    void VoltageSetted();
-
+    void VoltageSettedOK();
+    void VoltageSettedError();
 
     void ButtonExit();
     void ButtonReset();
@@ -157,6 +162,8 @@ private slots:
     void ButtonTrendZoomOnOff(bool toggled);
     void ViewDialogConfig();
     void ButtonPageCalibr(bool toggled);
+
+    void ButtonPowerOn(bool toggled);
 
     //void CheckBoxTemperature1Changed(bool newState);
     //void CheckBoxTemperature2Changed(bool newState);

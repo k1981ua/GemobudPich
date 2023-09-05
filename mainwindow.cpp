@@ -7,6 +7,7 @@
 #include <QTextEdit>
 #include <QDoubleSpinBox>
 
+
 ModbusReader mbReader;
 
 
@@ -68,7 +69,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&mbReader, &ModbusReader::readICP_7018_ch4, &temperature_4, &AnalogInputChannel::RawValueReaded);
     connect(&mbReader, &ModbusReader::readICP_7018_ch5, &temperature_5, &AnalogInputChannel::RawValueReaded);
     connect(&mbReader, &ModbusReader::readICP_7018_ch6, &temperature_6, &AnalogInputChannel::RawValueReaded);
-    connect(&mbReader, &ModbusReader::voltageSetCmdExecuted, this, &MainWindow::VoltageSetted);
+    connect(&mbReader, &ModbusReader::voltageSettedOK, this, &MainWindow::VoltageSettedOK);
+    connect(&mbReader, &ModbusReader::voltageSettedError, this, &MainWindow::VoltageSettedError);
+
 
     qDebug() << "port:" << comPort;
 
@@ -95,7 +98,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->buttonReports,  SIGNAL(clicked()),this,SLOT(ButtonReports()));
     connect(ui->buttonTrendZoom,  SIGNAL(toggled(bool)),this,SLOT(ButtonTrendZoomOnOff(bool)));
 
-    connect(ui->buttonCalibr, SIGNAL(toggled(bool)),this,SLOT(ButtonPageCalibr(bool)));
+    connect(&dialogConfig, SIGNAL(buttonPageCalibr(bool)),this,SLOT(ButtonPageCalibr(bool)));
+
+    connect(ui->buttonPowerOn,  SIGNAL(toggled(bool)),this,SLOT(ButtonPowerOn(bool)));
 
     connect(&timer1000ms,&QTimer::timeout,this,&MainWindow::Timer1000ms);
 
@@ -181,6 +186,15 @@ MainWindow::MainWindow(QWidget *parent)
      graphicTemperature_2->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
      graphicTemperature_2->setLineStyle(QCPGraph::lsLine);
 
+     // Инициализируем график Regress 1 и привязываем его к Осям
+     graphicRegress_2 = new QCPGraph(wGraphic_1->xAxis, wGraphic_1->yAxis);
+     wGraphic_1->addPlottable(graphicRegress_2);  // Устанавливаем график на полотно
+     QPen penRegress_2=graphicRegress_2->pen();
+     penRegress_2.setColor(Qt::gray);
+     penRegress_2.setWidth(2);
+     graphicRegress_2->setPen(penRegress_2); // Устанавливаем цвет графика
+     graphicRegress_2->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+     graphicRegress_2->setLineStyle(QCPGraph::lsLine);
 
      // Инициализируем график Temperature 3 и привязываем его к Осям
      graphicTemperature_3 = new QCPGraph(wGraphic_1->xAxis, wGraphic_1->yAxis);
@@ -344,7 +358,8 @@ MainWindow::MainWindow(QWidget *parent)
      //wGraphic_1->axisRect()->setRangeDrag(Qt::Horizontal);   // Включаем перетаскивание только по горизонтальной оси
      //wGraphic_1->axisRect()->setRangeZoom(Qt::Horizontal);   // Включаем удаление/приближение только по горизонтальной оси
 
-     //заполним графики
+     /*
+     //заполним графики по функции стр.14 ДСТУ 1182:2022 п.7.3.2.2
      for(int h=0;h<=150;++h)
      {
         double Tmin=541.653+(5.901*h)-(0.067*h*h)+(3.375*0.0001*h*h*h)-(8.553*0.0000001*h*h*h*h);
@@ -352,6 +367,93 @@ MainWindow::MainWindow(QWidget *parent)
         graphicCurveMin->addData(Tmin, (double)h );
         graphicCurveMax->addData(Tmax, (double)h );
      }
+    */
+
+     //заполним графики по таблице стр.15 ДСТУ 1182:2022 п.7.3.2.2
+
+     curveMin={
+         {5,   570},
+         {15,  616},
+         {25,  652},
+         {35,  679},
+         {45,  699},
+         {55,  712},
+         {65,  720},
+         {75,  723},
+         {85,  722},
+         {95,  717},
+         {105, 709},
+         {115, 698},
+         {125, 683},
+         {135, 664},
+         {145, 639},
+
+     };
+
+     foreach (int key, curveMin.keys())
+     {
+        graphicCurveMin->addData(curveMin.value(key), key );
+     }
+
+/*
+        graphicCurveMin->addData(570, 5 );
+        graphicCurveMin->addData(616, 15 );
+        graphicCurveMin->addData(652, 25 );
+        graphicCurveMin->addData(679, 35 );
+        graphicCurveMin->addData(699, 45 );
+        graphicCurveMin->addData(712, 55 );
+        graphicCurveMin->addData(720, 65 );
+        graphicCurveMin->addData(723, 75 );
+        graphicCurveMin->addData(722, 85 );
+        graphicCurveMin->addData(717, 95 );
+        graphicCurveMin->addData(709, 105 );
+        graphicCurveMin->addData(698, 115 );
+        graphicCurveMin->addData(683, 125 );
+        graphicCurveMin->addData(664, 135 );
+        graphicCurveMin->addData(639, 145 );
+*/
+
+     curveMax={
+                 {5,   639},
+                 {15,  678},
+                 {25,  705},
+                 {35,  724},
+                 {45,  736},
+                 {55,  743},
+                 {65,  746},
+                 {75,  747},
+                 {85,  746},
+                 {95,  743},
+                 {105, 737},
+                 {115, 729},
+                 {125, 716},
+                 {135, 698},
+                 {145, 671},
+
+                 };
+
+     foreach (int key, curveMax.keys())
+     {
+        graphicCurveMax->addData(curveMax.value(key), key );
+     }
+
+/*
+        graphicCurveMax->addData(639, 5 );
+        graphicCurveMax->addData(678, 15 );
+        graphicCurveMax->addData(705, 25 );
+        graphicCurveMax->addData(724, 35 );
+        graphicCurveMax->addData(736, 45 );
+        graphicCurveMax->addData(743, 55 );
+        graphicCurveMax->addData(746, 65 );
+        graphicCurveMax->addData(747, 75 );
+        graphicCurveMax->addData(746, 85 );
+        graphicCurveMax->addData(743, 95 );
+        graphicCurveMax->addData(737, 105 );
+        graphicCurveMax->addData(729, 115 );
+        graphicCurveMax->addData(716, 125 );
+        graphicCurveMax->addData(698, 135 );
+        graphicCurveMax->addData(671, 145 );
+*/
 
      wGraphic_Curve->replot();
 
@@ -390,21 +492,24 @@ MainWindow::MainWindow(QWidget *parent)
       wGraphic_1->yAxis2->setLabelFont(font);
 
 
-      graphicTemperature_1->setVisible(true);    ui->checkBoxTemperature1->setChecked(true);
-      graphicTemperature_2->setVisible(true);    ui->checkBoxTemperature2->setChecked(true);
+      graphicTemperature_1->setVisible(true); graphicRegress_1->setVisible(true);   ui->checkBoxTemperature1->setChecked(true);
+      graphicTemperature_2->setVisible(true); graphicRegress_2->setVisible(true);   ui->checkBoxTemperature2->setChecked(true);
       graphicTemperature_3->setVisible(false);   ui->checkBoxTemperature3->setChecked(false);
       graphicTemperature_4->setVisible(false);   ui->checkBoxTemperature4->setChecked(false);
+      graphicTemperature_5->setVisible(true);    ui->checkBoxTemperature5->setChecked(true);
+      graphicTemperature_6->setVisible(false);   ui->checkBoxTemperature6->setChecked(false);
 
 
 
-
-      connect(ui->checkBoxTemperature1,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_1->setVisible(checked);wGraphic_1->replot();});
-      connect(ui->checkBoxTemperature2,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_2->setVisible(checked);wGraphic_1->replot();});
+      connect(ui->checkBoxTemperature1,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_1->setVisible(checked);graphicRegress_1->setVisible(checked);wGraphic_1->replot();});
+      connect(ui->checkBoxTemperature2,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_2->setVisible(checked);graphicRegress_2->setVisible(checked);wGraphic_1->replot();});
       connect(ui->checkBoxTemperature3,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_3->setVisible(checked);wGraphic_1->replot();});
       connect(ui->checkBoxTemperature4,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_4->setVisible(checked);wGraphic_1->replot();});
+      connect(ui->checkBoxTemperature5,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_5->setVisible(checked);wGraphic_56->replot();});
+      connect(ui->checkBoxTemperature6,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_6->setVisible(checked);wGraphic_56->replot();});
      // connect(ui->checkBoxTemperature1,SIGNAL(toggled(bool)),this,SLOT(CheckBoxTemperature1Changed(bool)));
 
-     // connect(ui->sliderPowerSet,QSlider::valueChanged,this,MainWindow::SliderSetVoltage);
+     // connect(ui->sliderPowerSet,QSlider::valueChanged,this,MainWindow::SliderSetVoltage);   
       connect(ui->doubleSpinBoxPowerSet, SIGNAL(valueChanged(double)),this,SLOT(DoubleSpinBoxSetVoltage(double)));
 
      // connect(ui->doubleSpinBoxPowerSet,QDoubleSpinBox::valueChanged, this, MainWindow::DoubleSpinBoxSetVoltage);
@@ -421,7 +526,71 @@ MainWindow::MainWindow(QWidget *parent)
       //startViewDT_str=startViewDT.toString("yyyy.MM.dd_hh.mm.ss");
       infoText+="\nОЧІКУЄМ СТАБІЛІЗАЦІЇ...";
 
-      //add test text
+      ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:10px;}");
+
+      //Calibration Mode
+
+      ui->groupBoxCal_1->setStyleSheet("QLabel{font-size: 16px;} QLineEdit:focus{ border: 3px solid #40bd06; border-radius:3px;} QLineEdit{font-size: 16px;} ");
+    /*
+      ui->lineEditT1a->setStyleSheet("QLineEdit:focus{ border: 2px solid green; border-radius:3px;}");
+      ui->lineEditT1b->setStyleSheet("QLineEdit:focus{ border: 2px solid green; border-radius:3px;}");
+      ui->lineEditT1c->setStyleSheet("QLineEdit:focus{ border: 2px solid green; border-radius:3px;}");
+*/
+      connect(ui->lineEditT1a,QLineEdit::returnPressed,this,[&](){ui->lineEditT1a->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2a->setFocus();});
+      connect(ui->lineEditT1b,QLineEdit::returnPressed,this,[&](){ui->lineEditT1b->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2b->setFocus();});
+      connect(ui->lineEditT1c,QLineEdit::returnPressed,this,[&](){ui->lineEditT1c->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2c->setFocus();});
+      connect(ui->lineEditT2a,QLineEdit::returnPressed,this,[&](){ui->lineEditT2a->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3a->setFocus();});
+      connect(ui->lineEditT2b,QLineEdit::returnPressed,this,[&](){ui->lineEditT2b->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3b->setFocus();});
+      connect(ui->lineEditT2c,QLineEdit::returnPressed,this,[&](){ui->lineEditT2c->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3c->setFocus();});
+      connect(ui->lineEditT3a,QLineEdit::returnPressed,this,[&](){ui->lineEditT3a->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1b->setFocus();});
+      connect(ui->lineEditT3b,QLineEdit::returnPressed,this,[&](){ui->lineEditT3b->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1c->setFocus();});
+      connect(ui->lineEditT3c,QLineEdit::returnPressed,this,[&](){ui->lineEditT3c->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3c->clearFocus();});
+
+
+      ui->groupBoxCal_2->setStyleSheet("QLabel{font-size: 16px;} QLineEdit:focus{ border: 3px solid #40bd06; border-radius:3px;} QLineEdit{font-size: 16px;} ");
+
+      connect(ui->lineEditT1_75, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_75->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_65->setFocus();});
+      connect(ui->lineEditT1_65, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_65->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_55->setFocus();});
+      connect(ui->lineEditT1_55, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_55->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_45->setFocus();});
+      connect(ui->lineEditT1_45, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_45->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_35->setFocus();});
+      connect(ui->lineEditT1_35, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_35->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_25->setFocus();});
+      connect(ui->lineEditT1_25, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_25->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_15->setFocus();});
+      connect(ui->lineEditT1_15, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_15->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_5->setFocus();});
+      connect(ui->lineEditT1_5,  QLineEdit::returnPressed,this,[&](){ui->lineEditT1_5->setText(temperature_5.GetValueString_noEU(2));  ui->lineEditT2_5->setFocus();});
+
+      connect(ui->lineEditT2_5,  QLineEdit::returnPressed,this,[&](){ui->lineEditT2_5->setText(temperature_5.GetValueString_noEU(2));  ui->lineEditT2_15->setFocus();});
+      connect(ui->lineEditT2_15, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_15->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_25->setFocus();});
+      connect(ui->lineEditT2_25, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_25->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_35->setFocus();});
+      connect(ui->lineEditT2_35, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_35->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_45->setFocus();});
+      connect(ui->lineEditT2_45, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_45->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_55->setFocus();});
+      connect(ui->lineEditT2_55, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_55->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_65->setFocus();});
+      connect(ui->lineEditT2_65, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_65->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_75->setFocus();});
+      connect(ui->lineEditT2_75, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_75->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_85->setFocus();});
+      connect(ui->lineEditT2_85, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_85->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_95->setFocus();});
+      connect(ui->lineEditT2_95, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_95->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_105->setFocus();});
+      connect(ui->lineEditT2_105,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_105->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_115->setFocus();});
+      connect(ui->lineEditT2_115,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_115->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_125->setFocus();});
+      connect(ui->lineEditT2_125,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_125->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_135->setFocus();});
+      connect(ui->lineEditT2_135,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_135->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_145->setFocus();});
+      connect(ui->lineEditT2_145,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_145->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_145->setFocus();});
+
+      connect(ui->lineEditT3_145,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_145->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_135->setFocus();});
+      connect(ui->lineEditT3_135,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_135->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_125->setFocus();});
+      connect(ui->lineEditT3_125,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_125->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_115->setFocus();});
+      connect(ui->lineEditT3_115,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_115->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_105->setFocus();});
+      connect(ui->lineEditT3_105,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_105->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_95->setFocus();});
+      connect(ui->lineEditT3_95, QLineEdit::returnPressed,this,[&](){ui->lineEditT3_95->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_85->setFocus();});
+      connect(ui->lineEditT3_85, QLineEdit::returnPressed,this,[&](){ui->lineEditT3_85->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_75->setFocus();});
+      connect(ui->lineEditT3_75, QLineEdit::returnPressed,this,[&](){ui->lineEditT3_75->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_75->clearFocus();});
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -592,7 +761,7 @@ void MainWindow::SliderSetVoltage(int value)
 {
     double value_proc=(double)value/100.0;
     double value_volt=(double)value/1000.0;
-    ui->labelPowerSet->setText(QString("Потужність: ")+QString::number(value_proc,'f',1)+" %" + " ...");
+    //ui->labelPowerSet->setText(QString("Потужність: ")+QString::number(value_proc,'f',1)+" %" + " ...");
 
     //ui->doubleSpinBoxPowerSet->setValue(value_proc);
 
@@ -607,17 +776,117 @@ void MainWindow::DoubleSpinBoxSetVoltage(double value)
     double value_proc=value;
     double value_volt=value/10.0;
 
-    ui->labelPowerSet->setText(QString("Потужність: ")+QString::number(value_proc,'f',1)+" %" + " ...");
+    if (ui->buttonPowerOn->isChecked())
+    {
+        ui->sliderPowerSet->setValue(value_volt*1000);
+        qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
+        mbReader.VoltageSet(value_volt);
+        ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+    }
 
-    ui->sliderPowerSet->setValue(value_volt*1000);
-    qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
-    mbReader.VoltageSet(value_volt);
+
 }
 //=======================================================================================
-void MainWindow::VoltageSetted()
+void MainWindow::ButtonPowerOn(bool toggled)
 {
-    ui->labelPowerSet->setText(ui->labelPowerSet->text() + " OK");
+
+
+    if (toggled)
+    {
+        double value_proc=ui->doubleSpinBoxPowerSet->value();
+        double value_volt=value_proc/10.0;
+
+        ui->sliderPowerSet->setValue(value_volt*1000);
+        qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
+        mbReader.VoltageSet(value_volt);
+        ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+
+    }
+    else
+    {
+        double value_proc=0.0;
+        double value_volt=value_proc/10.0;
+
+        ui->sliderPowerSet->setValue(value_volt*1000);
+        qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
+        mbReader.VoltageSet(value_volt);
+        ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+    }
+
+
 }
+//=======================================================================================
+void MainWindow::VoltageSettedOK()
+{
+    ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid darkgreen; border-radius:3px;}");
+
+}
+//=======================================================================================
+void MainWindow::VoltageSettedError()
+{
+    ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid red; border-radius:3px;}");
+}
+//=======================================================================================
+bool MainWindow::calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b)
+{
+    double accuT1=0.0;
+    double avgT1=0.0;
+    double minT1=data.first().value;
+    double maxT1=data.first().value;
+
+    //for regression
+    double S1=data.size();
+    double S2=0.0;   //sum(t_i)
+    double S3=0.0;
+    double S4=0.0;
+    double S5=0.0;
+
+    if (data.size()==0) return false;
+
+    foreach(QCPData cpdata, data)
+    {
+        //
+
+        accuT1+=cpdata.value;
+
+        if (minT1>cpdata.value) minT1=cpdata.value;
+        if (maxT1<cpdata.value) maxT1=cpdata.value;
+
+        S2+=cpdata.key;
+        S3+=cpdata.value;
+        S4+=cpdata.key * cpdata.key;
+        S5+=cpdata.value * cpdata.key;
+
+    }
+    avgT1=accuT1 / data.size();
+
+
+    if ((S1*S4 - S2*S2) == 0.0) return false;
+
+
+    //в присланном Геннадием документе для рассчета линейной регрессии перепутаны а и в коэффициенты,
+    //смотреть рассчет коэффициентов в http://mathprofi.ru/linejnyj_koefficient_korrelyacii.html
+    //T- temperature, t- time
+    //T(t)=a*t+b
+    double b = (S3*S4 - S5*S2) / (S1*S4 - S2*S2);
+    double a = (S1*S5 - S2*S3) / (S1*S4 - S2*S2);
+
+
+
+    //regression = (a*t_last+b) - (a*t_first + b) ==  a*t_last - a*t_first
+    double regressT1= (a*data.last().key + b) - (a*data.first().key + b);
+
+    avg=avgT1;
+    min=minT1;
+    max=maxT1;
+    regress=regressT1;
+    regress_koeff_a=a;
+    regress_koeff_b=b;
+    return true;
+
+}
+
+
 //=======================================================================================
 void MainWindow::Timer1000ms()
 {
@@ -690,7 +959,7 @@ void MainWindow::Timer1000ms()
 
 
 
-    if (runningMode==ModeView)
+    if (runningMode==ModePreTest)
     {
          //добавляем данные на график
          double seconds_from_start;
@@ -797,75 +1066,65 @@ void MainWindow::Timer1000ms()
          {
             if (cpdata.key >= seconds_from_start - 600) temp_1_data.append(cpdata);
          }
+         QList<QCPData> temp_2_data;
+         foreach(QCPData cpdata, graphicTemperature_2->data()->values())
+         {
+            if (cpdata.key >= seconds_from_start - 600) temp_2_data.append(cpdata);
+         }
 
 
-         if (temp_1_data.size()==0)
+         if (temp_1_data.size()==0 || temp_2_data.size()==0)
          {
             ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n n/d");
             return;
          }
 
-         double accuT1=0.0;
+         //double accuT1=0.0;
          double avgT1=0.0;
-         double minT1=temp_1_data.first().value;
-         double maxT1=temp_1_data.first().value;
-
-         //for regression
-         double S1=temp_1_data.size();
-         double S2=0.0;   //sum(t_i)
-         double S3=0.0;
-         double S4=0.0;
-         double S5=0.0;
-
-         foreach(QCPData cpdata, temp_1_data)
-         {
-            //
-
-            accuT1+=cpdata.value;
-
-            if (minT1>cpdata.value) minT1=cpdata.value;
-            if (maxT1<cpdata.value) maxT1=cpdata.value;
-
-            S2+=cpdata.key;
-            S3+=cpdata.value;
-            S4+=cpdata.key * cpdata.key;
-            S5+=cpdata.value * cpdata.key;
-
-         }
-         avgT1=accuT1 / temp_1_data.size();
+         double minT1=0.0;//temp_1_data.first().value;
+         double maxT1=0.0;//temp_1_data.first().value;
+         double regressT1=0.0;
+         double regressT1_koeff_a=0.0;
+         double regressT1_koeff_b=0.0;
 
 
-         if ((S1*S4 - S2*S2) == 0.0) return;
+         double avgT2=0.0;
+         double minT2=temp_2_data.first().value;
+         double maxT2=temp_2_data.first().value;
+         double regressT2=0.0;
+         double regressT2_koeff_a=0.0;
+         double regressT2_koeff_b=0.0;
+
+         calcAvgMinMaxRegress(temp_1_data,avgT1,minT1,maxT1,regressT1,regressT1_koeff_a,regressT1_koeff_b);
+         calcAvgMinMaxRegress(temp_2_data,avgT2,minT2,maxT2,regressT2,regressT2_koeff_a,regressT2_koeff_b);
 
 
-         //в присланном Геннадием документе для рассчета линейной регрессии перепутаны а и в коэффициенты,
-         //смотреть рассчет коэффициентов в http://mathprofi.ru/linejnyj_koefficient_korrelyacii.html
-         //T- temperature, t- time
-         //T(t)=a*t+b
-         double b = (S3*S4 - S5*S2) / (S1*S4 - S2*S2);
-         double a = (S1*S5 - S2*S3) / (S1*S4 - S2*S2);
-
-
-
-         //regression = (a*t_last+b) - (a*t_first + b) ==  a*t_last - a*t_first
-         double lineRegression= (a*temp_1_data.last().key + b) - (a*temp_1_data.first().key + b);
-
-
-         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n   avgT1="+QString::number(avgT1,'f',3) +
-                                                                             "\n   minT1="+QString::number(minT1,'f',3) +
-                                                                             "\n   maxT1="+QString::number(maxT1,'f',3) +
-                                                                             "\n   T(t) = "+QString::number(a,'f',7) + "*t + " + QString::number(b,'f',3)+
-                                                                             "\n   lineRegress = "+QString::number(lineRegression,'f',7) +
-                                                                             "\n   t = "+QString::number(graphicTemperature_1->data()->values().last().key,'f',3) + "    T = " + QString::number(graphicTemperature_1->data()->values().last().value,'f',3));
+         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n   avgT1="+QString::number(avgT1,'f',2) + "\t\t" + "avgT2="+QString::number(avgT2,'f',2) +
+                                                                             "\n   minT1="+QString::number(minT1,'f',2) + "\t\t" + "minT2="+QString::number(minT2,'f',2) +
+                                                                             "\n   maxT1="+QString::number(maxT1,'f',2) + "\t\t" + "maxT2="+QString::number(maxT2,'f',2) +
+                                                                             //"\n   T(t) = "+QString::number(a,'f',7) + "*t + " + QString::number(b,'f',3)+
+                                                                             "\n   regT1="+QString::number(regressT1,'f',2) + "\t\t" + "regT2="+QString::number(regressT2,'f',3)
+                                                                              );//+
+                                                                             //"\n   t = "+QString::number(graphicTemperature_1->data()->values().last().key,'f',3) + "    T = " + QString::number(graphicTemperature_1->data()->values().last().value,'f',3));
 
 
 
          graphicRegress_1->clearData();
-         graphicRegress_1->addData(temp_1_data.first().key, a*temp_1_data.first().key + b);
-         graphicRegress_1->addData(temp_1_data.last().key, a*temp_1_data.last().key + b);
+         graphicRegress_1->addData(temp_1_data.first().key, regressT1_koeff_a*temp_1_data.first().key + regressT1_koeff_b);
+         graphicRegress_1->addData(temp_1_data.last().key,  regressT1_koeff_a*temp_1_data.last().key  + regressT1_koeff_b);
+
+         graphicRegress_2->clearData();
+         graphicRegress_2->addData(temp_2_data.first().key, regressT2_koeff_a*temp_2_data.first().key + regressT2_koeff_b);
+         graphicRegress_2->addData(temp_2_data.last().key,  regressT2_koeff_a*temp_2_data.last().key  + regressT2_koeff_b);
 
         wGraphic_1->replot();           // Отрисовываем график
-    } //if (runningMode==ModeView)
+        wGraphic_56->replot();
+
+
+
+
+
+    } //if (runningMode==ModePreTest)
 
 
 
@@ -1022,7 +1281,7 @@ void MainWindow::ButtonReset()
 void MainWindow::ButtonStartStop()
 {
     //команда на старт
-    if (runningMode==ModeView || runningMode==ModeTestStopped)
+    if (runningMode==ModePreTest || runningMode==ModeTestStopped)
     {
         cmdButton=StartCmd;
     }

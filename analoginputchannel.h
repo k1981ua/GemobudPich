@@ -118,8 +118,8 @@ public:
     QDateTime GetValueDT();
     void SetEU(const QString &eU);
     QString GetEU();
-    QString GetValueString(uint precision);
-
+    QString GetValueString(uint precision);  //with EU
+    QString GetValueString_noEU(uint precision);  //without EU
 
     void SetTimeAvgInterval(uint newTimeAvgInterval);
     uint GetTimeAvgInterval();

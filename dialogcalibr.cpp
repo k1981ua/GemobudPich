@@ -28,6 +28,8 @@ DialogCalibr::DialogCalibr(QWidget *parent) :
     connect(ui->buttonExit,SIGNAL(clicked()),this,SLOT(ButtonCancelExit()));
 
 
+
+
 }
 //==============================================================================================
 DialogCalibr::~DialogCalibr()

@@ -16,6 +16,8 @@ DialogConfig::DialogConfig(QWidget *parent) :
     connect(ui->buttonSaveConfig,SIGNAL(clicked()),this,SLOT(accept()));
     connect(ui->buttonCancelConfig,SIGNAL(clicked()),this,SLOT(reject()));
 
+    connect(ui->buttonCalibrMode,QPushButton::toggled,this,[&](bool toggled){emit buttonPageCalibr(toggled);});
+
     pmbReader=nullptr;
 
     foreach(QSerialPortInfo info,QSerialPortInfo::availablePorts())

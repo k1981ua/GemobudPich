@@ -35,6 +35,9 @@ private:
 private slots:
     void ButtonCalibr();
 
+signals:
+    void buttonPageCalibr(bool toggled);
+
 };
 
 #endif // DIALOGCONFIG_H

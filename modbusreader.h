@@ -176,7 +176,8 @@ signals:
     void readICP_7018_ch6(double newValue, ValueStatus newValueStatus);
 
 
-    void voltageSetCmdExecuted();
+    void voltageSettedOK();
+    void voltageSettedError();
 };
 
 #endif // MODBUSREADER_H

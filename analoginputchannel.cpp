@@ -343,6 +343,18 @@ QString AnalogInputChannel::GetValueString(uint precision)
     }
 }
 //===========================================================================
+QString AnalogInputChannel::GetValueString_noEU(uint precision)
+{
+    if (GetValueStatus()==ValueStatus::ValueOk)
+    {
+        return QString::number(GetValue(),'f',precision);
+    }
+    else
+    {
+        return QString("---");
+    }
+}
+//===========================================================================
 void AnalogInputChannel::SetTimeAvgInterval(uint newTimeAvgInterval)
 {
     timeAvgIntervalSec=newTimeAvgInterval;
