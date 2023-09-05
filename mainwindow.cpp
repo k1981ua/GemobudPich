@@ -347,7 +347,7 @@ MainWindow::MainWindow(QWidget *parent)
      graphicCurve = new QCPCurve(wGraphic_Curve->xAxis, wGraphic_Curve->yAxis);
      wGraphic_Curve->addPlottable(graphicCurve);  // Устанавливаем график на полотно
      QPen penCurve=graphicCurve->pen();
-     penCurve.setColor(Qt::green);
+     penCurve.setColor(Qt::blue);
      penCurve.setWidth(2);
      graphicCurve->setPen(penCurve); // Устанавливаем цвет графика
      graphicCurve->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
@@ -549,39 +549,41 @@ MainWindow::MainWindow(QWidget *parent)
 
       ui->groupBoxCal_2->setStyleSheet("QLabel{font-size: 16px;} QLineEdit:focus{ border: 3px solid #40bd06; border-radius:3px;} QLineEdit{font-size: 16px;} ");
 
-      connect(ui->lineEditT1_75, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_75->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_65->setFocus();});
-      connect(ui->lineEditT1_65, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_65->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_55->setFocus();});
-      connect(ui->lineEditT1_55, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_55->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_45->setFocus();});
-      connect(ui->lineEditT1_45, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_45->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_35->setFocus();});
-      connect(ui->lineEditT1_35, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_35->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_25->setFocus();});
-      connect(ui->lineEditT1_25, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_25->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_15->setFocus();});
-      connect(ui->lineEditT1_15, QLineEdit::returnPressed,this,[&](){ui->lineEditT1_15->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1_5->setFocus();});
-      connect(ui->lineEditT1_5,  QLineEdit::returnPressed,this,[&](){ui->lineEditT1_5->setText(temperature_5.GetValueString_noEU(2));  ui->lineEditT2_5->setFocus();});
 
-      connect(ui->lineEditT2_5,  QLineEdit::returnPressed,this,[&](){ui->lineEditT2_5->setText(temperature_5.GetValueString_noEU(2));  ui->lineEditT2_15->setFocus();});
-      connect(ui->lineEditT2_15, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_15->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_25->setFocus();});
-      connect(ui->lineEditT2_25, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_25->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_35->setFocus();});
-      connect(ui->lineEditT2_35, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_35->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_45->setFocus();});
-      connect(ui->lineEditT2_45, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_45->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_55->setFocus();});
-      connect(ui->lineEditT2_55, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_55->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_65->setFocus();});
-      connect(ui->lineEditT2_65, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_65->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_75->setFocus();});
-      connect(ui->lineEditT2_75, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_75->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_85->setFocus();});
-      connect(ui->lineEditT2_85, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_85->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_95->setFocus();});
-      connect(ui->lineEditT2_95, QLineEdit::returnPressed,this,[&](){ui->lineEditT2_95->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_105->setFocus();});
-      connect(ui->lineEditT2_105,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_105->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_115->setFocus();});
-      connect(ui->lineEditT2_115,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_115->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_125->setFocus();});
-      connect(ui->lineEditT2_125,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_125->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_135->setFocus();});
-      connect(ui->lineEditT2_135,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_135->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2_145->setFocus();});
-      connect(ui->lineEditT2_145,QLineEdit::returnPressed,this,[&](){ui->lineEditT2_145->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_145->setFocus();});
+      connect(ui->lineEditT1_75, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,75,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_65->setFocus();});
+      connect(ui->lineEditT1_65, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,65,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_55->setFocus();});
+      connect(ui->lineEditT1_55, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,55,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_45->setFocus();});
+      connect(ui->lineEditT1_45, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,45,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_35->setFocus();});
+      connect(ui->lineEditT1_35, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,35,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_25->setFocus();});
+      connect(ui->lineEditT1_25, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,25,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_15->setFocus();});
+      connect(ui->lineEditT1_15, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,15,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_5->setFocus();});
+      connect(ui->lineEditT1_5,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1, 5,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_5->setFocus();});
 
-      connect(ui->lineEditT3_145,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_145->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_135->setFocus();});
-      connect(ui->lineEditT3_135,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_135->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_125->setFocus();});
-      connect(ui->lineEditT3_125,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_125->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_115->setFocus();});
-      connect(ui->lineEditT3_115,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_115->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_105->setFocus();});
-      connect(ui->lineEditT3_105,QLineEdit::returnPressed,this,[&](){ui->lineEditT3_105->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_95->setFocus();});
-      connect(ui->lineEditT3_95, QLineEdit::returnPressed,this,[&](){ui->lineEditT3_95->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_85->setFocus();});
-      connect(ui->lineEditT3_85, QLineEdit::returnPressed,this,[&](){ui->lineEditT3_85->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_75->setFocus();});
-      connect(ui->lineEditT3_75, QLineEdit::returnPressed,this,[&](){ui->lineEditT3_75->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3_75->clearFocus();});
+
+      connect(ui->lineEditT2_5,   QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 5,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT2_15->setFocus();});
+      connect(ui->lineEditT2_15,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 15,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_25->setFocus();});
+      connect(ui->lineEditT2_25,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 25,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_35->setFocus();});
+      connect(ui->lineEditT2_35,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 35,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_45->setFocus();});
+      connect(ui->lineEditT2_45,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 45,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_55->setFocus();});
+      connect(ui->lineEditT2_55,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 55,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_65->setFocus();});
+      connect(ui->lineEditT2_65,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 65,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_75->setFocus();});
+      connect(ui->lineEditT2_75,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 75,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_85->setFocus();});
+      connect(ui->lineEditT2_85,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 85,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_95->setFocus();});
+      connect(ui->lineEditT2_95,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 95,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_105->setFocus();});
+      connect(ui->lineEditT2_105, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,105,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_115->setFocus();});
+      connect(ui->lineEditT2_115, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,115,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_125->setFocus();});
+      connect(ui->lineEditT2_125, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,125,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_135->setFocus();});
+      connect(ui->lineEditT2_135, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,135,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_145->setFocus();});
+      connect(ui->lineEditT2_145, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,145,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_145->setFocus();});
+
+      connect(ui->lineEditT3_145, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,145,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_135->setFocus();});
+      connect(ui->lineEditT3_135, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,135,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_125->setFocus();});
+      connect(ui->lineEditT3_125, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,125,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_115->setFocus();});
+      connect(ui->lineEditT3_115, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,115,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_105->setFocus();});
+      connect(ui->lineEditT3_105, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,105,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_95->setFocus();});
+      connect(ui->lineEditT3_95,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,95,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT3_85->setFocus();});
+      connect(ui->lineEditT3_85,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,85,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT3_75->setFocus();});
+      connect(ui->lineEditT3_75,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,75,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT3_75->clearFocus();});
 
 
 
@@ -593,6 +595,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 }
+//=======================================================================================
+void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3  ,  h=5 15 25 35 ...  145
+{
+    lineEdit->setText(temperature_5.GetValueString_noEU(2));
+    graphicCurve->addData(temperature_5.GetValue(),h);
+    wGraphic_Curve->replot();
+
+
+}
+
+
 
 //=======================================================================================
 MainWindow::~MainWindow()

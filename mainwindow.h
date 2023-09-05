@@ -100,6 +100,8 @@ private:
 
     QMap<int,int> curveMax, curveMin;
 
+    void SetCurvePoint(int row, int h, QLineEdit *lineEdit);
+
     DialogConfig dialogConfig;
 
 
