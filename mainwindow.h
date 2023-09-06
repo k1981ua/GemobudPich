@@ -100,6 +100,22 @@ private:
 
     QMap<int,int> curveMax, curveMin;
 
+    struct CurvePoint
+    {
+        int h;
+        int val;
+        bool operator==(const CurvePoint &other) const
+        {
+            if (this == &other) {
+                return true;
+            }
+            return (h==other.h && val==other.val);
+        }
+    };
+
+    QMap<int, QList<CurvePoint> > curveData;
+
+
     void SetCurvePoint(int row, int h, QLineEdit *lineEdit);
 
     DialogConfig dialogConfig;

@@ -588,7 +588,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-
+      ui->stackedWidget->setCurrentIndex(0);
 
 
 
@@ -598,8 +598,64 @@ MainWindow::MainWindow(QWidget *parent)
 //=======================================================================================
 void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3  ,  h=5 15 25 35 ...  145
 {
+
     lineEdit->setText(temperature_5.GetValueString_noEU(2));
-    graphicCurve->addData(temperature_5.GetValue(),h);
+
+
+
+
+    QList<CurvePoint> &rowList=curveData[row];
+
+    CurvePoint cp;
+    cp.h=h;
+    cp.val=temperature_5.GetValue();
+
+
+    if (cp.val<curveMin[h] || cp.val>curveMax[h])
+    {
+        //lineEdit->setText(lineEdit->text()+"-----");
+        //QPalette palette=orig_lineEditPalette;
+        //palette.setColor(QPalette::Base, QColor(250,155,155));
+        //lineEdit->setPalette(palette);
+        lineEdit->setStyleSheet("QLabel{font-size: 16px;} QLineEdit:focus{ border: 3px solid #40bd06; border-radius:3px; color:red} QLineEdit{font-size: 16px;color:red} ");
+    }
+    else
+    {
+        lineEdit->setStyleSheet("QLabel{font-size: 16px;} QLineEdit:focus{ border: 3px solid #40bd06; border-radius:3px;} QLineEdit{font-size: 16px;} ");
+    }
+
+
+
+    foreach(CurvePoint temp_cp, rowList)
+    {
+        if(temp_cp.h==cp.h) rowList.removeOne(temp_cp);
+    }
+
+    rowList.append(cp);
+
+    if (row==1 || row==3)
+    {
+        qSort(rowList.begin(), rowList.end(), [&](CurvePoint first, CurvePoint second){return first.h>second.h;});
+    }
+    else //row==2, движение вверх, сортировка в обратом порядке
+    {
+        qSort(rowList.begin(), rowList.end(), [&](CurvePoint first, CurvePoint second){return first.h<second.h;});
+    }
+
+
+    graphicCurve->clearData();
+    //graphicCurve->addData(temperature_5.GetValue(),h);
+
+    foreach(QList<CurvePoint> rowlst, curveData)
+    {
+        foreach(CurvePoint crvpnt, rowlst)
+        {
+            graphicCurve->addData(crvpnt.val,crvpnt.h);
+        }
+
+    }
+
+
     wGraphic_Curve->replot();
 
 
