@@ -536,15 +536,27 @@ MainWindow::MainWindow(QWidget *parent)
       ui->lineEditT1b->setStyleSheet("QLineEdit:focus{ border: 2px solid green; border-radius:3px;}");
       ui->lineEditT1c->setStyleSheet("QLineEdit:focus{ border: 2px solid green; border-radius:3px;}");
 */
-      connect(ui->lineEditT1a,QLineEdit::returnPressed,this,[&](){ui->lineEditT1a->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2a->setFocus();});
-      connect(ui->lineEditT1b,QLineEdit::returnPressed,this,[&](){ui->lineEditT1b->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2b->setFocus();});
-      connect(ui->lineEditT1c,QLineEdit::returnPressed,this,[&](){ui->lineEditT1c->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT2c->setFocus();});
-      connect(ui->lineEditT2a,QLineEdit::returnPressed,this,[&](){ui->lineEditT2a->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3a->setFocus();});
-      connect(ui->lineEditT2b,QLineEdit::returnPressed,this,[&](){ui->lineEditT2b->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3b->setFocus();});
-      connect(ui->lineEditT2c,QLineEdit::returnPressed,this,[&](){ui->lineEditT2c->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3c->setFocus();});
-      connect(ui->lineEditT3a,QLineEdit::returnPressed,this,[&](){ui->lineEditT3a->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1b->setFocus();});
-      connect(ui->lineEditT3b,QLineEdit::returnPressed,this,[&](){ui->lineEditT3b->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT1c->setFocus();});
-      connect(ui->lineEditT3c,QLineEdit::returnPressed,this,[&](){ui->lineEditT3c->setText(temperature_5.GetValueString_noEU(2)); ui->lineEditT3c->clearFocus();});
+      connect(ui->lineEditT1a,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT2a->setFocus();});
+      connect(ui->lineEditT1b,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT2b->setFocus();});
+      connect(ui->lineEditT1c,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT2c->setFocus();});
+      connect(ui->lineEditT2a,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT3a->setFocus();});
+      connect(ui->lineEditT2b,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT3b->setFocus();});
+      connect(ui->lineEditT2c,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT3c->setFocus();});
+      connect(ui->lineEditT3a,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT1b->setFocus();});
+      connect(ui->lineEditT3b,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT1c->setFocus();});
+      connect(ui->lineEditT3c,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT3c->clearFocus();});
+
+
+      foreach(QObject *obj, ui->groupBoxCal_1->children())
+      {
+        QLineEdit *le=qobject_cast<QLineEdit *>(obj);
+        if (le)
+        {
+            le->installEventFilter(this);
+            //le->setValidator(new MyValidator(0.0,1000.0, 2, le));
+        }
+      }
+
 
 
       ui->groupBoxCal_2->setStyleSheet("QLabel{font-size: 16px;} QLineEdit:focus{ border: 3px solid #40bd06; border-radius:3px;} QLineEdit{font-size: 16px;} ");
@@ -586,29 +598,82 @@ MainWindow::MainWindow(QWidget *parent)
       connect(ui->lineEditT3_75,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,75,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT3_75->clearFocus();});
 
 
+      foreach(QObject *obj, ui->groupBoxCal_2->children())
+      {
+        QLineEdit *le=qobject_cast<QLineEdit *>(obj);
+        if (le)
+        {
+            le->installEventFilter(this);
+            //le->setValidator(new MyValidator(0,1000.0, 2, le));
+        }
+      }
+
+      ui->labelTemperature_5_Stabilization->setText("Температура 5 - очікуєм стабілізації...");
+      ui->labelTemperature_6_Stabilization->setText("Температура 6 - очікуєм стабілізації...");
 
 
-      ui->stackedWidget->setCurrentIndex(0);
+//      ui->stackedWidget->setCurrentIndex(0);
 
 
 
 
 
 }
+//======================================================================
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+      QLineEdit *lineEdit=qobject_cast<QLineEdit *>(obj);
+
+        if (event->type() == QEvent::MouseButtonDblClick)
+        {
+            lineEdit->setReadOnly(false);
+            return true;
+        }
+        else
+        {
+            return QObject::eventFilter(obj, event);
+            //return false;
+        }
+
+}
+//=======================================================================================
+void MainWindow::SetTablePoint(QLineEdit *lineEdit)
+{
+
+        //double value;
+        if (lineEdit->isReadOnly())
+        {
+            lineEdit->setText(temperature_5.GetValueString_noEU(2));
+        }
+        else
+        {
+            if (lineEdit->text().isEmpty()) lineEdit->setText(temperature_5.GetValueString_noEU(2));
+            lineEdit->setReadOnly(true);
+        }
+}
 //=======================================================================================
 void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3  ,  h=5 15 25 35 ...  145
 {
 
-    lineEdit->setText(temperature_5.GetValueString_noEU(2));
+    double value;
+    if (lineEdit->isReadOnly())
+    {
+        lineEdit->setText(temperature_6.GetValueString_noEU(2));
+    }
+    else
+    {
+        if (lineEdit->text().isEmpty()) lineEdit->setText(temperature_6.GetValueString_noEU(2));
+        lineEdit->setReadOnly(true);
+    }
 
-
+    value=lineEdit->text().toDouble();
 
 
     QList<CurvePoint> &rowList=curveData[row];
 
     CurvePoint cp;
     cp.h=h;
-    cp.val=temperature_5.GetValue();
+    cp.val=value;
 
 
     if (cp.val<curveMin[h] || cp.val>curveMax[h])

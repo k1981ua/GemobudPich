@@ -890,6 +890,20 @@
              </widget>
             </item>
             <item>
+             <widget class="QLabel" name="labelTemperature_5_Stabilization">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelTemperature_6_Stabilization">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="verticalSpacer_9">
               <property name="orientation">
                <enum>Qt::Vertical</enum>

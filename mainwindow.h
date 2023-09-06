@@ -115,8 +115,11 @@ private:
 
     QMap<int, QList<CurvePoint> > curveData;
 
-
+    void SetTablePoint(QLineEdit *lineEdit);
     void SetCurvePoint(int row, int h, QLineEdit *lineEdit);
+
+    bool eventFilter(QObject *obj, QEvent *event);
+
 
     DialogConfig dialogConfig;
 
