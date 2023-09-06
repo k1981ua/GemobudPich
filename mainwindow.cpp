@@ -635,11 +635,11 @@ void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3
 
     if (row==1 || row==3)
     {
-        qSort(rowList.begin(), rowList.end(), [&](CurvePoint first, CurvePoint second){return first.h>second.h;});
+        std::sort(rowList.begin(), rowList.end(), [&](CurvePoint first, CurvePoint second) -> bool {return first.h>second.h;});
     }
     else //row==2, движение вверх, сортировка в обратом порядке
     {
-        qSort(rowList.begin(), rowList.end(), [&](CurvePoint first, CurvePoint second){return first.h<second.h;});
+        std::sort(rowList.begin(), rowList.end(), [&](CurvePoint first, CurvePoint second) -> bool {return first.h<second.h;});
     }
 
 
