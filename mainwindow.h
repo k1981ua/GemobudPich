@@ -86,11 +86,14 @@ private:
     QCPGraph *graphicTemperature_4;
     QCPGraph *graphicRegress_1;
     QCPGraph *graphicRegress_2;
-
+    bool temp1_isStabilized=false;
+    bool temp2_isStabilized=false;
 
     QCustomPlot *wGraphic_56;
     QCPGraph *graphicTemperature_5;
     QCPGraph *graphicTemperature_6;
+    bool temp5_isStabilized=false;
+    bool temp6_isStabilized=false;
 
 
     QCustomPlot *wGraphic_Curve;
@@ -166,8 +169,6 @@ private slots:
 
     void Timer1000ms();
     double calcAverage(QVector<double> vec);
-    double calcMaxDeviate(double average, QVector<double> vec);
-    double calcRegression(QVector<double> vec);
 
     bool calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b);
 

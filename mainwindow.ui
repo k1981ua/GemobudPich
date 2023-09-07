@@ -27,7 +27,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,100">
@@ -887,6 +887,13 @@
                 </layout>
                </item>
               </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelTemperature_56_StabilizationCond">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
              </widget>
             </item>
             <item>

@@ -520,11 +520,12 @@ MainWindow::MainWindow(QWidget *parent)
 
       infoText="СТАРТ ПРОГРАМИ";
       startViewDT=QDateTime::currentDateTime();
-      infoText+="\n" + startViewDT.toString("hh:mm:ss dd.MM.yy");
+      infoText+="   " + startViewDT.toString("hh:mm:ss dd.MM.yy");
 
 
       //startViewDT_str=startViewDT.toString("yyyy.MM.dd_hh.mm.ss");
       infoText+="\nОЧІКУЄМ СТАБІЛІЗАЦІЇ...";
+      infoText+="\nУмови стабілізації:  Tavg=750±5°C  |T-Tavg|≤10°C  Treg≤2°C  на протязі 10 хв.";
 
       ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:10px;}");
 
@@ -608,8 +609,12 @@ MainWindow::MainWindow(QWidget *parent)
         }
       }
 
-      ui->labelTemperature_5_Stabilization->setText("Температура 5 - очікуєм стабілізації...");
-      ui->labelTemperature_6_Stabilization->setText("Температура 6 - очікуєм стабілізації...");
+      ui->labelTemperature_5_Stabilization->setText(temperature_5.GetChName() + " - очікуєм стабілізації...");
+      ui->labelTemperature_6_Stabilization->setText(temperature_6.GetChName() + " - очікуєм стабілізації...");
+      ui->labelTemperature_5_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
+      ui->labelTemperature_6_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
+
+      ui->labelTemperature_56_StabilizationCond->setText("Умови стабілізації:  Tavg=750±5°C   |T-Tavg|≤10°C   Treg≤2°C  на протязі 10 хвилин.");
 
 
 //      ui->stackedWidget->setCurrentIndex(0);
@@ -640,14 +645,22 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 void MainWindow::SetTablePoint(QLineEdit *lineEdit)
 {
 
-        //double value;
+
         if (lineEdit->isReadOnly())
         {
             lineEdit->setText(temperature_5.GetValueString_noEU(2));
         }
         else
         {
-            if (lineEdit->text().isEmpty()) lineEdit->setText(temperature_5.GetValueString_noEU(2));
+            if (!lineEdit->text().isEmpty())
+            {
+                double value=lineEdit->text().toDouble();
+                lineEdit->setText(QString::number(value,'f',2));
+            }
+            else
+            {
+                lineEdit->setText(temperature_5.GetValueString_noEU(2));
+            }
             lineEdit->setReadOnly(true);
         }
 }
@@ -655,14 +668,23 @@ void MainWindow::SetTablePoint(QLineEdit *lineEdit)
 void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3  ,  h=5 15 25 35 ...  145
 {
 
-    double value;
+    double value=0.0;
+
     if (lineEdit->isReadOnly())
     {
         lineEdit->setText(temperature_6.GetValueString_noEU(2));
     }
     else
     {
-        if (lineEdit->text().isEmpty()) lineEdit->setText(temperature_6.GetValueString_noEU(2));
+        if (!lineEdit->text().isEmpty())
+        {
+            value=lineEdit->text().toDouble();
+            lineEdit->setText(QString::number(value,'f',2));
+        }
+        else
+        {
+            lineEdit->setText(temperature_6.GetValueString_noEU(2));
+        }
         lineEdit->setReadOnly(true);
     }
 
@@ -880,15 +902,6 @@ double MainWindow::calcAverage(QVector<double> vec)
     //QVector::
 }
 //=======================================================================================
-double MainWindow::calcMaxDeviate(double average, QVector<double> vec)
-{
-
-}
-//=======================================================================================
-double MainWindow::calcRegression(QVector<double> vec)
-{
-
-}
 //=======================================================================================
 //=======================================================================================
 void MainWindow::SliderSetVoltage(int value)
@@ -1123,6 +1136,8 @@ void MainWindow::Timer1000ms()
          }
 
 
+
+
         /*
         //автоизменение шкалы вверх - увеличиваем так, чтоб график не біл на верхней границе
         if (ppm_pwm1*1.03>Y_PRESSURE_RANGE && ppm_pwm1*1.03 > wGraphic->yAxis->range().upper)        {
@@ -1223,8 +1238,8 @@ void MainWindow::Timer1000ms()
 
 
          double avgT2=0.0;
-         double minT2=temp_2_data.first().value;
-         double maxT2=temp_2_data.first().value;
+         double minT2=0.0;
+         double maxT2=0.0;
          double regressT2=0.0;
          double regressT2_koeff_a=0.0;
          double regressT2_koeff_b=0.0;
@@ -1233,13 +1248,44 @@ void MainWindow::Timer1000ms()
          calcAvgMinMaxRegress(temp_2_data,avgT2,minT2,maxT2,regressT2,regressT2_koeff_a,regressT2_koeff_b);
 
 
-         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n   avgT1="+QString::number(avgT1,'f',2) + "\t\t" + "avgT2="+QString::number(avgT2,'f',2) +
-                                                                             "\n   minT1="+QString::number(minT1,'f',2) + "\t\t" + "minT2="+QString::number(minT2,'f',2) +
-                                                                             "\n   maxT1="+QString::number(maxT1,'f',2) + "\t\t" + "maxT2="+QString::number(maxT2,'f',2) +
+         // Tavg=(750±5)°C  |T-Tavg|≤10°C  Treg≤2°C  на протязі 10 хв.
+
+         QString temp1StabilizationInfo,temp2StabilizationInfo;
+
+         if (temp1_isStabilized || ((seconds_from_start-600>=0) && (fabs(avgT1-750.0)<=5.0) && ((std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)))<=10.0) && (fabs(regressT1)<=2.0)))
+         {
+            temp1_isStabilized=true;
+            temp1StabilizationInfo=temperature_1.GetChName() +  " - стабілізації досягнуто.";
+         }
+         else
+         {
+            temp1StabilizationInfo=temperature_1.GetChName()+": Tavg="+QString::number(avgT1,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"  Treg="+QString::number(regressT1,'f',3);
+         }
+
+         if (temp2_isStabilized || ((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
+         {
+            temp2_isStabilized=true;
+            temp1StabilizationInfo=temperature_2.GetChName() +  " - стабілізації досягнуто.";
+         }
+         else
+         {
+            temp2StabilizationInfo=temperature_2.GetChName()+": Tavg="+QString::number(avgT2,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"  Treg="+QString::number(regressT2,'f',3);
+         }
+
+
+/*
+         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n   T1avg="+QString::number(avgT1,'f',2) + "\t\t" + "T2avg="+QString::number(avgT2,'f',2) +
+                                                                             "\n   |T1-T1avg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2) + "\t" + "|T2-T2avg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2) +
+                                                                             //"\n   minT1="+QString::number(minT1,'f',2) + "\t\t" + "minT2="+QString::number(minT2,'f',2) +
+                                                                             //"\n   maxT1="+QString::number(maxT1,'f',2) + "\t\t" + "maxT2="+QString::number(maxT2,'f',2) +
                                                                              //"\n   T(t) = "+QString::number(a,'f',7) + "*t + " + QString::number(b,'f',3)+
-                                                                             "\n   regT1="+QString::number(regressT1,'f',2) + "\t\t" + "regT2="+QString::number(regressT2,'f',3)
+                                                                             "\n   T1reg="+QString::number(regressT1,'f',3) + "\t\t" + "T2reg="+QString::number(regressT2,'f',3)
                                                                               );//+
                                                                              //"\n   t = "+QString::number(graphicTemperature_1->data()->values().last().key,'f',3) + "    T = " + QString::number(graphicTemperature_1->data()->values().last().value,'f',3));
+*/
+
+         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n"+temp1StabilizationInfo+
+                                                                             "\n"+temp2StabilizationInfo);
 
 
 
@@ -1252,6 +1298,100 @@ void MainWindow::Timer1000ms()
          graphicRegress_2->addData(temp_2_data.last().key,  regressT2_koeff_a*temp_2_data.last().key  + regressT2_koeff_b);
 
         wGraphic_1->replot();           // Отрисовываем график
+
+
+
+
+
+   //Graphic_56
+
+        if (!ui->buttonTrendZoom->isChecked())
+        {
+            //автоизменение шкалы по Х
+            if (seconds_from_start >= wGraphic_56->xAxis->range().upper)
+            {
+                double newMaxRange=wGraphic_56->xAxis->range().upper + 100;
+                wGraphic_56->xAxis->setRange(0,newMaxRange);
+
+            }
+        }
+
+        //данные за последние 10 минут
+        QList<QCPData> temp_5_data;
+        foreach(QCPData cpdata, graphicTemperature_5->data()->values())
+        {
+            if (cpdata.key >= seconds_from_start - 600) temp_5_data.append(cpdata);
+        }
+        QList<QCPData> temp_6_data;
+        foreach(QCPData cpdata, graphicTemperature_6->data()->values())
+        {
+            if (cpdata.key >= seconds_from_start - 600) temp_6_data.append(cpdata);
+        }
+
+
+        if (temp_5_data.size()==0 || temp_5_data.size()==0)
+        {
+            ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n n/d");
+            return;
+        }
+
+        double avgT5=0.0;
+        double minT5=0.0;//temp_1_data.first().value;
+        double maxT5=0.0;//temp_1_data.first().value;
+        double regressT5=0.0;
+        double regressT5_koeff_a=0.0;
+        double regressT5_koeff_b=0.0;
+
+
+        double avgT6=0.0;
+        double minT6=0.0;
+        double maxT6=0.0;
+        double regressT6=0.0;
+        double regressT6_koeff_a=0.0;
+        double regressT6_koeff_b=0.0;
+
+        calcAvgMinMaxRegress(temp_5_data,avgT5,minT5,maxT5,regressT5,regressT5_koeff_a,regressT5_koeff_b);
+        calcAvgMinMaxRegress(temp_6_data,avgT6,minT6,maxT6,regressT6,regressT6_koeff_a,regressT6_koeff_b);
+
+
+        // Умови стабілізації:  Tavg=750±5°C   |T-Tavg|≤10°C   Treg≤2°C  на протязі 10 хвилин.
+
+        if (temp5_isStabilized || ((seconds_from_start-600>=0) && (fabs(avgT5-750.0)<=5.0) && ((std::max(fabs(maxT5-avgT5),fabs(minT5-avgT5)))<=10.0) && (fabs(regressT5)<=2.0)))
+        {
+            temp5_isStabilized=true;
+            ui->labelTemperature_5_Stabilization->setText(temperature_5.GetChName() +  " - стабілізації досягнуто.");
+            ui->labelTemperature_5_Stabilization->setStyleSheet("QLabel{color: green; font-size:16px;}");
+        }
+        else
+        {
+            ui->labelTemperature_5_Stabilization->setText(QString(temperature_5.GetChName() + " - очікуєм стабілізації...")+ " Tavg="+QString::number(avgT5,'f',2)+
+                                                                  "  |T-Tavg|="+QString::number(std::max(fabs(maxT5-avgT5),fabs(minT5-avgT5)),'f',2)+"  Treg="+QString::number(regressT5,'f',2));
+            ui->labelTemperature_5_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
+        }
+
+        if (temp6_isStabilized || ((seconds_from_start-600>=0) && (fabs(avgT6-750.0)<=5.0) && ((std::max(fabs(maxT6-avgT6),fabs(minT6-avgT6)))<=10.0) && (fabs(regressT6)<=2.0)))
+        {
+            temp6_isStabilized=true;
+            ui->labelTemperature_6_Stabilization->setText(temperature_6.GetChName() + " - стабілізації досягнуто.");
+            ui->labelTemperature_6_Stabilization->setStyleSheet("QLabel{color: green; font-size:16px;}");
+        }
+        else
+        {
+            ui->labelTemperature_6_Stabilization->setText(QString(temperature_6.GetChName() + " - очікуєм стабілізації...")+ " Tavg="+QString::number(avgT6,'f',2)+
+                                                                  "  |T-Tavg|="+QString::number(std::max(fabs(maxT6-avgT6),fabs(minT6-avgT6)),'f',2)+"  Treg="+QString::number(regressT6,'f',2));
+            ui->labelTemperature_6_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
+        }
+
+
+
+
+
+
+
+
+
+
+
         wGraphic_56->replot();
 
 
