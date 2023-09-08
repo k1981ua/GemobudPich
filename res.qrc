@@ -20,6 +20,7 @@
         <file>heat_7648173.png</file>
         <file>heat-64.png</file>
         <file>heating.png</file>
+        <file>heat-64.ico</file>
     </qresource>
     <qresource prefix="/wavs">
         <file>error.wav</file>

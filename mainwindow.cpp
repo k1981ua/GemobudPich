@@ -1265,7 +1265,7 @@ void MainWindow::Timer1000ms()
          if (temp2_isStabilized || ((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
          {
             temp2_isStabilized=true;
-            temp1StabilizationInfo=temperature_2.GetChName() +  " - стабілізації досягнуто.";
+            temp2StabilizationInfo=temperature_2.GetChName() +  " - стабілізації досягнуто.";
          }
          else
          {
