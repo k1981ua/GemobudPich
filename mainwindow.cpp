@@ -614,7 +614,7 @@ MainWindow::MainWindow(QWidget *parent)
       ui->labelTemperature_5_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
       ui->labelTemperature_6_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
 
-      ui->labelTemperature_56_StabilizationCond->setText("Умови стабілізації:  Tavg=750±5°C   |T-Tavg|≤10°C   Treg≤2°C  на протязі 10 хвилин.");
+      ui->labelTemperature_56_StabilizationCond->setText("Умови стабілізації:Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C");
 
 
 //      ui->stackedWidget->setCurrentIndex(0);
