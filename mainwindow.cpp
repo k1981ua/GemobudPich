@@ -525,7 +525,7 @@ MainWindow::MainWindow(QWidget *parent)
 
       //startViewDT_str=startViewDT.toString("yyyy.MM.dd_hh.mm.ss");
       infoText+="\nОЧІКУЄМ СТАБІЛІЗАЦІЇ...";
-      infoText+="\nУмови стабілізації:  Tavg=750±5°C  |T-Tavg|≤10°C  Treg≤2°C  на протязі 10 хв.";
+      infoText+="\nУмови: Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C, 10 хв.";
 
       ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:10px;}");
 
