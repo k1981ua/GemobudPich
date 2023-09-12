@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->verticalLayoutGraphic_1->addWidget(wGraphic_1);
     wGraphic_1->xAxis->setLabel("Час, сек.");
-    wGraphic_1->xAxis->setRange(0,X_RANGETEST);
+    wGraphic_1->xAxis->setRange(X_RANGEPRETEST_MIN,X_RANGEPRETEST_MAX);
     wGraphic_1->xAxis->setTickStep(X_TICKSTEP);
     wGraphic_1->xAxis->setAutoTickStep(false);
 
@@ -217,6 +217,34 @@ MainWindow::MainWindow(QWidget *parent)
      graphicTemperature_4->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
      graphicTemperature_4->setLineStyle(QCPGraph::lsLine);
 
+
+
+     //графики регрессии для ModeTest, 7 штук максимум, массив ,стр.25 ДСТУ ISO 1182:2022
+
+     // Инициализируем график TestRegress_1[i] и _2 и привязываем его к Осям
+     for(int i=0;i<7;++i)
+     {
+         // graphicTestRegress_1
+         graphicTestRegress_1[i] = new QCPGraph(wGraphic_1->xAxis, wGraphic_1->yAxis);
+         wGraphic_1->addPlottable(graphicTestRegress_1[i]);  // Устанавливаем график на полотно
+         QPen penTestRegress_1=graphicTestRegress_1[i]->pen();
+         penTestRegress_1.setColor(Qt::gray);
+         penTestRegress_1.setWidth(2);
+         graphicTestRegress_1[i]->setPen(penTestRegress_1); // Устанавливаем цвет графика
+         graphicTestRegress_1[i]->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+         graphicTestRegress_1[i]->setLineStyle(QCPGraph::lsLine);
+
+         // graphicTestRegress_2
+         graphicTestRegress_2[i] = new QCPGraph(wGraphic_1->xAxis, wGraphic_1->yAxis);
+         wGraphic_1->addPlottable(graphicTestRegress_2[i]);  // Устанавливаем график на полотно
+         QPen penTestRegress_2=graphicTestRegress_2[i]->pen();
+         penTestRegress_2.setColor(Qt::gray);
+         penTestRegress_2.setWidth(2);
+         graphicTestRegress_2[i]->setPen(penTestRegress_2); // Устанавливаем цвет графика
+         graphicTestRegress_2[i]->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
+         graphicTestRegress_2[i]->setLineStyle(QCPGraph::lsLine);
+     }
+
      /* Подключаем сигнал от Оси X об изменении видимого диапазона координат
       * к СЛОТу для переустановки формата времени оси.
       * */
@@ -246,7 +274,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->verticalLayoutGraphic_56->addWidget(wGraphic_56);
     wGraphic_56->xAxis->setLabel("Час, сек.");
-    wGraphic_56->xAxis->setRange(0,X_RANGETEST);
+    wGraphic_56->xAxis->setRange(X_RANGEPRETEST_MIN,X_RANGEPRETEST_MAX);
     wGraphic_56->xAxis->setTickStep(X_TICKSTEP);
     wGraphic_56->xAxis->setAutoTickStep(false);
 
@@ -516,11 +544,10 @@ MainWindow::MainWindow(QWidget *parent)
 
       timer1000ms.start(3000);  //дадим время для первого опроса датчиков, далее будет установлено 1000 мс.
 
-      startViewDT=QDateTime::currentDateTime();
+      startPreTestDT=QDateTime::currentDateTime();
 
       infoText="СТАРТ ПРОГРАМИ";
-      startViewDT=QDateTime::currentDateTime();
-      infoText+="   " + startViewDT.toString("hh:mm:ss dd.MM.yy");
+      infoText+="   " + startPreTestDT.toString("hh:mm:ss dd.MM.yy");
 
 
       //startViewDT_str=startViewDT.toString("yyyy.MM.dd_hh.mm.ss");
@@ -799,8 +826,19 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
     }
     else
     {
+
+
         wGraphic_1->setInteractions(NULL);
-        wGraphic_1->xAxis->setRange(0,X_RANGETEST);//xInterval);
+
+        if (runningMode==ModePreTest)
+        {
+            wGraphic_1->xAxis->setRange(X_RANGEPRETEST_MIN,X_RANGEPRETEST_MAX);//xInterval);
+        }
+        else
+        {
+            wGraphic_1->xAxis->setRange(X_RANGETEST_MIN,X_RANGETEST_MAX);//xInterval);
+        }
+
         wGraphic_1->xAxis->setTickStep(X_TICKSTEP);
         wGraphic_1->xAxis->setAutoTickStep(false);
         wGraphic_1->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
@@ -808,16 +846,33 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
         wGraphic_1->yAxis->setTickStep(100.0);
 
 
+        //автоизменение шкалы по Х
+        if ((graphicTemperature_1->data()->size()>0) && (graphicTemperature_1->data()->last().key >= wGraphic_1->xAxis->range().upper))
+        {
+            double newMaxRange=wGraphic_1->xAxis->range().upper + std::abs(graphicTemperature_1->data()->last().key - wGraphic_1->xAxis->range().upper + 1)*100;
+            wGraphic_1->xAxis->setRange(0,newMaxRange);
+
+        }
+
+
         wGraphic_1->replot();
 
 
         wGraphic_56->setInteractions(NULL);
-        wGraphic_56->xAxis->setRange(0,X_RANGETEST);//xInterval);
+        wGraphic_56->xAxis->setRange(X_RANGEPRETEST_MIN,X_RANGEPRETEST_MIN);//xInterval);
         wGraphic_56->xAxis->setTickStep(X_TICKSTEP);
         wGraphic_56->xAxis->setAutoTickStep(false);
         wGraphic_56->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
         wGraphic_56->yAxis->setAutoTickStep(false);
         wGraphic_56->yAxis->setTickStep(100.0);
+
+        //автоизменение шкалы по Х
+        if ((graphicTemperature_5->data()->size()>0) && (graphicTemperature_5->data()->last().key >= wGraphic_56->xAxis->range().upper))
+        {
+            double newMaxRange=wGraphic_56->xAxis->range().upper + std::abs(graphicTemperature_5->data()->last().key - wGraphic_56->xAxis->range().upper + 1)*100;
+            wGraphic_56->xAxis->setRange(0,newMaxRange);
+
+        }
 
 
         wGraphic_56->replot();
@@ -895,7 +950,7 @@ void MainWindow::slotRangeChanged(const QCPRange &newRange)
 double MainWindow::calcAverage(QVector<double> vec)
 {
     if (vec.empty()) {
-        return 0;
+        return 0.0;
     }
     return std::accumulate(vec.begin(), vec.end(), 0.0) / vec.size();
 
@@ -1063,34 +1118,112 @@ void MainWindow::Timer1000ms()
          ui->buttonStartStop->setText("Стоп");
          runningMode=ModeTest;
          //controlPoints.clear();
-         infoText+="\nВИПРОБУВАННЯ\n";
+         infoText="СТАРТ ВИПРОБУВАННЯ   ";
          startTestDT=QDateTime::currentDateTime();
          startTestDT_str=startTestDT.toString("yyyy.MM.dd_hh.mm.ss");
-         infoText+="\nПочаток:\n"+startTestDT.toString("hh:mm dd.MM.yy");
+         infoText+=" "+startTestDT.toString("hh:mm:ss dd.MM.yy");
 
-         //set "0" on start of test
-         //movement_1.SetZeroOffset();
-         //movement_2.SetZeroOffset();
-         //infoText+="\nВідкр. реле...";
 
          //infoText+=QString("\nЧАС: 00:00:00");
          //ui->listWidgetInfo->clear();
          //ui->listWidgetInfo->addItem(QTime::currentTime().toString()+ QString(" Started Test Mode"));
          //ui->listWidgetInfo->addItem(QTime::currentTime().toString()+ QString(" Wait temperature:"));
-         wGraphic_1->xAxis->setRange(0,X_RANGETEST);//xInterval);
+         wGraphic_1->xAxis->setRange(X_RANGETEST_MIN,X_RANGETEST_MAX);//xInterval);
          wGraphic_1->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
          //wGraphic->yAxis2->setRange(0,Y_TEMPERATURE_RANGE);
          //graphicMovement_1->clearData();
          //graphicMovement_2->clearData();
+         //graphicTemperature_1->clearData();
+         //graphicTemperature_2->clearData();
+         //graphicTemperature_3->clearData();
+         //graphicTemperature_4->clearData();
+         //graphicTemperature_5->clearData();
+         //graphicTemperature_6->clearData();
+
+
+         //перешкалировать температуры 1,2,3,4 по Х, чтобы получить шкалу на графике -600...1800,  т.е. от -10мин до +30минут
+         //
+
+
+         double seconds_from_start=startPreTestDT.msecsTo(startTestDT)/1000.0;
+
+         QList<QCPData> temp_1_data;
+         foreach(QCPData cpdata, graphicTemperature_1->data()->values())
+         {
+            cpdata.key=cpdata.key-seconds_from_start;
+            temp_1_data.append(cpdata);
+         }
+         QList<QCPData> temp_2_data;
+         foreach(QCPData cpdata, graphicTemperature_2->data()->values())
+         {
+            cpdata.key=cpdata.key-seconds_from_start;
+            temp_2_data.append(cpdata);
+         }
+         QList<QCPData> temp_3_data;
+         foreach(QCPData cpdata, graphicTemperature_3->data()->values())
+         {
+            cpdata.key=cpdata.key-seconds_from_start;
+            temp_3_data.append(cpdata);
+         }
+         QList<QCPData> temp_4_data;
+         foreach(QCPData cpdata, graphicTemperature_4->data()->values())
+         {
+            cpdata.key=cpdata.key-seconds_from_start;
+            temp_4_data.append(cpdata);
+         }
+
          graphicTemperature_1->clearData();
+         foreach(QCPData cpdata, temp_1_data)
+         {
+            graphicTemperature_1->addData(cpdata);
+         }
+
          graphicTemperature_2->clearData();
+         foreach(QCPData cpdata, temp_2_data)
+         {
+            graphicTemperature_2->addData(cpdata);
+         }
+
          graphicTemperature_3->clearData();
+         foreach(QCPData cpdata, temp_3_data)
+         {
+            graphicTemperature_3->addData(cpdata);
+         }
+
          graphicTemperature_4->clearData();
+         foreach(QCPData cpdata, temp_4_data)
+         {
+            graphicTemperature_4->addData(cpdata);
+         }
+
+         //то же графики регрессов
+         QList<QCPData> regr_1_data;
+         foreach(QCPData cpdata, graphicRegress_1->data()->values())
+         {
+            cpdata.key=cpdata.key-seconds_from_start;
+            regr_1_data.append(cpdata);
+         }
+         QList<QCPData> regr_2_data;
+         foreach(QCPData cpdata, graphicRegress_2->data()->values())
+         {
+            cpdata.key=cpdata.key-seconds_from_start;
+            regr_2_data.append(cpdata);
+         }
+
+         graphicRegress_1->clearData();
+         foreach(QCPData cpdata, regr_1_data)
+         {
+            graphicRegress_1->addData(cpdata);
+         }
+
+         graphicRegress_2->clearData();
+         foreach(QCPData cpdata, regr_2_data)
+         {
+            graphicRegress_2->addData(cpdata);
+         }
 
 
-
-
-         startTestDT=QDateTime::currentDateTime();
+         //startTestDT=QDateTime::currentDateTime();
          //startTestTemperature=value_grC_offseted;
          //sound_start->play();
          //QProcess::startDetached(QString("aplay ")+QApplication::applicationDirPath() + "/start.wav");
@@ -1111,7 +1244,7 @@ void MainWindow::Timer1000ms()
          //добавляем данные на график
          double seconds_from_start;
 
-         seconds_from_start=startViewDT.msecsTo(QDateTime::currentDateTime())/1000.0;
+         seconds_from_start=startPreTestDT.msecsTo(QDateTime::currentDateTime())/1000.0;
          //double minutes_from_start=seconds_from_start/60.0;
 
          //graphicMovement_1->addData(minutes_from_start,movement_1.GetValue());
@@ -1190,7 +1323,7 @@ void MainWindow::Timer1000ms()
         */
 
 
-         int viewRunningSecs=startViewDT.secsTo(QDateTime::currentDateTime());
+         int viewRunningSecs=startPreTestDT.secsTo(QDateTime::currentDateTime());
          QString viewRunningStr="";
          if (viewRunningSecs / 3600 < 10) viewRunningStr+="0";
          viewRunningStr+=QString::number(viewRunningSecs / 3600) + ":";
@@ -1252,9 +1385,9 @@ void MainWindow::Timer1000ms()
 
          QString temp1StabilizationInfo,temp2StabilizationInfo;
 
-         if (temp1_isStabilized || ((seconds_from_start-600>=0) && (fabs(avgT1-750.0)<=5.0) && ((std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)))<=10.0) && (fabs(regressT1)<=2.0)))
+         if (temp1_PreTestStabilized || ((seconds_from_start-600>=0) && (fabs(avgT1-750.0)<=5.0) && ((std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)))<=10.0) && (fabs(regressT1)<=2.0)))
          {
-            temp1_isStabilized=true;
+            temp1_PreTestStabilized=true;
             temp1StabilizationInfo=temperature_1.GetChName() +  " - стабілізації досягнуто.";
          }
          else
@@ -1262,9 +1395,9 @@ void MainWindow::Timer1000ms()
             temp1StabilizationInfo=temperature_1.GetChName()+": Tavg="+QString::number(avgT1,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"  Treg="+QString::number(regressT1,'f',3);
          }
 
-         if (temp2_isStabilized || ((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
+         if (temp2_PreTestStabilized || ((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
          {
-            temp2_isStabilized=true;
+            temp2_PreTestStabilized=true;
             temp2StabilizationInfo=temperature_2.GetChName() +  " - стабілізації досягнуто.";
          }
          else
@@ -1272,17 +1405,6 @@ void MainWindow::Timer1000ms()
             temp2StabilizationInfo=temperature_2.GetChName()+": Tavg="+QString::number(avgT2,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"  Treg="+QString::number(regressT2,'f',3);
          }
 
-
-/*
-         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n   T1avg="+QString::number(avgT1,'f',2) + "\t\t" + "T2avg="+QString::number(avgT2,'f',2) +
-                                                                             "\n   |T1-T1avg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2) + "\t" + "|T2-T2avg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2) +
-                                                                             //"\n   minT1="+QString::number(minT1,'f',2) + "\t\t" + "minT2="+QString::number(minT2,'f',2) +
-                                                                             //"\n   maxT1="+QString::number(maxT1,'f',2) + "\t\t" + "maxT2="+QString::number(maxT2,'f',2) +
-                                                                             //"\n   T(t) = "+QString::number(a,'f',7) + "*t + " + QString::number(b,'f',3)+
-                                                                             "\n   T1reg="+QString::number(regressT1,'f',3) + "\t\t" + "T2reg="+QString::number(regressT2,'f',3)
-                                                                              );//+
-                                                                             //"\n   t = "+QString::number(graphicTemperature_1->data()->values().last().key,'f',3) + "    T = " + QString::number(graphicTemperature_1->data()->values().last().value,'f',3));
-*/
 
          ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n"+temp1StabilizationInfo+
                                                                              "\n"+temp2StabilizationInfo);
@@ -1418,18 +1540,20 @@ void MainWindow::Timer1000ms()
         graphicTemperature_3->addData(seconds_from_start,temperature_3.GetValue());
         graphicTemperature_4->addData(seconds_from_start,temperature_4.GetValue());
 
-
-        //автоизменение шкалы по Х
-        if (seconds_from_start >= wGraphic_1->xAxis->range().upper)
+        if (!ui->buttonTrendZoom->isChecked())
         {
-            double newMaxRange=wGraphic_1->xAxis->range().upper + 10;
-            wGraphic_1->xAxis->setRange(0,newMaxRange);
+            //автоизменение шкалы по Х
+            if (seconds_from_start >= wGraphic_1->xAxis->range().upper)
+            {
+                double newMaxRange=wGraphic_1->xAxis->range().upper + 100;
+                wGraphic_1->xAxis->setRange(0,newMaxRange);
 
+            }
         }
 
 
 
-        wGraphic_1->replot();           // Отрисовываем график
+
 
 
         int testRunningSecs=startTestDT.secsTo(QDateTime::currentDateTime());
@@ -1445,7 +1569,135 @@ void MainWindow::Timer1000ms()
         if (testRunningSecs < 10) testRunningStr+="0";
         testRunningStr+=QString::number(testRunningSecs);
 
-        ui->labelInfo->setText(infoText+QString("\nЧАС: ") + testRunningStr);
+
+
+
+
+        //для ожидания первого интервала и потом добавляем пять минут и ждем следующий, последний будет на 60 минуте;
+        //double seconds_end_current_interval=1800; // 30 minutes
+        //double secons_add_to_switch_next_interval=300;   //5 minutes
+        //double secons_last_interval=3600;   //60 minutes
+
+
+        if (seconds_from_start>=seconds_end_first_interval+num_interval*secons_add_to_switch_next_interval)
+        {
+
+            //взять данные за последние 10 минут, рассчитать среднее, регрессию, построить графики регрессий
+            //данные за последние 10 минут
+            QList<QCPData> temp_1_data;
+            foreach(QCPData cpdata, graphicTemperature_1->data()->values())
+            {
+                if (cpdata.key >= seconds_from_start - 600) temp_1_data.append(cpdata);
+            }
+            QList<QCPData> temp_2_data;
+            foreach(QCPData cpdata, graphicTemperature_2->data()->values())
+            {
+                if (cpdata.key >= seconds_from_start - 600) temp_2_data.append(cpdata);
+            }
+
+
+            if (temp_1_data.size()==0 || temp_2_data.size()==0)
+            {
+                return;
+            }
+
+            //double accuT1=0.0;
+            double avgT1=0.0;
+            double minT1=0.0;//temp_1_data.first().value;
+            double maxT1=0.0;//temp_1_data.first().value;
+            double regressT1=0.0;
+            double regressT1_koeff_a=0.0;
+            double regressT1_koeff_b=0.0;
+
+
+            double avgT2=0.0;
+            double minT2=0.0;
+            double maxT2=0.0;
+            double regressT2=0.0;
+            double regressT2_koeff_a=0.0;
+            double regressT2_koeff_b=0.0;
+
+            calcAvgMinMaxRegress(temp_1_data,avgT1,minT1,maxT1,regressT1,regressT1_koeff_a,regressT1_koeff_b);
+            calcAvgMinMaxRegress(temp_2_data,avgT2,minT2,maxT2,regressT2,regressT2_koeff_a,regressT2_koeff_b);
+
+
+            // Tavg=(750±5)°C  |T-Tavg|≤10°C  Treg≤2°C  на протязі 10 хв.
+
+            //QString temp1StabilizationInfo,temp2StabilizationInfo;
+
+            if (/*temp1_TestStabilized || */((seconds_from_start-600>=0) && (fabs(avgT1-750.0)<=5.0) && ((std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)))<=10.0) && (fabs(regressT1)<=2.0)))
+            {
+                temp1_TestStabilized=true;
+                temp1TestStabilizationInfo=temperature_1.GetChName() +  " - стабілізації досягнуто.";
+            }
+            else
+            {
+                temp1_TestStabilized=false;
+                temp1TestStabilizationInfo=temperature_1.GetChName()+": Tavg="+QString::number(avgT1,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"  Treg="+QString::number(regressT1,'f',3);
+            }
+
+            if (/*temp2_TestStabilized || */((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
+            {
+                temp2_TestStabilized=true;
+                temp2TestStabilizationInfo=temperature_2.GetChName() +  " - стабілізації досягнуто.";
+            }
+            else
+            {
+                temp2_TestStabilized=false;
+                temp2TestStabilizationInfo=temperature_2.GetChName()+": Tavg="+QString::number(avgT2,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"  Treg="+QString::number(regressT2,'f',3);
+            }
+
+
+            //ui->labelInfo->setText(infoText+QString("\nЧАС: ") + testRunningStr+"\n");
+
+            //ui->labelInfo->setText(ui->labelInfo->text()+QString("ОЧІКУЄМ ")+QString::number(30+num_interval*5)+" хвилину...");
+
+
+
+
+
+
+            //graphicTestRegress_1->clearData();
+            graphicTestRegress_1[num_interval]->addData(temp_1_data.first().key, regressT1_koeff_a*temp_1_data.first().key + regressT1_koeff_b);
+            graphicTestRegress_1[num_interval]->addData(temp_1_data.last().key,  regressT1_koeff_a*temp_1_data.last().key  + regressT1_koeff_b);
+
+            //graphicRegress_2->clearData();
+            graphicTestRegress_2[num_interval]->addData(temp_2_data.first().key, regressT2_koeff_a*temp_2_data.first().key + regressT2_koeff_b);
+            graphicTestRegress_2[num_interval]->addData(temp_2_data.last().key,  regressT2_koeff_a*temp_2_data.last().key  + regressT2_koeff_b);
+
+
+
+            //проверяем на последний интервал
+            if (num_interval>=7)
+            {
+                runningMode=ModeTestStopped;//STOP
+                testStopReason=QString("ЗАВЕРШЕНО... Стабілізації не досягнуто за 60 хв.");
+            }
+
+
+            if(temp1_TestStabilized &&  temp2_TestStabilized)
+            {
+                runningMode=ModeTestStopped; //STOP
+                testStopReason=QString("ЗАВЕРШЕНО... Стабілізація досягнута на ")+QString::number(30+num_interval*5)+" хв.";
+
+            }
+
+
+            //переключаем интервал
+            num_interval++;
+            //seconds_end_current_interval=seconds_end_current_interval+secons_add_to_switch_next_interval;
+
+
+
+        }
+
+        ui->labelInfo->setText(infoText+QString("\nЧАС: ") + testRunningStr+"\n"+
+                                        QString("ОЧІКУЄМ ")+QString::number(30+num_interval*5)+" хвилину..."+"\n"+
+                                        temp1TestStabilizationInfo+"\n"+
+                                        temp2TestStabilizationInfo+"\n"+
+                                        testStopReason);
+
+
 
 
 
@@ -1462,9 +1714,14 @@ void MainWindow::Timer1000ms()
             ui->buttonStartStop->setText("Старт");
             runningMode=ModeTestStopped;
             //sound_stop->play();
-            ui->labelInfo->setText(ui->labelInfo->text()+"\nТЕСТ ЗАВЕРШЕНО\n");
-            //QProcess::startDetached(QString("aplay ")+QApplication::applicationDirPath() + "/stop.wav");
 
+            //QProcess::startDetached(QString("aplay ")+QApplication::applicationDirPath() + "/stop.wav");
+            testStopReason=QString("ЗАВЕРШЕНО... Зупинено оператором");
+            ui->labelInfo->setText(infoText+QString("\nЧАС: ") + testRunningStr+"\n"+
+                                        QString("ОЧІКУЄМ ")+QString::number(30+num_interval*5)+" хвилину..."+"\n"+
+                                        temp1TestStabilizationInfo+"\n"+
+                                   temp2TestStabilizationInfo+"\n"+
+                                   testStopReason);
 
 
 
@@ -1498,8 +1755,7 @@ void MainWindow::Timer1000ms()
         }
 
 
-
-
+        wGraphic_1->replot();           // Отрисовываем график
 
     }   //     if(runningMode==ModeTest)
 
@@ -1539,7 +1795,8 @@ void MainWindow::ButtonReset()
 
 
 
-    wGraphic_1->xAxis->setRange(0,X_RANGETEST);//xInterval);
+
+    wGraphic_1->xAxis->setRange(X_RANGEPRETEST_MIN,X_RANGEPRETEST_MAX);//xInterval);
     wGraphic_1->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
     //wGraphic->yAxis2->setRange(0, Y_CO2_RANGE_PROCENTS);
 

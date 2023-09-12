@@ -13,7 +13,12 @@
 #include "dialogconfig.h"
 
 
-#define X_RANGETEST 1800  //seconds стартовая ширина полотна графика по х для режима тестов 180 minutes
+#define X_RANGEPRETEST_MIN 0  //seconds стартовая ширина полотна графика по х для режима перед тестов 0 minutes
+#define X_RANGEPRETEST_MAX 1800  //seconds стартовая ширина полотна графика по х для режима перед тестов 30 minutes
+
+#define X_RANGETEST_MIN -600  //seconds стартовая ширина полотна графика по х для режима тестов -10 minutes
+#define X_RANGETEST_MAX 1800  //seconds стартовая ширина полотна графика по х для режима тестов 30 minutes
+
 //#define X_RANGEVIEW 3600   //стартовая ширина полотна графика по х для режима просмотра
 #define X_TICKSTEP 200  //20  //деления на шкале интервал 20 минут
 
@@ -49,6 +54,7 @@ struct OperatorPoint
     double movement;
     double temperature;
 };
+
 //=====================================================================================
 class MainWindow : public QMainWindow
 {
@@ -65,10 +71,12 @@ private:
     CommandButton cmdButton=NoCmd;
     QString infoText;
 
+
+    QDateTime startPreTestDT;
+    QString startPreTestDT_str;
     QDateTime startTestDT;
     QString startTestDT_str;
-    QDateTime startViewDT;
-    QString startViewDT_str;
+
 
 
     QVector<OperatorPoint> levelUpPoints_1;
@@ -86,9 +94,26 @@ private:
     QCPGraph *graphicTemperature_4;
     QCPGraph *graphicRegress_1;
     QCPGraph *graphicRegress_2;
-    bool temp1_isStabilized=false;
-    bool temp2_isStabilized=false;
+    bool temp1_PreTestStabilized=false;
+    bool temp2_PreTestStabilized=false;
 
+    //ModeTest regression
+    QCPGraph *graphicTestRegress_1[7]; //всего надо 7 графиков, на 7 интервалов:
+    QCPGraph *graphicTestRegress_2[7];  // 20-30мин.; 25-35; 30-40; 35-45; 40-50;45-55;50-60;
+
+
+    //для ожидания первого интервала и потом добавляем пять минут и ждем следующий, последний будет на 60 минуте;
+    double seconds_end_first_interval=1800; // 30 minutes
+    double secons_add_to_switch_next_interval=300;   //5 minutes
+    double secons_last_interval=3600;   //60 minutes
+    int num_interval=0;   //num_interval=0..6 , всего 7 интервалов
+    bool temp1_TestStabilized=false;
+    bool temp2_TestStabilized=false;
+    QString testStopReason;
+
+    QString temp1TestStabilizationInfo,temp2TestStabilizationInfo;
+
+//calibration page graphics
     QCustomPlot *wGraphic_56;
     QCPGraph *graphicTemperature_5;
     QCPGraph *graphicTemperature_6;
