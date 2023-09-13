@@ -849,7 +849,7 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
         //автоизменение шкалы по Х
         if ((graphicTemperature_1->data()->size()>0) && (graphicTemperature_1->data()->last().key >= wGraphic_1->xAxis->range().upper))
         {
-            double newMaxRange=wGraphic_1->xAxis->range().upper + std::abs(graphicTemperature_1->data()->last().key - wGraphic_1->xAxis->range().upper + 1)*100;
+            double newMaxRange=wGraphic_1->xAxis->range().upper + ( (int)((graphicTemperature_1->data()->last().key - wGraphic_1->xAxis->range().upper)/100.0) + 1)*100;
             wGraphic_1->xAxis->setRange(0,newMaxRange);
 
         }
@@ -869,7 +869,7 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
         //автоизменение шкалы по Х
         if ((graphicTemperature_5->data()->size()>0) && (graphicTemperature_5->data()->last().key >= wGraphic_56->xAxis->range().upper))
         {
-            double newMaxRange=wGraphic_56->xAxis->range().upper + std::abs(graphicTemperature_5->data()->last().key - wGraphic_56->xAxis->range().upper + 1)*100;
+            double newMaxRange=wGraphic_56->xAxis->range().upper + ( (int)((graphicTemperature_5->data()->last().key - wGraphic_56->xAxis->range().upper)/100.0) + 1)*100;
             wGraphic_56->xAxis->setRange(0,newMaxRange);
 
         }
