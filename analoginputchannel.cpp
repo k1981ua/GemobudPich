@@ -28,8 +28,8 @@ AnalogInputChannel::AnalogInputChannel(QObject *parent) : QObject(parent)
 void AnalogInputChannel::Reset()
 {
     avgPointsVector.clear();
-    valueEU_min=qSNaN();
-    valueEU_max=qSNaN();
+    valueEU_min=qQNaN();
+    valueEU_max=qQNaN();
 
 }
 //===========================================================================
@@ -188,10 +188,14 @@ double AnalogInputChannel::Average(double newValueRaw)
     avgPointsVector.push_back(newValueRaw);
     if (avgPointsVector.size() > numAvgPoints) avgPointsVector.pop_front();
 
+    //delete from vector all NaNs
+    avgPointsVector.removeAll(qQNaN());
+
+
     double summ=0;
     for(int i=0;i<avgPointsVector.size();++i)
     {
-        summ+=avgPointsVector[i];
+        /*if (!qIsNaN(avgPointsVector[i])) {*/  summ+=avgPointsVector[i];   /*}*/
     }
 
     if (avgPointsVector.size()>0)
@@ -209,6 +213,12 @@ bool AnalogInputChannel::Calibrate(double x, double &y)
     if (calPointsVector.size()<2)
     {
         y=x;
+        return false;
+    }
+
+    if (qIsNaN(x))
+    {
+        y=qQNaN();
         return false;
     }
 
