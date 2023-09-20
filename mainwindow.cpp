@@ -683,12 +683,12 @@ MainWindow::MainWindow(QWidget *parent)
         }
       }
 
-      ui->labelTemperature_5_Stabilization->setText(temperature_5.GetChName() + " - очікуєм стабілізації...");
-      ui->labelTemperature_6_Stabilization->setText(temperature_6.GetChName() + " - очікуєм стабілізації...");
-      ui->labelTemperature_5_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
-      ui->labelTemperature_6_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
+      //ui->labelTemperature_5_Stabilization->setText(temperature_5.GetChName() + " - очікуєм стабілізації...");
+      //ui->labelTemperature_6_Stabilization->setText(temperature_6.GetChName() + " - очікуєм стабілізації...");
+      //ui->labelTemperature_5_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
+      //ui->labelTemperature_6_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
 
-      ui->labelTemperature_56_StabilizationCond->setText("Умови стабілізації:Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C");
+      //ui->labelTemperature_56_StabilizationCond->setText("Умови стабілізації:Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C");
 
 
 //      ui->stackedWidget->setCurrentIndex(0);
@@ -737,6 +737,39 @@ void MainWindow::SetTablePoint(QLineEdit *lineEdit)
             }
             lineEdit->setReadOnly(true);
         }
+
+
+        double T1a=ui->lineEditT1a->text().toDouble();
+        double T1b=ui->lineEditT1b->text().toDouble();
+        double T1c=ui->lineEditT1c->text().toDouble();
+        double T2a=ui->lineEditT2a->text().toDouble();
+        double T2b=ui->lineEditT2b->text().toDouble();
+        double T2c=ui->lineEditT2c->text().toDouble();
+        double T3a=ui->lineEditT3a->text().toDouble();
+        double T3b=ui->lineEditT3b->text().toDouble();
+        double T3c=ui->lineEditT3c->text().toDouble();
+
+        double Tavg=(T1a+T1b+T1c+T2a+T2b+T2c+T3a+T3b+T3c)/9.0;
+        double Tavg_axis1=(T1a+T1b+T1c)/3.0;
+        double Tavg_axis2=(T2a+T2b+T2c)/3.0;
+        double Tavg_axis3=(T3a+T3b+T3c)/3.0;
+        double Tdev_axis1=100.0*fabs(Tavg-Tavg_axis1)/Tavg;
+        double Tdev_axis2=100.0*fabs(Tavg-Tavg_axis2)/Tavg;
+        double Tdev_axis3=100.0*fabs(Tavg-Tavg_axis3)/Tavg;
+        double Tavg_dev_axis=(Tdev_axis1+Tdev_axis2+Tdev_axis3)/3.0;  //formula 8
+        double Tavg_levela=(T1a+T2a+T3a)/3.0;
+        double Tavg_levelb=(T1b+T2b+T3b)/3.0;
+        double Tavg_levelc=(T1c+T2c+T3c)/3.0;
+        double Tdev_levela=100.0*fabs((Tavg-Tavg_levela)/Tavg);
+        double Tdev_levelb=100.0*fabs((Tavg-Tavg_levelb)/Tavg);
+        double Tdev_levelc=100.0*fabs((Tavg-Tavg_levelc)/Tavg);
+        double Tavg_dev_level=(Tdev_levela+Tdev_levelb+Tdev_levelc)/3.0;  //formula 15
+
+        ui->labelCalibration1Result->setText("T<sub>avg,dev,axis</sub>="+QString::number(Tavg_dev_axis,'f',2)+"   T<sub>avg,dev,level</sub>="+QString::number(Tavg_dev_level,'f',2));
+
+
+
+
 }
 //=======================================================================================
 void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3  ,  h=5 15 25 35 ...  145
@@ -1485,6 +1518,7 @@ void MainWindow::Timer1000ms()
             }
         }
 
+        /*
         //данные за последние 10 минут
         QList<QCPData> temp_5_data;
         foreach(QCPData cpdata, graphicTemperature_5->data()->values())
@@ -1551,7 +1585,7 @@ void MainWindow::Timer1000ms()
             ui->labelTemperature_6_Stabilization->setStyleSheet("QLabel{color: red; font-size:16px;}");
         }
 
-
+        */
 
 
 

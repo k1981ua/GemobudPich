@@ -27,7 +27,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,100">
@@ -890,23 +890,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelTemperature_56_StabilizationCond">
+             <widget class="QLabel" name="labelCalibration1Result">
               <property name="text">
-               <string>TextLabel</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="labelTemperature_5_Stabilization">
-              <property name="text">
-               <string>TextLabel</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="labelTemperature_6_Stabilization">
-              <property name="text">
-               <string>TextLabel</string>
+               <string>T&lt;sub&gt;avg,dev,axis&lt;/sub&gt;=0.00   T&lt;sub&gt;avg,dev,level&lt;/sub&gt;=0.00</string>
               </property>
              </widget>
             </item>
@@ -1507,8 +1493,8 @@
   </widget>
  </widget>
  <resources>
-  <include location="res.qrc"/>
   <include location="AC.qrc"/>
+  <include location="res.qrc"/>
  </resources>
  <connections/>
 </ui>
