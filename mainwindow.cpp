@@ -768,7 +768,28 @@ void MainWindow::SetTablePoint(QLineEdit *lineEdit)
         ui->labelCalibration1Result->setText("T<sub>avg,dev,axis</sub>="+QString::number(Tavg_dev_axis,'f',2)+"   T<sub>avg,dev,level</sub>="+QString::number(Tavg_dev_level,'f',2));
 
 
+        QString tableRes;
+        tableRes+="T<sub>avg</sub> = (T<sub>1a</sub>+T<sub>1b</sub>+T<sub>1c</sub>+T<sub>2a</sub>+T<sub>2b</sub>+T<sub>2c</sub>+T<sub>3a</sub>+T<sub>3b</sub>+T<sub>3c</sub>) / 9 = "+QString::number(Tavg,'f',2) + "<br>";
+        tableRes+="T<sub>avg,axis1</sub> = (T<sub>1a</sub>+T<sub>1b</sub>+T<sub>1c</sub>) / 3 = "+QString::number(Tavg_axis1,'f',2) + "<br>";
+        tableRes+="T<sub>avg,axis2</sub> = (T<sub>2a</sub>+T<sub>2b</sub>+T<sub>2c</sub>) / 3 = "+QString::number(Tavg_axis2,'f',2) + "<br>";
+        tableRes+="T<sub>avg,axis3</sub> = (T<sub>3a</sub>+T<sub>3b</sub>+T<sub>3c</sub>) / 3 = "+QString::number(Tavg_axis3,'f',2) + "<br>";
+        tableRes+="T<sub>dev,axis1</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis1</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis1,'f',2) + "<br>";
+        tableRes+="T<sub>dev,axis2</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis2</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis2,'f',2) + "<br>";
+        tableRes+="T<sub>dev,axis3</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis3</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis3,'f',2) + "<br>";
+        tableRes+="T<sub>avg,dev,axis</sub> = (T<sub>dev,axis1</sub>+T<sub>dev,axis2</sub>+T<sub>dev,axis3</sub>) / 3 = "+QString::number(Tavg_dev_axis,'f',2) + "     (0.5) " + "<br>";
 
+        tableRes+="T<sub>avg,levela</sub> = (T<sub>1a</sub>+T<sub>2a</sub>+T<sub>3a</sub>) / 3 = "+QString::number(Tavg_levela,'f',2) + "<br>";
+        tableRes+="T<sub>avg,levelb</sub> = (T<sub>1b</sub>+T<sub>2b</sub>+T<sub>3b</sub>) / 3 = "+QString::number(Tavg_levelb,'f',2) + "<br>";
+        tableRes+="T<sub>avg,levelc</sub> = (T<sub>1c</sub>+T<sub>2c</sub>+T<sub>3c</sub>) / 3 = "+QString::number(Tavg_levelc,'f',2) + "<br>";
+        tableRes+="T<sub>dev,levela</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levela</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levela,'f',2) + "<br>";
+        tableRes+="T<sub>dev,levelb</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levelb</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levelb,'f',2) + "<br>";
+        tableRes+="T<sub>dev,levelc</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levelc</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levelc,'f',2) + "<br>";
+        tableRes+="T<sub>avg,dev,level</sub> = (T<sub>dev,levela</sub>+T<sub>dev,levelb</sub>+T<sub>dev,levelc</sub>) / 3 = "+QString::number(Tavg_dev_level,'f',2) + "     (1.5) " + "<br>";
+
+
+        dialogTableResult.SetLabelText(tableRes);
+        dialogTableResult.setModal(true);
+        dialogTableResult.show();
 
 }
 //=======================================================================================

@@ -11,6 +11,7 @@
 #include "analoginputchannel.h"
 #include "dialogcalibr.h"
 #include "dialogconfig.h"
+#include "dialogtableresult.h"
 
 
 #define X_RANGEPRETEST_MIN 0  //seconds стартовая ширина полотна графика по х для режима перед тестов 0 minutes
@@ -117,8 +118,8 @@ private:
     QCustomPlot *wGraphic_56;
     QCPGraph *graphicTemperature_5;
     QCPGraph *graphicTemperature_6;
-    bool temp5_isStabilized=false;
-    bool temp6_isStabilized=false;
+    //bool temp5_isStabilized=false;
+    //bool temp6_isStabilized=false;
 
 
     QCustomPlot *wGraphic_Curve;
@@ -145,6 +146,8 @@ private:
 
     void SetTablePoint(QLineEdit *lineEdit);
     void SetCurvePoint(int row, int h, QLineEdit *lineEdit);
+
+    DialogTableResult dialogTableResult;
 
     bool eventFilter(QObject *obj, QEvent *event);
 
