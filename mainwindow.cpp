@@ -574,6 +574,17 @@ MainWindow::MainWindow(QWidget *parent)
       connect(ui->lineEditT3b,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT1c->setFocus();});
       connect(ui->lineEditT3c,QLineEdit::returnPressed,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); ui->lineEditT3c->clearFocus();});
 
+/*
+      connect(ui->lineEditT1a,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1b,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1c,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2a,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2b,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2c,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT3a,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT3b,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT3c,QLineEdit::editingFinished,this,[&](){SetTablePoint(qobject_cast<QLineEdit*>(sender())); });
+*/
 
       foreach(QObject *obj, ui->groupBoxCal_1->children())
       {
@@ -590,40 +601,76 @@ MainWindow::MainWindow(QWidget *parent)
       ui->groupBoxCal_2->setStyleSheet("QLabel{font-size: 16px;} QLineEdit:focus{ border: 3px solid #40bd06; border-radius:3px;} QLineEdit{font-size: 16px;} ");
 
 
-      connect(ui->lineEditT1_75, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,75,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_65->setFocus();});
-      connect(ui->lineEditT1_65, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,65,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_55->setFocus();});
-      connect(ui->lineEditT1_55, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,55,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_45->setFocus();});
-      connect(ui->lineEditT1_45, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,45,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_35->setFocus();});
-      connect(ui->lineEditT1_35, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,35,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_25->setFocus();});
-      connect(ui->lineEditT1_25, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,25,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_15->setFocus();});
-      connect(ui->lineEditT1_15, QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,15,qobject_cast<QLineEdit*>(sender())); ui->lineEditT1_5->setFocus();});
-      connect(ui->lineEditT1_5,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1, 5,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_5->setFocus();});
+      connect(ui->lineEditT1_75,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,75, qobject_cast<QLineEdit*>(sender()));ui->lineEditT1_65->setFocus();});
+      connect(ui->lineEditT1_65,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,65, qobject_cast<QLineEdit*>(sender()));ui->lineEditT1_55->setFocus();});
+      connect(ui->lineEditT1_55,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,55, qobject_cast<QLineEdit*>(sender()));ui->lineEditT1_45->setFocus();});
+      connect(ui->lineEditT1_45,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,45, qobject_cast<QLineEdit*>(sender()));ui->lineEditT1_35->setFocus();});
+      connect(ui->lineEditT1_35,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,35, qobject_cast<QLineEdit*>(sender()));ui->lineEditT1_25->setFocus();});
+      connect(ui->lineEditT1_25,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,25, qobject_cast<QLineEdit*>(sender()));ui->lineEditT1_15->setFocus();});
+      connect(ui->lineEditT1_15,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(1,15, qobject_cast<QLineEdit*>(sender()));ui->lineEditT1_5->setFocus();});
+      connect(ui->lineEditT1_5,   QLineEdit::returnPressed,this,[&](){SetCurvePoint(1, 5, qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_5->setFocus();});
+
+      connect(ui->lineEditT2_5,   QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 5, qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_15->setFocus();});
+      connect(ui->lineEditT2_15,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 15,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_25->setFocus();});
+      connect(ui->lineEditT2_25,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 25,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_35->setFocus();});
+      connect(ui->lineEditT2_35,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 35,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_45->setFocus();});
+      connect(ui->lineEditT2_45,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 45,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_55->setFocus();});
+      connect(ui->lineEditT2_55,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 55,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_65->setFocus();});
+      connect(ui->lineEditT2_65,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 65,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_75->setFocus();});
+      connect(ui->lineEditT2_75,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 75,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_85->setFocus();});
+      connect(ui->lineEditT2_85,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 85,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_95->setFocus();});
+      connect(ui->lineEditT2_95,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 95,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_105->setFocus();});
+      connect(ui->lineEditT2_105, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,105,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_115->setFocus();});
+      connect(ui->lineEditT2_115, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,115,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_125->setFocus();});
+      connect(ui->lineEditT2_125, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,125,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_135->setFocus();});
+      connect(ui->lineEditT2_135, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,135,qobject_cast<QLineEdit*>(sender()));ui->lineEditT2_145->setFocus();});
+      connect(ui->lineEditT2_145, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,145,qobject_cast<QLineEdit*>(sender()));ui->lineEditT3_145->setFocus();});
+
+      connect(ui->lineEditT3_145, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,145,qobject_cast<QLineEdit*>(sender()));ui->lineEditT3_135->setFocus();});
+      connect(ui->lineEditT3_135, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,135,qobject_cast<QLineEdit*>(sender()));ui->lineEditT3_125->setFocus();});
+      connect(ui->lineEditT3_125, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,125,qobject_cast<QLineEdit*>(sender()));ui->lineEditT3_115->setFocus();});
+      connect(ui->lineEditT3_115, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,115,qobject_cast<QLineEdit*>(sender()));ui->lineEditT3_105->setFocus();});
+      connect(ui->lineEditT3_105, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,105,qobject_cast<QLineEdit*>(sender()));ui->lineEditT3_95->setFocus();});
+      connect(ui->lineEditT3_95,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,95, qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_85->setFocus();});
+      connect(ui->lineEditT3_85,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,85, qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_75->setFocus();});
+      connect(ui->lineEditT3_75,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,75, qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_75->clearFocus();});
 
 
-      connect(ui->lineEditT2_5,   QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 5,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT2_15->setFocus();});
-      connect(ui->lineEditT2_15,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 15,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_25->setFocus();});
-      connect(ui->lineEditT2_25,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 25,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_35->setFocus();});
-      connect(ui->lineEditT2_35,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 35,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_45->setFocus();});
-      connect(ui->lineEditT2_45,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 45,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_55->setFocus();});
-      connect(ui->lineEditT2_55,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 55,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_65->setFocus();});
-      connect(ui->lineEditT2_65,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 65,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_75->setFocus();});
-      connect(ui->lineEditT2_75,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 75,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_85->setFocus();});
-      connect(ui->lineEditT2_85,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 85,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_95->setFocus();});
-      connect(ui->lineEditT2_95,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(2, 95,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_105->setFocus();});
-      connect(ui->lineEditT2_105, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,105,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_115->setFocus();});
-      connect(ui->lineEditT2_115, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,115,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_125->setFocus();});
-      connect(ui->lineEditT2_125, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,125,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_135->setFocus();});
-      connect(ui->lineEditT2_135, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,135,qobject_cast<QLineEdit*>(sender())); ui->lineEditT2_145->setFocus();});
-      connect(ui->lineEditT2_145, QLineEdit::returnPressed,this,[&](){SetCurvePoint(2,145,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_145->setFocus();});
+/*
+      connect(ui->lineEditT1_75, QLineEdit::editingFinished,this,[&](){SetCurvePoint(1,75,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1_65, QLineEdit::editingFinished,this,[&](){SetCurvePoint(1,65,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1_55, QLineEdit::editingFinished,this,[&](){SetCurvePoint(1,55,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1_45, QLineEdit::editingFinished,this,[&](){SetCurvePoint(1,45,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1_35, QLineEdit::editingFinished,this,[&](){SetCurvePoint(1,35,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1_25, QLineEdit::editingFinished,this,[&](){SetCurvePoint(1,25,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1_15, QLineEdit::editingFinished,this,[&](){SetCurvePoint(1,15,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT1_5,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(1, 5,qobject_cast<QLineEdit*>(sender())); });
 
-      connect(ui->lineEditT3_145, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,145,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_135->setFocus();});
-      connect(ui->lineEditT3_135, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,135,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_125->setFocus();});
-      connect(ui->lineEditT3_125, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,125,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_115->setFocus();});
-      connect(ui->lineEditT3_115, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,115,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_105->setFocus();});
-      connect(ui->lineEditT3_105, QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,105,qobject_cast<QLineEdit*>(sender())); ui->lineEditT3_95->setFocus();});
-      connect(ui->lineEditT3_95,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,95,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT3_85->setFocus();});
-      connect(ui->lineEditT3_85,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,85,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT3_75->setFocus();});
-      connect(ui->lineEditT3_75,  QLineEdit::returnPressed,this,[&](){SetCurvePoint(3,75,qobject_cast<QLineEdit*>(sender()));  ui->lineEditT3_75->clearFocus();});
+      connect(ui->lineEditT2_5,   QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 5,qobject_cast<QLineEdit*>(sender()));  });
+      connect(ui->lineEditT2_15,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 15,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_25,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 25,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_35,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 35,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_45,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 45,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_55,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 55,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_65,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 65,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_75,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 75,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_85,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 85,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_95,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(2, 95,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_105, QLineEdit::editingFinished,this,[&](){SetCurvePoint(2,105,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_115, QLineEdit::editingFinished,this,[&](){SetCurvePoint(2,115,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_125, QLineEdit::editingFinished,this,[&](){SetCurvePoint(2,125,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_135, QLineEdit::editingFinished,this,[&](){SetCurvePoint(2,135,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT2_145, QLineEdit::editingFinished,this,[&](){SetCurvePoint(2,145,qobject_cast<QLineEdit*>(sender())); });
+
+      connect(ui->lineEditT3_145, QLineEdit::editingFinished,this,[&](){SetCurvePoint(3,145,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT3_135, QLineEdit::editingFinished,this,[&](){SetCurvePoint(3,135,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT3_125, QLineEdit::editingFinished,this,[&](){SetCurvePoint(3,125,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT3_115, QLineEdit::editingFinished,this,[&](){SetCurvePoint(3,115,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT3_105, QLineEdit::editingFinished,this,[&](){SetCurvePoint(3,105,qobject_cast<QLineEdit*>(sender())); });
+      connect(ui->lineEditT3_95,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(3,95,qobject_cast<QLineEdit*>(sender()));  });
+      connect(ui->lineEditT3_85,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(3,85,qobject_cast<QLineEdit*>(sender()));  });
+      connect(ui->lineEditT3_75,  QLineEdit::editingFinished,this,[&](){SetCurvePoint(3,75,qobject_cast<QLineEdit*>(sender()));  });
+*/
 
 
       foreach(QObject *obj, ui->groupBoxCal_2->children())
@@ -681,7 +728,7 @@ void MainWindow::SetTablePoint(QLineEdit *lineEdit)
         {
             if (!lineEdit->text().isEmpty())
             {
-                double value=lineEdit->text().toDouble();
+                double value=lineEdit->text().replace(",",".").toDouble();  // по пути заменим запятую на точку дя удобства ввода
                 lineEdit->setText(QString::number(value,'f',2));
             }
             else
@@ -705,7 +752,7 @@ void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3
     {
         if (!lineEdit->text().isEmpty())
         {
-            value=lineEdit->text().toDouble();
+            value=lineEdit->text().replace(",",".").toDouble();
             lineEdit->setText(QString::number(value,'f',2));
         }
         else
