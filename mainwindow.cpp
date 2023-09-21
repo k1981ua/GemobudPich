@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QDir appDir(qApp->applicationDirPath());
     appDir.mkdir("reports");
+    appDir.mkdir("calibration_reports");
     appDir.mkdir("png");
 
     //connect(ui->lineEditOperatorPoint_1,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
