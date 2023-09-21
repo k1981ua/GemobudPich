@@ -115,6 +115,8 @@ private:
     QString temp1TestStabilizationInfo,temp2TestStabilizationInfo;
 
 //calibration page graphics
+    bool isCalibrationPageEnabled=false;
+
     QCustomPlot *wGraphic_56;
     QCPGraph *graphicTemperature_5;
     QCPGraph *graphicTemperature_6;
@@ -191,6 +193,10 @@ private:
                                 const QVector<OperatorPoint> leveldown_points_2
                                 );
 
+
+
+
+
     double getLinearApproximatedValue(QVector<OperatorPoint> points, double x);
 
 private slots:
@@ -220,6 +226,7 @@ private slots:
     //void CheckBoxTemperature3Changed(bool newState);
     //void CheckBoxTemperature4Changed(bool newState);
 
+    void CreateTableReport();
 
     void ValueChanged(QString str);
 

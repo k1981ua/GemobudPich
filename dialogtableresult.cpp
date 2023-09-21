@@ -8,6 +8,8 @@ DialogTableResult::DialogTableResult(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->buttonTableResultExit,SIGNAL(clicked()),this,SLOT(close()));
+    connect(ui->buttonTableResultSave,QPushButton::clicked,[&](){emit createTableReport();});
+
 }
 //============================================================================
 DialogTableResult::~DialogTableResult()

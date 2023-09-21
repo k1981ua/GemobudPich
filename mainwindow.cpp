@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QTextEdit>
 #include <QDoubleSpinBox>
+#include <QTextTable>
 
 
 ModbusReader mbReader;
@@ -105,6 +106,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&timer1000ms,&QTimer::timeout,this,&MainWindow::Timer1000ms);
 
     //connect(&timer3000ms,SIGNAL(timeout()),this,SLOT(Timer3000ms()));
+
+    connect(ui->buttonTableResultSave,QPushButton::clicked,[&](){dialogTableResult.setModal(true); dialogTableResult.show();});
+    connect(&dialogTableResult,SIGNAL(createTableReport()),this,SLOT(CreateTableReport()));
 
     orig_palette=ui->lineEditValueTemperature_1->palette();
 
@@ -769,6 +773,9 @@ void MainWindow::SetTablePoint(QLineEdit *lineEdit)
 
 
         QString tableRes;
+
+        tableRes+="<br><center>Розрахунок згідно ДСТУ EN ISO 1182:2022 п.7.3.1</center><br><br><br>";
+
         tableRes+="T<sub>avg</sub> = (T<sub>1a</sub>+T<sub>1b</sub>+T<sub>1c</sub>+T<sub>2a</sub>+T<sub>2b</sub>+T<sub>2c</sub>+T<sub>3a</sub>+T<sub>3b</sub>+T<sub>3c</sub>) / 9 = "+QString::number(Tavg,'f',2) + "<br>";
         tableRes+="T<sub>avg,axis1</sub> = (T<sub>1a</sub>+T<sub>1b</sub>+T<sub>1c</sub>) / 3 = "+QString::number(Tavg_axis1,'f',2) + "<br>";
         tableRes+="T<sub>avg,axis2</sub> = (T<sub>2a</sub>+T<sub>2b</sub>+T<sub>2c</sub>) / 3 = "+QString::number(Tavg_axis2,'f',2) + "<br>";
@@ -776,7 +783,7 @@ void MainWindow::SetTablePoint(QLineEdit *lineEdit)
         tableRes+="T<sub>dev,axis1</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis1</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis1,'f',2) + "<br>";
         tableRes+="T<sub>dev,axis2</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis2</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis2,'f',2) + "<br>";
         tableRes+="T<sub>dev,axis3</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis3</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis3,'f',2) + "<br>";
-        tableRes+="T<sub>avg,dev,axis</sub> = (T<sub>dev,axis1</sub>+T<sub>dev,axis2</sub>+T<sub>dev,axis3</sub>) / 3 = "+QString::number(Tavg_dev_axis,'f',2) + "     (0.5) " + "<br>";
+        tableRes+="T<sub>avg,dev,axis</sub> = (T<sub>dev,axis1</sub>+T<sub>dev,axis2</sub>+T<sub>dev,axis3</sub>) / 3 = "+QString::number(Tavg_dev_axis,'f',2) + "     (має бути меншим за 0.5 %) " + "<br>";
 
         tableRes+="T<sub>avg,levela</sub> = (T<sub>1a</sub>+T<sub>2a</sub>+T<sub>3a</sub>) / 3 = "+QString::number(Tavg_levela,'f',2) + "<br>";
         tableRes+="T<sub>avg,levelb</sub> = (T<sub>1b</sub>+T<sub>2b</sub>+T<sub>3b</sub>) / 3 = "+QString::number(Tavg_levelb,'f',2) + "<br>";
@@ -784,12 +791,11 @@ void MainWindow::SetTablePoint(QLineEdit *lineEdit)
         tableRes+="T<sub>dev,levela</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levela</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levela,'f',2) + "<br>";
         tableRes+="T<sub>dev,levelb</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levelb</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levelb,'f',2) + "<br>";
         tableRes+="T<sub>dev,levelc</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levelc</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levelc,'f',2) + "<br>";
-        tableRes+="T<sub>avg,dev,level</sub> = (T<sub>dev,levela</sub>+T<sub>dev,levelb</sub>+T<sub>dev,levelc</sub>) / 3 = "+QString::number(Tavg_dev_level,'f',2) + "     (1.5) " + "<br>";
+        tableRes+="T<sub>avg,dev,level</sub> = (T<sub>dev,levela</sub>+T<sub>dev,levelb</sub>+T<sub>dev,levelc</sub>) / 3 = "+QString::number(Tavg_dev_level,'f',2) + "     (має бути меншим за 1.5 %) " + "<br>";
 
 
         dialogTableResult.SetLabelText(tableRes);
-        dialogTableResult.setModal(true);
-        dialogTableResult.show();
+
 
 }
 //=======================================================================================
@@ -996,6 +1002,7 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
 void MainWindow::ButtonPageCalibr(bool toggled)
 {
     ui->stackedWidget->setCurrentIndex(toggled?1:0);
+    isCalibrationPageEnabled=toggled;
 }
 //=======================================================================================
 void MainWindow::ViewDialogConfig()
@@ -1938,15 +1945,23 @@ void MainWindow::ButtonExit()
 //=======================================================================================
 void MainWindow::ButtonReports()
 {
-    FMDlg dlg(tr("Reports"), this);
 
+    if (!isCalibrationPageEnabled)
+    {
 
+        FMDlg dlg(tr("Reports"), qApp->applicationDirPath()+"/reports/", this);
 
-    //dlg.setLocalPath("reports");
-    //dlg.setFilter(QStringList() << "*.odf");
-    //dlg.enablePreviewButton();
+        //dlg.setLocalPath("reports");
+        //dlg.setFilter(QStringList() << "*.odf");
+        //dlg.enablePreviewButton();
 
-    dlg.launch();
+        dlg.launch();
+    }
+    else
+    {
+        FMDlg dlg(tr("Calibration Reports"), qApp->applicationDirPath()+"/calibration_reports/", this);
+        dlg.launch();
+    }
 
 }
 //=======================================================================================
@@ -2456,7 +2471,328 @@ double MainWindow::getLinearApproximatedValue(QVector<OperatorPoint> points, dou
     return 0.0;
 }
 //=======================================================================================
+void MainWindow::CreateTableReport()
+{
 
+    QDateTime dtReport=QDateTime::currentDateTime();
+    QString fileName=qApp->applicationDirPath()+"/calibration_reports/"+dtReport.toString("yyyy.MM.dd_hh.mm.ss")+".odt";
+
+
+  QTextDocument *document = new QTextDocument();
+
+
+
+
+  //QFont font;
+  //font.setFamily("Helvetica");//("Swiss");//("Times New Roman");//("Times");
+
+  QTextCursor cursor(document);
+
+//  QString date = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss");
+
+//  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+//  cursor.insertText(date + '\n', charFormat(11, false));//12
+
+//  cursor.insertBlock();
+//  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
+//  cursor.insertText(company, charFormat(11, false));//12
+
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
+  cursor.insertText("Звіт по калібруванню печі згідно ДСТУ EN ISO 1182:2022", charFormat(16, true));
+
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+  cursor.insertText("Звіт сформовано: " + dtReport.toString("yyyy.MM.dd hh:mm:ss") , charFormat(14, true));//12
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+
+//  cursor.insertText("Умова закінчення: " + stopCondition , charFormat(14, true));//12
+//  cursor.movePosition(QTextCursor::End);
+//  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+\
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+  cursor.insertText("Заміри температури стінок пічі:", charFormat(12, true));//12
+  cursor.movePosition(QTextCursor::End);
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+  //table
+  cursor.movePosition(QTextCursor::End);
+
+
+
+  //QTextTable *table=
+  cursor.insertTable(4,4);
+
+  //table->mergeCells(0,0,2,1);
+  //table->mergeCells(2,1,1,3);
+
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("Вертикальна вісь", charFormat(12, true));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  //setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
+  //cursor.insertText("Рівень", charFormat(12, true));
+  //cursor.movePosition(QTextCursor::NextCell);
+
+
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("Рівень а на висоті 30 мм.", charFormat(12, true));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("Рівень b на висоті 0 мм.", charFormat(12, true));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("Рівень c на висоті -30 мм.", charFormat(12, true));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  //1(під кутом 0°)
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("1(під кутом 0°)");
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(11,'f',2));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(12,'f',2));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(13,'f',2));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  //2(під кутом 120°)
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("2(під кутом 120°)");
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(21,'f',2));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(22,'f',2));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(23,'f',2));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  //3(під кутом 240°)
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("3(під кутом 240°)");
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(31,'f',2));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(32,'f',2));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(33,'f',2));
+  //cursor.movePosition(QTextCursor::NextCell);
+
+
+
+
+
+
+
+/*
+
+  QString table;
+  table+="<table>";
+  table+="<tr>";
+  table+="<td align=\"center\" valign=\"middle\" rowspan=\"2\"> Час </td>";
+  table+="<td align=\"center\" valign=\"middle\" colspan=\"3\"> Сумарні значення</td>";
+  table+="</tr>";
+
+
+
+  table+="<tr>";
+  table+=" <td align=\"center\" valign=\"middle\"><center>&nbsp</center></font></td>";
+  table+=" <td align=\"center\" valign=\"middle\"><center>aaaaa</center></font></td>";
+  table+=" <td align=\"center\" valign=\"middle\"><center>bbbbbb</center></font></td>";
+  table+=" <td align=\"center\" valign=\"middle\"><center>ccccc</center></font></td>";
+  table+="</tr>";
+
+  table+="<tr>";
+  table+=" <td align=\"center\" valign=\"middle\"><center>ttttttt</center></font></td>";
+  table+=" <td align=\"center\" valign=\"middle\"><center>11.11</center></font></td>";
+  table+=" <td align=\"center\" valign=\"middle\"><center>21.21</center></font></td>";
+  table+=" <td align=\"center\" valign=\"middle\"><center>31.31</center></font></td>";
+  table+="</tr>";
+
+
+
+
+  table+="</table>";
+  cursor.insertHtml(table);
+*/
+
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+
+
+
+
+  double T1a=ui->lineEditT1a->text().toDouble();
+  double T1b=ui->lineEditT1b->text().toDouble();
+  double T1c=ui->lineEditT1c->text().toDouble();
+  double T2a=ui->lineEditT2a->text().toDouble();
+  double T2b=ui->lineEditT2b->text().toDouble();
+  double T2c=ui->lineEditT2c->text().toDouble();
+  double T3a=ui->lineEditT3a->text().toDouble();
+  double T3b=ui->lineEditT3b->text().toDouble();
+  double T3c=ui->lineEditT3c->text().toDouble();
+
+  double Tavg=(T1a+T1b+T1c+T2a+T2b+T2c+T3a+T3b+T3c)/9.0;
+  double Tavg_axis1=(T1a+T1b+T1c)/3.0;
+  double Tavg_axis2=(T2a+T2b+T2c)/3.0;
+  double Tavg_axis3=(T3a+T3b+T3c)/3.0;
+  double Tdev_axis1=100.0*fabs(Tavg-Tavg_axis1)/Tavg;
+  double Tdev_axis2=100.0*fabs(Tavg-Tavg_axis2)/Tavg;
+  double Tdev_axis3=100.0*fabs(Tavg-Tavg_axis3)/Tavg;
+  double Tavg_dev_axis=(Tdev_axis1+Tdev_axis2+Tdev_axis3)/3.0;  //formula 8
+  double Tavg_levela=(T1a+T2a+T3a)/3.0;
+  double Tavg_levelb=(T1b+T2b+T3b)/3.0;
+  double Tavg_levelc=(T1c+T2c+T3c)/3.0;
+  double Tdev_levela=100.0*fabs((Tavg-Tavg_levela)/Tavg);
+  double Tdev_levelb=100.0*fabs((Tavg-Tavg_levelb)/Tavg);
+  double Tdev_levelc=100.0*fabs((Tavg-Tavg_levelc)/Tavg);
+  double Tavg_dev_level=(Tdev_levela+Tdev_levelb+Tdev_levelc)/3.0;  //formula 15
+
+
+
+  QString tableRes;
+  tableRes+="T<sub>avg</sub> = (T<sub>1a</sub>+T<sub>1b</sub>+T<sub>1c</sub>+T<sub>2a</sub>+T<sub>2b</sub>+T<sub>2c</sub>+T<sub>3a</sub>+T<sub>3b</sub>+T<sub>3c</sub>) / 9 = "+QString::number(Tavg,'f',2) + "<br>";
+  tableRes+="T<sub>avg,axis1</sub> = (T<sub>1a</sub>+T<sub>1b</sub>+T<sub>1c</sub>) / 3 = "+QString::number(Tavg_axis1,'f',2) + "<br>";
+  tableRes+="T<sub>avg,axis2</sub> = (T<sub>2a</sub>+T<sub>2b</sub>+T<sub>2c</sub>) / 3 = "+QString::number(Tavg_axis2,'f',2) + "<br>";
+  tableRes+="T<sub>avg,axis3</sub> = (T<sub>3a</sub>+T<sub>3b</sub>+T<sub>3c</sub>) / 3 = "+QString::number(Tavg_axis3,'f',2) + "<br>";
+  tableRes+="T<sub>dev,axis1</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis1</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis1,'f',2) + "<br>";
+  tableRes+="T<sub>dev,axis2</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis2</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis2,'f',2) + "<br>";
+  tableRes+="T<sub>dev,axis3</sub> = 100 * |T<sub>avg</sub>-T<sub>avg,axis3</sub>| / T<sub>avg</sub> = "+QString::number(Tdev_axis3,'f',2) + "<br>";
+  tableRes+="T<sub>avg,dev,axis</sub> = (T<sub>dev,axis1</sub>+T<sub>dev,axis2</sub>+T<sub>dev,axis3</sub>) / 3 = "+QString::number(Tavg_dev_axis,'f',2) + "     (має бути меншим за 0.5 %) " + "<br>";
+
+  tableRes+="T<sub>avg,levela</sub> = (T<sub>1a</sub>+T<sub>2a</sub>+T<sub>3a</sub>) / 3 = "+QString::number(Tavg_levela,'f',2) + "<br>";
+  tableRes+="T<sub>avg,levelb</sub> = (T<sub>1b</sub>+T<sub>2b</sub>+T<sub>3b</sub>) / 3 = "+QString::number(Tavg_levelb,'f',2) + "<br>";
+  tableRes+="T<sub>avg,levelc</sub> = (T<sub>1c</sub>+T<sub>2c</sub>+T<sub>3c</sub>) / 3 = "+QString::number(Tavg_levelc,'f',2) + "<br>";
+  tableRes+="T<sub>dev,levela</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levela</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levela,'f',2) + "<br>";
+  tableRes+="T<sub>dev,levelb</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levelb</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levelb,'f',2) + "<br>";
+  tableRes+="T<sub>dev,levelc</sub> = 100 * |(T<sub>avg</sub>-T<sub>avg,levelc</sub>)/T<sub>avg</sub>| = "+QString::number(Tdev_levelc,'f',2) + "<br>";
+  tableRes+="T<sub>avg,dev,level</sub> = (T<sub>dev,levela</sub>+T<sub>dev,levelb</sub>+T<sub>dev,levelc</sub>) / 3 = "+QString::number(Tavg_dev_level,'f',2) + "     (має бути меншим за 1.5 %) " + "<br>";
+
+
+  //cursor.insertText(tableRes, charFormat(12, true));//12
+  cursor.insertHtml(tableRes);
+  cursor.movePosition(QTextCursor::End);
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+  /*
+
+
+
+
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+  cursor.insertText("Заміри нижнього рівня пластичного шару:", charFormat(12, true));//12
+  cursor.movePosition(QTextCursor::End);
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+
+
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+  cursor.insertText(QString("X (значення усадки по закінченню) = ") + QString::number(X_1,'f',1) + " мм", charFormat(12, true));
+
+
+  QVector<OperatorPoint> all_points_1 = levelup_points_1 + leveldown_points_1;
+
+  double max_difference_1=0.0;
+  foreach (OperatorPoint point, all_points_1)
+  {
+      double difference=getLinearApproximatedValue(levelup_points_1, point.time_min) -
+                        getLinearApproximatedValue(leveldown_points_1, point.time_min);
+
+      if (max_difference_1 < difference) max_difference_1 = difference;
+  }
+
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+  cursor.insertText(QString("Y (максимальна різниця верхніого і нижнього рівнів пл. шару) = ") + QString::number(max_difference_1,'f',1) + " мм", charFormat(12, true));
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+  //graphic
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertBlock();
+
+  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
+
+
+  //adding image to document
+
+  //cursor.insertImage(plot_movement_1);
+
+  document->addResource(QTextDocument::ImageResource, QUrl("plot_movement_1.png"), plot_movement_1);
+  QTextImageFormat imageFormat_1;
+  imageFormat_1.setQuality(100);
+  imageFormat_1.setName("plot_movement_1.png");
+  cursor.insertImage(imageFormat_1);
+  cursor.movePosition(QTextCursor::End);
+
+
+
+
+
+  cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
+  cursor.movePosition(QTextCursor::End);
+
+
+*/
+
+
+
+  cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
+  cursor.movePosition(QTextCursor::End);
+
+  qDebug() << fileName;
+  QTextDocumentWriter writer(fileName);
+  if (!writer.write(document)) qDebug() << "errro write";
+
+  qDebug() << writer.supportedDocumentFormats();
+
+  //QDesktopServices::openUrl(QUrl(fileName+".odt"));
+
+  //QTextEdit  *te = new QTextEdit();
+  //te->setDocument(document);
+  //te->showMaximized();
+
+  delete document;
+
+
+
+
+
+    QMessageBox::information(&dialogTableResult,"Збереження в файл",QString("Результати збережені в файл\n")+fileName);
+}
 //=======================================================================================
 //=======================================================================================
 //=======================================================================================

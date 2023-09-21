@@ -25,9 +25,10 @@ public:
     void SetComPort(QString port);
     QString GetComPort();
 
+    Ui::DialogConfig *ui;
 
 private:
-    Ui::DialogConfig *ui;
+
     ModbusReader *pmbReader;
     QHash<QString, AnalogInputChannel *> hashAnalogInputChannels;
     DialogCalibr dialogCalibr;

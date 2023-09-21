@@ -22,7 +22,7 @@
    <item>
     <widget class="QLabel" name="labelTableResult">
      <property name="text">
-      <string>labelTableResult</string>
+      <string>&lt;br&gt;&lt;center&gt;Розрахунок згідно ДСТУ EN ISO 1182:2022 п.7.3.1&lt;/center&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

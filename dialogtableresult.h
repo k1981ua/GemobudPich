@@ -19,6 +19,11 @@ public:
 
 private:
     Ui::DialogTableResult *ui;
+
+signals:
+    void createTableReport();
+
+
 };
 
 #endif // DIALOGTABLERESULT_H

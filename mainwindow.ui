@@ -474,7 +474,7 @@
       <widget class="QWidget" name="pageCalibr">
        <layout class="QVBoxLayout" name="verticalLayout_12">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="10,12">
+         <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="10,10">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_11">
             <item>
@@ -908,6 +908,40 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="buttonTableResultSave">
+                <property name="text">
+                 <string>Результат / Зберегти</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="AC.qrc">
+                  <normaloff>:/images/document-preview.png</normaloff>:/images/document-preview.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>

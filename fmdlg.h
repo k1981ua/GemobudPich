@@ -18,7 +18,7 @@ class FMDlg : public QDialog
     Q_OBJECT
 
   public:
-    explicit FMDlg(const QString &title, QWidget *parent = 0);
+    explicit FMDlg(const QString &title, const QString &localPath, QWidget *parent = 0);
 
     virtual ~FMDlg();
 

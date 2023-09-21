@@ -23,7 +23,7 @@ bool copyFile(const QString &src, const QString &dst, bool move)
   return true;
 }
 //======================================================================================
-FMDlg::FMDlg(const QString &title, QWidget *parent) :
+FMDlg::FMDlg(const QString &title, const QString &localPath, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::FMDlg)
 {
@@ -33,7 +33,7 @@ FMDlg::FMDlg(const QString &title, QWidget *parent) :
 
 
   m_usbPath = "/media/pi/";
-  m_localPath=qApp->applicationDirPath()+"/reports/";
+  m_localPath=localPath;//qApp->applicationDirPath()+"/reports/";
 
 
 
