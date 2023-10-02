@@ -184,13 +184,8 @@ private:
                                 const QString &startDT,
                                 const QString &timeDT,
                                 const QImage &plot_movement_1,
-                                const QImage &plot_movement_2,
                                 const double X_1,
-                                const double X_2,
-                                const QVector<OperatorPoint> levelup_points_1,
-                                const QVector<OperatorPoint> leveldown_points_1,
-                                const QVector<OperatorPoint> levelup_points_2,
-                                const QVector<OperatorPoint> leveldown_points_2
+                                const double X_2
                                 );
 
 
@@ -226,6 +221,7 @@ private slots:
     //void CheckBoxTemperature3Changed(bool newState);
     //void CheckBoxTemperature4Changed(bool newState);
 
+    void CreateTestReport();
     void CreateTableReport();
 
     void ValueChanged(QString str);

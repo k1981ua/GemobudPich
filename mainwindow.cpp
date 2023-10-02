@@ -1735,7 +1735,7 @@ void MainWindow::Timer1000ms()
 
             //QString temp1StabilizationInfo,temp2StabilizationInfo;
 
-            if (/*temp1_TestStabilized || */((seconds_from_start-600>=0) && (fabs(avgT1-750.0)<=5.0) && ((std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)))<=10.0) && (fabs(regressT1)<=2.0)))
+            if (/*temp1_TestStabilized || */((seconds_from_start-600>=0) && (fabs(regressT1)<=2.0)))
             {
                 temp1_TestStabilized=true;
                 temp1TestStabilizationInfo=temperature_1.GetChName() +  " - стабілізації досягнуто.";
@@ -1743,10 +1743,10 @@ void MainWindow::Timer1000ms()
             else
             {
                 temp1_TestStabilized=false;
-                temp1TestStabilizationInfo=temperature_1.GetChName()+": Tavg="+QString::number(avgT1,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"  Treg="+QString::number(regressT1,'f',3);
+                temp1TestStabilizationInfo=temperature_1.GetChName()+":  Treg="+QString::number(regressT1,'f',3);
             }
 
-            if (/*temp2_TestStabilized || */((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
+            if (/*temp2_TestStabilized || */((seconds_from_start-600>=0) && (fabs(regressT2)<=2.0)))
             {
                 temp2_TestStabilized=true;
                 temp2TestStabilizationInfo=temperature_2.GetChName() +  " - стабілізації досягнуто.";
@@ -1754,7 +1754,7 @@ void MainWindow::Timer1000ms()
             else
             {
                 temp2_TestStabilized=false;
-                temp2TestStabilizationInfo=temperature_2.GetChName()+": Tavg="+QString::number(avgT2,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"  Treg="+QString::number(regressT2,'f',3);
+                temp2TestStabilizationInfo=temperature_2.GetChName()+":  Treg="+QString::number(regressT2,'f',3);
             }
 
 
@@ -1808,7 +1808,10 @@ void MainWindow::Timer1000ms()
                                         testStopReason);
 
 
-
+        if (runningMode==ModeTestStopped)
+        {
+            CreateTestReport();
+        }
 
 
 
@@ -1839,9 +1842,9 @@ void MainWindow::Timer1000ms()
 
             //get 1st graph
 
-            wGraphic_1->replot();
-            wGraphic_1->savePng(qApp->applicationDirPath()+"/png/"+startTestDT_str+"_1.png",640,480);
-            QImage img_1(qApp->applicationDirPath()+"/png/"+startTestDT_str+"_1.png");
+            //wGraphic_1->replot();
+            //wGraphic_1->savePng(qApp->applicationDirPath()+"/png/"+startTestDT_str+"_1.png",640,480);
+            //QImage img_1(qApp->applicationDirPath()+"/png/"+startTestDT_str+"_1.png");
 
             //get 2nd graph
             //wGraphic_2->replot();
@@ -1853,9 +1856,9 @@ void MainWindow::Timer1000ms()
             //img_2.save(qApp->applicationDirPath()+"/png/"+startTestDT_str+"_2_ttt.png");
 
 
-
-            createReport(qApp->applicationDirPath()+"/reports/"+startTestDT_str, startTestDT.toString("dd.MM.yyyy hh:mm:ss") ,
-                         testRunningStr, img_1, img_1, temperature_1.GetValue(), temperature_2.GetValue(), levelUpPoints_1, levelDownPoints_1, levelUpPoints_2, levelDownPoints_2);
+            CreateTestReport();
+            //createReport(qApp->applicationDirPath()+"/reports/"+startTestDT_str, startTestDT.toString("dd.MM.yyyy hh:mm:ss") ,
+            //             testRunningStr, img_1, temperature_1.GetValue(), temperature_2.GetValue());
 
             ui->buttonReset->setEnabled(true);
             ui->buttonConfig->setEnabled(true);
@@ -2025,13 +2028,8 @@ void MainWindow::createReport(const QString &fileName,
                               const QString &startDT,
                               const QString &timeDT,
                               const QImage &plot_movement_1,
-                              const QImage &plot_movement_2,
                               const double X_1,
-                              const double X_2,
-                              const QVector<OperatorPoint> levelup_points_1,
-                              const QVector<OperatorPoint> leveldown_points_1,
-                              const QVector<OperatorPoint> levelup_points_2,
-                              const QVector<OperatorPoint> leveldown_points_2)
+                              const double X_2)
 {
 
   QTextDocument *document = new QTextDocument();
@@ -2088,6 +2086,8 @@ void MainWindow::createReport(const QString &fileName,
   cursor.movePosition(QTextCursor::End);
   //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
+
+/*
   //table
   cursor.movePosition(QTextCursor::End);
   cursor.insertTable(levelup_points_1.size()+1,4);
@@ -2200,7 +2200,7 @@ void MainWindow::createReport(const QString &fileName,
   cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
   cursor.insertText(QString("Y (максимальна різниця верхніого і нижнього рівнів пл. шару) = ") + QString::number(max_difference_1,'f',1) + " мм", charFormat(12, true));
   cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-
+*/
   //graphic
   cursor.movePosition(QTextCursor::End);
   cursor.insertBlock();
@@ -2225,162 +2225,6 @@ void MainWindow::createReport(const QString &fileName,
 
   cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
   cursor.movePosition(QTextCursor::End);
-
-
-
-  //TEST 2
-
-  cursor.insertBlock();
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Тест 2", charFormat(14, true));//12
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-
-
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertBlock();
-  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-
-  cursor.insertText("Заміри верхнього рівня пластичного шару:", charFormat(12, true));//12
-  cursor.movePosition(QTextCursor::End);
-  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-  //table
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertTable(levelup_points_2.size()+1,4);
-
-  //первая строка - 4 ячейки
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Час, хв.", charFormat(12, true));
-  cursor.movePosition(QTextCursor::NextCell);
-
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Замір опер., мм", charFormat(12, true));
-  cursor.movePosition(QTextCursor::NextCell);
-
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Усадка, мм", charFormat(12, true));
-  cursor.movePosition(QTextCursor::NextCell);
-
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Температура, С", charFormat(12, true));
-
-
-  foreach(OperatorPoint pnt, levelup_points_2)
-  {
-
-      cursor.movePosition(QTextCursor::NextCell);
-      setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-      cursor.insertText(QString::number(pnt.time_min,'f',0));
-
-      cursor.movePosition(QTextCursor::NextCell);
-      setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-      cursor.insertText(QString::number(pnt.operatorEnteredPoint,'f',1));
-
-      cursor.movePosition(QTextCursor::NextCell);
-      setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-      cursor.insertText(QString::number(pnt.movement,'f',1));
-
-      cursor.movePosition(QTextCursor::NextCell);
-      setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-      cursor.insertText(QString::number(pnt.temperature,'f',1));
-  }
-
-
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertBlock();
-  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
-  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-
-  cursor.insertText("Заміри нижнього рівня пластичного шару:", charFormat(12, true));//12
-  cursor.movePosition(QTextCursor::End);
-  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-  //table
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertTable(leveldown_points_2.size()+1,4);
-
-  //первая строка - 4 ячейки
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Час, хв.", charFormat(12, true));
-  cursor.movePosition(QTextCursor::NextCell);
-
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Замір опер., мм", charFormat(12, true));
-  cursor.movePosition(QTextCursor::NextCell);
-
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Усадка, мм", charFormat(12, true));
-  cursor.movePosition(QTextCursor::NextCell);
-
-  setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-  cursor.insertText("Температура, С", charFormat(12, true));
-
-
-  foreach(OperatorPoint pnt, leveldown_points_2)
-  {
-
-      cursor.movePosition(QTextCursor::NextCell);
-      setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-      cursor.insertText(QString::number(pnt.time_min,'f',0));
-
-      cursor.movePosition(QTextCursor::NextCell);
-      setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-      cursor.insertText(QString::number(pnt.operatorEnteredPoint,'f',1));
-
-      cursor.movePosition(QTextCursor::NextCell);
-      setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-      cursor.insertText(QString::number(pnt.movement,'f',1));
-
-      cursor.movePosition(QTextCursor::NextCell);
-      setCurrentBlockAlignment(cursor, Qt::AlignHCenter);
-      cursor.insertText(QString::number(pnt.temperature,'f',1));
-  }
-
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-
-  cursor.insertText(QString("X (значення усадки по закінченню) = ") + QString::number(X_2,'f',1) + " мм", charFormat(12, true));
-
-
-  QVector<OperatorPoint> all_points_2 = levelup_points_2 + leveldown_points_2;
-
-  double max_difference_2=0.0;
-  foreach (OperatorPoint point, all_points_2)
-  {
-      double difference=getLinearApproximatedValue(levelup_points_2, point.time_min) -
-                        getLinearApproximatedValue(leveldown_points_2, point.time_min);
-
-      if (max_difference_2 < difference) max_difference_2 = difference;
-  }
-
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-  cursor.insertText(QString("Y (максимальна різниця верхніого і нижнього рівнів пл. шару) = ") + QString::number(max_difference_2,'f',1) + " мм", charFormat(12, true));
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-
-
-  //graphic
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertBlock();
-
-  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
-
-
-  //adding image to document
-
-  //cursor.insertImage(plot_movement_1);
-
-  document->addResource(QTextDocument::ImageResource, QUrl("plot_movement_2.png"), plot_movement_2);
-  QTextImageFormat imageFormat_2;
-  imageFormat_2.setQuality(100);
-  imageFormat_2.setName("plot_movement_2.png");
-  cursor.insertImage(imageFormat_2);
-  cursor.movePosition(QTextCursor::End);
-
-  cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
-  cursor.movePosition(QTextCursor::End);
-
-
-
 
   //TESTS END
 
@@ -2472,6 +2316,114 @@ double MainWindow::getLinearApproximatedValue(QVector<OperatorPoint> points, dou
     return 0.0;
 }
 //=======================================================================================
+void MainWindow::CreateTestReport()
+{
+
+    QDateTime dtReport=QDateTime::currentDateTime();
+    QString fileName=qApp->applicationDirPath()+"/reports/"+dtReport.toString("yyyy.MM.dd_hh.mm.ss")+".odt";
+
+
+  QTextDocument *document = new QTextDocument();
+
+
+
+
+  //QFont font;
+  //font.setFamily("Helvetica");//("Swiss");//("Times New Roman");//("Times");
+
+  QTextCursor cursor(document);
+
+//  QString date = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss");
+
+//  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+//  cursor.insertText(date + '\n', charFormat(11, false));//12
+
+//  cursor.insertBlock();
+//  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
+//  cursor.insertText(company, charFormat(11, false));//12
+
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
+  cursor.insertText("Звіт згідно ДСТУ EN ISO 1182:2022", charFormat(16, true));
+
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+  cursor.insertText("Звіт сформовано: " + dtReport.toString("yyyy.MM.dd hh:mm:ss") , charFormat(14, true));//12
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+
+  cursor.insertText("Умова закінчення: " + testStopReason.replace("ЗАВЕРШЕНО...","") , charFormat(14, true));//12  //просто уберем из строки префикс "ЗАВЕРШЕНО..."
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+/*
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+  cursor.insertText("Заміри температури стінок пічі:", charFormat(12, true));//12
+*/
+
+
+  cursor.movePosition(QTextCursor::End);
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+  //get 1st graph
+
+  wGraphic_1->replot();
+  wGraphic_1->savePng(qApp->applicationDirPath()+"/png/"+startTestDT_str+"_1.png",640,480);
+  QImage img_1(qApp->applicationDirPath()+"/png/"+startTestDT_str+"_1.png");
+
+
+  //graphic
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertBlock();
+
+  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
+
+
+  //adding image to document
+
+  //cursor.insertImage(plot_movement_1);
+
+  document->addResource(QTextDocument::ImageResource, QUrl("plot_img_1.png"), img_1);
+  QTextImageFormat imageFormat_1;
+  imageFormat_1.setQuality(100);
+  imageFormat_1.setName("plot_img_1.png");
+  cursor.insertImage(imageFormat_1);
+  cursor.movePosition(QTextCursor::End);
+
+
+
+
+
+
+  cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
+  cursor.movePosition(QTextCursor::End);
+
+  qDebug() << fileName;
+  QTextDocumentWriter writer(fileName);
+  if (!writer.write(document)) qDebug() << "errro write";
+
+  qDebug() << writer.supportedDocumentFormats();
+
+  //QDesktopServices::openUrl(QUrl(fileName+".odt"));
+
+  //QTextEdit  *te = new QTextEdit();
+  //te->setDocument(document);
+  //te->showMaximized();
+
+  delete document;
+
+
+
+
+
+    QMessageBox::information(this,"Збереження в файл",QString("Результати збережені в файл\n")+fileName);
+}
+
+//=======================================================================================
 void MainWindow::CreateTableReport()
 {
 
@@ -2514,7 +2466,7 @@ void MainWindow::CreateTableReport()
 //  cursor.insertText("Умова закінчення: " + stopCondition , charFormat(14, true));//12
 //  cursor.movePosition(QTextCursor::End);
 //  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-\
+
   cursor.insertBlock();
   setCurrentBlockAlignment(cursor, Qt::AlignLeft);
   cursor.insertText("Заміри температури стінок пічі:", charFormat(12, true));//12
