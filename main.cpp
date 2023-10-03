@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     a.setStyle(QStyleFactory::create("fusion"));
     //show at center
-    w.move(QApplication::desktop()->screen()->rect().center() - w.rect().center());
+    //w.move(QApplication::desktop()->screen()->rect().center() - w.rect().center());
 
     //w.showFullScreen();
     w.showMaximized();

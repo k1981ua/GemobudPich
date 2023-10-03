@@ -559,7 +559,10 @@ MainWindow::MainWindow(QWidget *parent)
       infoText+="\nОЧІКУЄМ СТАБІЛІЗАЦІЇ...";
       infoText+="\nУмови: Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C, 10 хв.";
 
-      ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:10px;}");
+      //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 10px solid grey; border-radius:10px;}");
+      //ui->groupBoxPowerSet->setFixedSize(20,20);
+      ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
+      ui->labelCirclePowerSet->setFixedSize(20,20);
 
       //Calibration Mode
 
@@ -697,7 +700,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 //      ui->stackedWidget->setCurrentIndex(0);
-
 
 
 
@@ -1092,7 +1094,8 @@ void MainWindow::DoubleSpinBoxSetVoltage(double value)
         ui->sliderPowerSet->setValue(value_volt*1000);
         qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
         mbReader.VoltageSet(value_volt);
-        ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+        //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+        ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
     }
 
 
@@ -1110,7 +1113,8 @@ void MainWindow::ButtonPowerOn(bool toggled)
         ui->sliderPowerSet->setValue(value_volt*1000);
         qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
         mbReader.VoltageSet(value_volt);
-        ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+        //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+        ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
 
     }
     else
@@ -1121,7 +1125,8 @@ void MainWindow::ButtonPowerOn(bool toggled)
         ui->sliderPowerSet->setValue(value_volt*1000);
         qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
         mbReader.VoltageSet(value_volt);
-        ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+        //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
+        ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
     }
 
 
@@ -1129,13 +1134,14 @@ void MainWindow::ButtonPowerOn(bool toggled)
 //=======================================================================================
 void MainWindow::VoltageSettedOK()
 {
-    ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid darkgreen; border-radius:3px;}");
-
+    //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid darkgreen; border-radius:3px;}");
+    ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid darkgreen; border-radius:10px; background-color:darkgreen;}");
 }
 //=======================================================================================
 void MainWindow::VoltageSettedError()
 {
-    ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid red; border-radius:3px;}");
+    //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid red; border-radius:3px;}");
+    ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid red; border-radius:10px; background-color:red;}");
 }
 //=======================================================================================
 bool MainWindow::calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b)
