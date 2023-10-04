@@ -429,6 +429,11 @@
              </item>
              <item>
               <widget class="QPushButton" name="buttonPowerOn">
+               <property name="font">
+                <font>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>   Включити нагрів</string>
                </property>
