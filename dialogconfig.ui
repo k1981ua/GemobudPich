@@ -142,7 +142,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,2,1">
+    <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="2,1,2,1,2">
      <item>
       <widget class="QPushButton" name="buttonCalibrMode">
        <property name="text">
@@ -154,8 +154,8 @@
        </property>
        <property name="iconSize">
         <size>
-         <width>48</width>
-         <height>48</height>
+         <width>32</width>
+         <height>32</height>
         </size>
        </property>
        <property name="checkable">
@@ -165,6 +165,36 @@
      </item>
      <item>
       <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonOpenCsvFile">
+       <property name="text">
+        <string>Відкрити CSV-файл</string>
+       </property>
+       <property name="icon">
+        <iconset resource="res.qrc">
+         <normaloff>:/icons/icon_csv.ico</normaloff>:/icons/icon_csv.ico</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -187,8 +217,8 @@
        </property>
        <property name="iconSize">
         <size>
-         <width>48</width>
-         <height>48</height>
+         <width>32</width>
+         <height>32</height>
         </size>
        </property>
       </widget>

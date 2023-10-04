@@ -35,6 +35,7 @@ private:
 
 private slots:
     void ButtonCalibr();
+    void ButtonOpenCsvFile();
 
 signals:
     void buttonPageCalibr(bool toggled);

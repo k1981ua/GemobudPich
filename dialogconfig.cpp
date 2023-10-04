@@ -1,6 +1,7 @@
 #include "dialogconfig.h"
 #include "ui_dialogconfig.h"
 #include "mainwindow.h"
+#include "fmdlg.h"
 //=================================================================
 DialogConfig::DialogConfig(QWidget *parent) :
     QDialog(parent),
@@ -17,6 +18,9 @@ DialogConfig::DialogConfig(QWidget *parent) :
     connect(ui->buttonCancelConfig,SIGNAL(clicked()),this,SLOT(reject()));
 
     connect(ui->buttonCalibrMode,QPushButton::toggled,this,[&](bool toggled){emit buttonPageCalibr(toggled);});
+
+    connect(ui->buttonOpenCsvFile,SIGNAL(clicked()),this,SLOT(ButtonOpenCsvFile()));
+    ui->buttonOpenCsvFile->setVisible(false); //нелязя открывать файл, пишущийся в данный момент, пока не решено
 
     pmbReader=nullptr;
 
@@ -83,7 +87,11 @@ void DialogConfig::ButtonCalibr()
      }
 }
 //===================================================================
-
+void DialogConfig::ButtonOpenCsvFile()
+{
+     FMDlg dlg(tr("Open CSV File"), qApp->applicationDirPath()+"/csv/", this);
+     dlg.launch();
+}
 
 //=======================================================================================
 

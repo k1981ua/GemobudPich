@@ -232,6 +232,8 @@ private slots:
     void ValueChanged(QString str);
 
     void slotRangeChanged (const QCPRange &newRange);
+    void closeEvent(QCloseEvent *event);
+
 };
 //======================================================================================
 class MyValidator : public QDoubleValidator
