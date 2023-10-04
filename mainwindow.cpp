@@ -704,7 +704,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     csvFileName=qApp->applicationDirPath()+"/csv/"+startPreTestDT.toString("yyyy.MM.dd_hh.mm.ss")+".csv";
 
-    ui->buttonPowerOn->setStyleSheet("QPushButton{font-size: 16px;} QPushButton:checked{font-size: 16px;border: 3px solid red; border-radius:3px;}");
+    ui->buttonPowerOn->setStyleSheet("QPushButton{font-size: 12pt;} QPushButton:checked{font-size: 12pt;border: 3px solid red; border-radius:3px;}");
 
 }
 //======================================================================
