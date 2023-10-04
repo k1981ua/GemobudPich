@@ -78,12 +78,14 @@ private:
     QDateTime startTestDT;
     QString startTestDT_str;
 
+    QString csvFileName;
 
 
-    QVector<OperatorPoint> levelUpPoints_1;
-    QVector<OperatorPoint> levelDownPoints_1;
-    QVector<OperatorPoint> levelUpPoints_2;
-    QVector<OperatorPoint> levelDownPoints_2;
+
+//    QVector<OperatorPoint> levelUpPoints_1;
+//    QVector<OperatorPoint> levelDownPoints_1;
+//    QVector<OperatorPoint> levelUpPoints_2;
+//    QVector<OperatorPoint> levelDownPoints_2;
 
     QPalette orig_palette;
 
@@ -197,6 +199,8 @@ private:
 private slots:
 
     void Timer1000ms();
+    void AddCsvMessage(QString message="");
+
     double calcAverage(QVector<double> vec);
 
     bool calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b);
@@ -205,6 +209,7 @@ private slots:
     void DoubleSpinBoxSetVoltage(double value);
     void VoltageSettedOK();
     void VoltageSettedError();
+    void SetLastPowerToIniFile(double power);
 
     void ButtonExit();
     void ButtonReset();

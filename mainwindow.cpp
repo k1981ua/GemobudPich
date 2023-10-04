@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     appDir.mkdir("reports");
     appDir.mkdir("calibration_reports");
     appDir.mkdir("png");
+    appDir.mkdir("csv");
 
     //connect(ui->lineEditOperatorPoint_1,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
     //connect(ui->lineEditOperatorPoint_2,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
@@ -701,7 +702,54 @@ MainWindow::MainWindow(QWidget *parent)
 
 //      ui->stackedWidget->setCurrentIndex(0);
 
+    csvFileName=qApp->applicationDirPath()+"/csv/"+startPreTestDT.toString("yyyy.MM.dd_hh.mm.ss")+".csv";
 
+    ui->buttonPowerOn->setStyleSheet("QPushButton{font-size: 16px;} QPushButton:checked{font-size: 16px;border: 3px solid red; border-radius:3px;}");
+
+}
+//======================================================================
+//=====================================================================
+void MainWindow::AddCsvMessage(QString message)
+{
+
+    QString strDateTime;
+    QDateTime dt;
+    dt=QDateTime::currentDateTime();
+    strDateTime.sprintf("%.2u.%.2u.%.4u %.2u:%.2u:%.2u.%.3u",
+                        dt.date().day(),dt.date().month(),dt.date().year(),
+                        dt.time().hour(),dt.time().minute(),dt.time().second(),dt.time().msec());
+
+    //Logging to file
+
+    QFile csvfile(csvFileName);
+
+    if (csvfile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
+    {
+        QString record;
+        if (message=="")
+        {
+            record.sprintf("%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f\n",strDateTime.toStdString().c_str(),
+                                                                temperature_1.GetValue(),
+                                                                temperature_2.GetValue(),
+                                                                temperature_3.GetValue(),
+                                                                temperature_4.GetValue(),
+                                                                temperature_5.GetValue(),
+                                                                temperature_6.GetValue());
+        }
+        else
+        {
+            record.sprintf("%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%s\n",strDateTime.toStdString().c_str(),
+                                                                   temperature_1.GetValue(),
+                                                                   temperature_2.GetValue(),
+                                                                   temperature_3.GetValue(),
+                                                                   temperature_4.GetValue(),
+                                                                   temperature_5.GetValue(),
+                                                                   temperature_6.GetValue(),
+                                                                   message.toStdString().c_str());
+        }
+        csvfile.write( record.toStdString().c_str());
+        csvfile.close();
+    }
 
 
 }
@@ -905,6 +953,9 @@ void MainWindow::LoadIniFile(QString iniFileName)
     comPort=settings.value("comPort","COM1").toString();
 #endif
 
+    double power=settings.value("lastPower").toDouble();
+    ui->doubleSpinBoxPowerSet->setValue(power);
+
 }
 //=======================================================================================
 void MainWindow::SaveIniFile()
@@ -914,6 +965,14 @@ void MainWindow::SaveIniFile()
 
     settings.setValue("comPort",comPort);
 
+}
+//=======================================================================================
+void MainWindow::SetLastPowerToIniFile(double power)
+{
+    QSettings settings(iniFile,QSettings::IniFormat);
+    settings.beginGroup("main");
+
+    settings.setValue("lastPower",QString::number(power,'f',2));
 }
 //=======================================================================================
 void MainWindow::ButtonTrendZoomOnOff(bool toggled)
@@ -1096,6 +1155,7 @@ void MainWindow::DoubleSpinBoxSetVoltage(double value)
         mbReader.VoltageSet(value_volt);
         //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
         ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
+        SetLastPowerToIniFile(value);
     }
 
 
@@ -1238,6 +1298,7 @@ void MainWindow::Timer1000ms()
          startTestDT_str=startTestDT.toString("yyyy.MM.dd_hh.mm.ss");
          infoText+=" "+startTestDT.toString("hh:mm:ss dd.MM.yy");
 
+         AddCsvMessage("start test");
 
          //infoText+=QString("\nЧАС: 00:00:00");
          //ui->listWidgetInfo->clear();
@@ -1372,6 +1433,8 @@ void MainWindow::Timer1000ms()
          graphicTemperature_5->addData(seconds_from_start,temperature_5.GetValue());
          graphicTemperature_6->addData(seconds_from_start,temperature_6.GetValue());
 
+         AddCsvMessage();
+
          if (!ui->buttonTrendZoom->isChecked())
          {
              //автоизменение шкалы по Х
@@ -1504,6 +1567,7 @@ void MainWindow::Timer1000ms()
          {
             temp1_PreTestStabilized=true;
             temp1StabilizationInfo=temperature_1.GetChName() +  " - стабілізації досягнуто.";
+            AddCsvMessage("T1-stabilized");
          }
          else
          {
@@ -1514,6 +1578,7 @@ void MainWindow::Timer1000ms()
          {
             temp2_PreTestStabilized=true;
             temp2StabilizationInfo=temperature_2.GetChName() +  " - стабілізації досягнуто.";
+            AddCsvMessage("T2-stabilized");
          }
          else
          {
@@ -1656,6 +1721,8 @@ void MainWindow::Timer1000ms()
         graphicTemperature_3->addData(seconds_from_start,temperature_3.GetValue());
         graphicTemperature_4->addData(seconds_from_start,temperature_4.GetValue());
 
+        AddCsvMessage();
+
         if (!ui->buttonTrendZoom->isChecked())
         {
             //автоизменение шкалы по Х
@@ -1788,6 +1855,7 @@ void MainWindow::Timer1000ms()
             {
                 runningMode=ModeTestStopped;//STOP
                 testStopReason=QString("ЗАВЕРШЕНО... Стабілізації не досягнуто за 60 хв.");
+                AddCsvMessage("stop test - stabilization did not occur within 60 minutes");
             }
 
 
@@ -1795,7 +1863,7 @@ void MainWindow::Timer1000ms()
             {
                 runningMode=ModeTestStopped; //STOP
                 testStopReason=QString("ЗАВЕРШЕНО... Стабілізація досягнута на ")+QString::number(30+num_interval*5)+" хв.";
-
+                AddCsvMessage("stop test - stabilization occurred at "+ QString::number(30+num_interval*5) +" minutes");
             }
 
 
@@ -1843,7 +1911,7 @@ void MainWindow::Timer1000ms()
                                    testStopReason);
 
 
-
+            AddCsvMessage("stop test -  stopped by the operator");
 
 
             //get 1st graph

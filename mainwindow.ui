@@ -396,7 +396,7 @@
                <item>
                 <widget class="QLabel" name="labelCirclePowerSet">
                  <property name="text">
-                  <string>    </string>
+                  <string/>
                  </property>
                 </widget>
                </item>
@@ -1513,8 +1513,8 @@
   </widget>
  </widget>
  <resources>
-  <include location="res.qrc"/>
   <include location="AC.qrc"/>
+  <include location="res.qrc"/>
  </resources>
  <connections/>
 </ui>
