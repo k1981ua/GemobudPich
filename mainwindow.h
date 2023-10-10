@@ -72,7 +72,7 @@ private:
     CommandButton cmdButton=NoCmd;
     QString infoText;
 
-    int maxTemperature=1000;
+    int maxTemperature=900;
     bool interfaceStabConditions=true;
     bool interfaceTavg=true;
     bool interfaceT_Tavg=true;

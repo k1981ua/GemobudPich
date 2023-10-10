@@ -972,7 +972,7 @@ void MainWindow::LoadIniFile(QString iniFileName)
     ui->doubleSpinBoxPowerSet->setValue(power);
 
 
-    maxTemperature=settings.value("maxTemperature",1100).toInt();
+    maxTemperature=settings.value("maxTemperature",900).toInt();
     dialogConfig.ui->spinBoxMaxTemperature->setValue(maxTemperature);
 
     interfaceStabConditions=settings.value("interfaceStabConditions",true).toBool();
