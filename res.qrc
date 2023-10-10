@@ -22,6 +22,8 @@
         <file>heating.png</file>
         <file>heat-64.ico</file>
         <file>icon_csv.ico</file>
+        <file>automode.ico</file>
+        <file>automode2.ico</file>
     </qresource>
     <qresource prefix="/wavs">
         <file>error.wav</file>

@@ -72,6 +72,12 @@ private:
     CommandButton cmdButton=NoCmd;
     QString infoText;
 
+    int maxTemperature=1000;
+    bool interfaceStabConditions=true;
+    bool interfaceTavg=true;
+    bool interfaceT_Tavg=true;
+    bool interfaceTreg=true;
+    bool interfaceAutoMode=false;
 
     QDateTime startPreTestDT;
     QString startPreTestDT_str;
@@ -175,6 +181,7 @@ private:
 
     void LoadIniFile(QString iniFileName);
     void SaveIniFile();
+    void SaveIniFileOperator();
 
     //reports
     void setCurrentBlockAlignment(QTextCursor &cursor,

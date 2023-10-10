@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ui_dialogconfig.h"
 #include "fmdlg.h"
 #include "modbusreader.h"
 
@@ -201,6 +202,7 @@ MainWindow::MainWindow(QWidget *parent)
      graphicRegress_2->setPen(penRegress_2); // Устанавливаем цвет графика
      graphicRegress_2->setAntialiased(false);         // Отключаем сглаживание, по умолчанию включено
      graphicRegress_2->setLineStyle(QCPGraph::lsLine);
+
 
      // Инициализируем график Temperature 3 и привязываем его к Осям
      graphicTemperature_3 = new QCPGraph(wGraphic_1->xAxis, wGraphic_1->yAxis);
@@ -526,8 +528,8 @@ MainWindow::MainWindow(QWidget *parent)
       wGraphic_1->yAxis2->setLabelFont(font);
 
 
-      graphicTemperature_1->setVisible(true); graphicRegress_1->setVisible(true);   ui->checkBoxTemperature1->setChecked(true);
-      graphicTemperature_2->setVisible(true); graphicRegress_2->setVisible(true);   ui->checkBoxTemperature2->setChecked(true);
+      graphicTemperature_1->setVisible(true); graphicRegress_1->setVisible(interfaceTreg);   ui->checkBoxTemperature1->setChecked(true);
+      graphicTemperature_2->setVisible(true); graphicRegress_2->setVisible(interfaceTreg);   ui->checkBoxTemperature2->setChecked(true);
       graphicTemperature_3->setVisible(false);   ui->checkBoxTemperature3->setChecked(false);
       graphicTemperature_4->setVisible(false);   ui->checkBoxTemperature4->setChecked(false);
       graphicTemperature_5->setVisible(true);    ui->checkBoxTemperature5->setChecked(true);
@@ -535,8 +537,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-      connect(ui->checkBoxTemperature1,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_1->setVisible(checked);graphicRegress_1->setVisible(checked);wGraphic_1->replot();});
-      connect(ui->checkBoxTemperature2,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_2->setVisible(checked);graphicRegress_2->setVisible(checked);wGraphic_1->replot();});
+      connect(ui->checkBoxTemperature1,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_1->setVisible(checked);graphicRegress_1->setVisible(interfaceTreg && checked);wGraphic_1->replot();});
+      connect(ui->checkBoxTemperature2,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_2->setVisible(checked);graphicRegress_2->setVisible(interfaceTreg && checked);wGraphic_1->replot();});
       connect(ui->checkBoxTemperature3,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_3->setVisible(checked);wGraphic_1->replot();});
       connect(ui->checkBoxTemperature4,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_4->setVisible(checked);wGraphic_1->replot();});
       connect(ui->checkBoxTemperature5,QCheckBox::toggled,this,[&](bool checked){graphicTemperature_5->setVisible(checked);wGraphic_56->replot();});
@@ -558,12 +560,12 @@ MainWindow::MainWindow(QWidget *parent)
 
       //startViewDT_str=startViewDT.toString("yyyy.MM.dd_hh.mm.ss");
       infoText+="\nОЧІКУЄМ СТАБІЛІЗАЦІЇ...";
-      infoText+="\nУмови: Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C, 10 хв.";
+      //infoText+="\nУмови: Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C, 10 хв.";
 
       //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 10px solid grey; border-radius:10px;}");
       //ui->groupBoxPowerSet->setFixedSize(20,20);
-      ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
-      ui->labelCirclePowerSet->setFixedSize(20,20);
+      ui->labelCirclePowerSetCheck->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
+      ui->labelCirclePowerSetCheck->setFixedSize(20,20);
 
       //Calibration Mode
 
@@ -706,8 +708,25 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->buttonPowerOn->setStyleSheet("QPushButton{font-size: 12pt;} QPushButton:checked{font-size: 12pt;border: 3px solid red; border-radius:3px;}");
 
+
+    //dialogConfig
+    connect(dialogConfig.ui->spinBoxMaxTemperature,QOverload<int>::of(&QSpinBox::valueChanged),[&](int value){maxTemperature=value; SaveIniFileOperator();});
+    connect(dialogConfig.ui->checkBoxInterfaceStabConditions,&QCheckBox::stateChanged,[&](int value){interfaceStabConditions=value; SaveIniFileOperator();});
+    connect(dialogConfig.ui->checkBoxInterfaceTavg,&QCheckBox::stateChanged,[&](int value){interfaceTavg=value; SaveIniFileOperator();});
+    connect(dialogConfig.ui->checkBoxInterfaceT_Tavg,&QCheckBox::stateChanged,[&](int value){interfaceT_Tavg=value; SaveIniFileOperator();});
+    connect(dialogConfig.ui->checkBoxInterfaceTreg,&QCheckBox::stateChanged,[&](int value){interfaceTreg=value; graphicRegress_1->setVisible(interfaceTreg && ui->checkBoxTemperature1->isChecked());graphicRegress_2->setVisible(interfaceTreg && ui->checkBoxTemperature2->isChecked());  SaveIniFileOperator();});
+
+    connect(ui->buttonInterfaceAutoMode, &QPushButton::toggled,[&](bool toggle){interfaceAutoMode=toggle; temp1_PreTestStabilized=false; temp2_PreTestStabilized=false;});
+    ui->buttonInterfaceAutoMode->setStyleSheet("QPushButton{font-size: 12pt;} QPushButton:checked{font-size: 12pt;border: 3px solid red; border-radius:3px;}");
+
+
 }
-//======================================================================
+//=====================================================================
+//=======================================================================================
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
 //=====================================================================
 void MainWindow::AddCsvMessage(QString message)
 {
@@ -935,11 +954,7 @@ void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3
 
 
 
-//=======================================================================================
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+
 //=======================================================================================
 void MainWindow::LoadIniFile(QString iniFileName)
 {
@@ -956,6 +971,21 @@ void MainWindow::LoadIniFile(QString iniFileName)
     double power=settings.value("lastPower").toDouble();
     ui->doubleSpinBoxPowerSet->setValue(power);
 
+
+    maxTemperature=settings.value("maxTemperature",1100).toInt();
+    dialogConfig.ui->spinBoxMaxTemperature->setValue(maxTemperature);
+
+    interfaceStabConditions=settings.value("interfaceStabConditions",true).toBool();
+    dialogConfig.ui->checkBoxInterfaceStabConditions->setChecked(interfaceStabConditions);
+
+    interfaceTavg=settings.value("interfaceTavg",true).toBool();
+    dialogConfig.ui->checkBoxInterfaceTavg->setChecked(interfaceTavg);
+
+    interfaceT_Tavg=settings.value("interfaceT_Tavg",true).toBool();
+    dialogConfig.ui->checkBoxInterfaceT_Tavg->setChecked(interfaceT_Tavg);
+
+    interfaceTreg=settings.value("interfaceTreg",true).toBool();
+    dialogConfig.ui->checkBoxInterfaceTreg->setChecked(interfaceTreg);
 }
 //=======================================================================================
 void MainWindow::SaveIniFile()
@@ -964,7 +994,19 @@ void MainWindow::SaveIniFile()
     settings.beginGroup("main");
 
     settings.setValue("comPort",comPort);
+}
+//=======================================================================================
 
+void MainWindow::SaveIniFileOperator()
+{
+    QSettings settings(iniFile,QSettings::IniFormat);
+    settings.beginGroup("main");
+
+    settings.setValue("maxTemperature",maxTemperature);
+    settings.setValue("interfaceStabConditions",interfaceStabConditions);
+    settings.setValue("interfaceTavg",interfaceTavg);
+    settings.setValue("interfaceT_Tavg",interfaceT_Tavg);
+    settings.setValue("interfaceTreg",interfaceTreg);
 }
 //=======================================================================================
 void MainWindow::SetLastPowerToIniFile(double power)
@@ -1154,7 +1196,7 @@ void MainWindow::DoubleSpinBoxSetVoltage(double value)
         qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
         mbReader.VoltageSet(value_volt);
         //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
-        ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
+        ui->labelCirclePowerSetCheck->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
         SetLastPowerToIniFile(value);
     }
 
@@ -1174,7 +1216,7 @@ void MainWindow::ButtonPowerOn(bool toggled)
         qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
         mbReader.VoltageSet(value_volt);
         //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
-        ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
+        ui->labelCirclePowerSetCheck->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
 
     }
     else
@@ -1186,7 +1228,7 @@ void MainWindow::ButtonPowerOn(bool toggled)
         qDebug() << "DoubleSpinBoxSetVoltage=" << value_proc << "% " << value_volt<<"V";
         mbReader.VoltageSet(value_volt);
         //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid grey; border-radius:3px;}");
-        ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
+        ui->labelCirclePowerSetCheck->setStyleSheet("QLabel{border: 2px solid grey; border-radius:10px; background-color:grey;}");
     }
 
 
@@ -1195,13 +1237,13 @@ void MainWindow::ButtonPowerOn(bool toggled)
 void MainWindow::VoltageSettedOK()
 {
     //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid darkgreen; border-radius:3px;}");
-    ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid darkgreen; border-radius:10px; background-color:darkgreen;}");
+    ui->labelCirclePowerSetCheck->setStyleSheet("QLabel{border: 2px solid #17d446; border-radius:10px; background-color:#17d446;}");  //#17d446 == green
 }
 //=======================================================================================
 void MainWindow::VoltageSettedError()
 {
     //ui->groupBoxPowerSet->setStyleSheet("QGroupBox{border: 3px solid red; border-radius:3px;}");
-    ui->labelCirclePowerSet->setStyleSheet("QLabel{border: 2px solid red; border-radius:10px; background-color:red;}");
+    ui->labelCirclePowerSetCheck->setStyleSheet("QLabel{border: 2px solid red; border-radius:10px; background-color:red;}");
 }
 //=======================================================================================
 bool MainWindow::calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b)
@@ -1286,6 +1328,9 @@ void MainWindow::Timer1000ms()
     ui->lineEditValueTemperature_4->setText(temperature_4.GetValueString(2));
     ui->lineEditValueTemperature_5->setText(temperature_5.GetValueString(2));
     ui->lineEditValueTemperature_6->setText(temperature_6.GetValueString(2));
+
+
+
 
     if (cmdButton==StartCmd)
     {
@@ -1539,6 +1584,8 @@ void MainWindow::Timer1000ms()
             return;
          }
 
+
+
          //double accuT1=0.0;
          double avgT1=0.0;
          double minT1=0.0;//temp_1_data.first().value;
@@ -1566,28 +1613,47 @@ void MainWindow::Timer1000ms()
          if (temp1_PreTestStabilized || ((seconds_from_start-600>=0) && (fabs(avgT1-750.0)<=5.0) && ((std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)))<=10.0) && (fabs(regressT1)<=2.0)))
          {
             temp1_PreTestStabilized=true;
-            temp1StabilizationInfo=temperature_1.GetChName() +  " - стабілізації досягнуто.";
+            if (interfaceAutoMode) temp1StabilizationInfo=QString("\n")+temperature_1.GetChName() +  " - стабілізації досягнуто.";
             AddCsvMessage("T1-stabilized");
          }
          else
          {
-            temp1StabilizationInfo=temperature_1.GetChName()+": Tavg="+QString::number(avgT1,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"  Treg="+QString::number(regressT1,'f',3);
+            if (interfaceTavg || interfaceT_Tavg || interfaceTreg)
+            {
+                temp1StabilizationInfo=QString("\n")+temperature_1.GetChName()+":";
+                if (interfaceTavg) temp1StabilizationInfo+=" Tavg="+QString::number(avgT1,'f',2);
+                if (interfaceT_Tavg) temp1StabilizationInfo+=" |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2);
+                if (interfaceTreg) temp1StabilizationInfo+=" Treg="+QString::number(regressT1,'f',3);
+            }
+
          }
 
          if (temp2_PreTestStabilized || ((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
          {
             temp2_PreTestStabilized=true;
-            temp2StabilizationInfo=temperature_2.GetChName() +  " - стабілізації досягнуто.";
+            if (interfaceAutoMode) temp2StabilizationInfo=QString("\n")+temperature_2.GetChName() +  " - стабілізації досягнуто.";
             AddCsvMessage("T2-stabilized");
          }
          else
          {
-            temp2StabilizationInfo=temperature_2.GetChName()+": Tavg="+QString::number(avgT2,'f',2)+"  |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"  Treg="+QString::number(regressT2,'f',3);
+            if (interfaceTavg || interfaceT_Tavg || interfaceTreg)
+            {
+                temp2StabilizationInfo=QString("\n")+temperature_2.GetChName()+":";
+                if (interfaceTavg) temp2StabilizationInfo+=" Tavg="+QString::number(avgT2,'f',2);
+                if (interfaceT_Tavg) temp2StabilizationInfo+=" |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2);
+                if (interfaceTreg) temp2StabilizationInfo+=" Treg="+QString::number(regressT2,'f',3);
+            }
          }
 
 
-         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n"+temp1StabilizationInfo+
-                                                                             "\n"+temp2StabilizationInfo);
+
+        QString interfaceStabConditions_str;
+
+        if (interfaceStabConditions) interfaceStabConditions_str="\nУмови: Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C, 10 хв.";
+
+         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+interfaceStabConditions_str+
+                                                                             temp1StabilizationInfo+
+                                                                             temp2StabilizationInfo);
 
 
 
@@ -1953,9 +2019,25 @@ void MainWindow::Timer1000ms()
 
 
 
+    //Check max temperature condition
 
+    if (ui->buttonPowerOn->isChecked() && (temperature_1.GetValue()>=maxTemperature || temperature_2.GetValue()>=maxTemperature))
+    {
+        //Stop power
+        qDebug() << "Max Temperature - Power off!!!";
+        mbReader.VoltageSet(0);
 
+        ui->buttonPowerOn->setChecked(false);
+        QMessageBox::critical(this,"Увага!!!", "Температура висока - нагрів вимкнено!!!");
+        //qDebug() << "Max Temperature - Power off!!!333333333333333333";
+        //static QMessageBox msgBox;
+        //msgBox.setText("Температура висока - нагрів вимкнено!!!");
+        //if (!msgBox.isVisible())
+        //{
+        //    msgBox.show();
+        //}
 
+    }
 
 
 

@@ -394,7 +394,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="labelCirclePowerSet">
+                <widget class="QLabel" name="labelCirclePowerSetCheck">
                  <property name="text">
                   <string/>
                  </property>
@@ -1390,7 +1390,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="10,0,10,10,10,10,10">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="10,0,10,10,10,10,10,10">
       <item>
        <widget class="QPushButton" name="buttonStartStop">
         <property name="text">
@@ -1420,6 +1420,26 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonInterfaceAutoMode">
+        <property name="text">
+         <string> Авто</string>
+        </property>
+        <property name="icon">
+         <iconset resource="res.qrc">
+          <normaloff>:/icons/automode2.ico</normaloff>:/icons/automode2.ico</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="buttonReset">
@@ -1481,7 +1501,7 @@
       <item>
        <widget class="QPushButton" name="buttonConfig">
         <property name="text">
-         <string>Конфігурація</string>
+         <string>Налаштування</string>
         </property>
         <property name="icon">
          <iconset resource="res.qrc">

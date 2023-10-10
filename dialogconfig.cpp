@@ -10,17 +10,19 @@ DialogConfig::DialogConfig(QWidget *parent) :
 
     ui->setupUi(this);
 
-    this->setWindowTitle("Конфігурація і управління");
+    this->setWindowTitle("Налаштування");
 
     connect(ui->buttonCalibr,SIGNAL(clicked()),this,SLOT(ButtonCalibr()));
 
     connect(ui->buttonSaveConfig,SIGNAL(clicked()),this,SLOT(accept()));
     connect(ui->buttonCancelConfig,SIGNAL(clicked()),this,SLOT(reject()));
 
-    connect(ui->buttonCalibrMode,QPushButton::toggled,this,[&](bool toggled){emit buttonPageCalibr(toggled);});
+    connect(ui->buttonCalibrMode,&QPushButton::toggled,this,[&](bool toggled){emit buttonPageCalibr(toggled);});
 
     connect(ui->buttonOpenCsvFile,SIGNAL(clicked()),this,SLOT(ButtonOpenCsvFile()));
-    ui->buttonOpenCsvFile->setVisible(false); //нелязя открывать файл, пишущийся в данный момент, пока не решено
+    ui->buttonOpenCsvFile->setVisible(false); //нельзя открывать файл, пишущийся в данный момент, пока не решено
+
+    connect(ui->lineEditAdminPass,&QLineEdit::textChanged,[&](QString pass){if (pass=="784523") {ui->groupBoxAdminSettings->setEnabled(true);} else {ui->groupBoxAdminSettings->setEnabled(false);} });
 
     pmbReader=nullptr;
 
