@@ -988,7 +988,7 @@ void MainWindow::LoadIniFile(QString iniFileName)
     dialogConfig.ui->checkBoxInterfaceTreg->setChecked(interfaceTreg);
 }
 //=======================================================================================
-void MainWindow::SaveIniFile()
+void MainWindow::SaveIniFileComPort()
 {
     QSettings settings(iniFile,QSettings::IniFormat);
     settings.beginGroup("main");
@@ -1133,7 +1133,7 @@ void MainWindow::ViewDialogConfig()
 
         }
 
-        SaveIniFile();
+        SaveIniFileComPort();
 
     }
 }

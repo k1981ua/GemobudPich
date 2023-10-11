@@ -2,6 +2,7 @@
 #include "ui_dialogconfig.h"
 #include "mainwindow.h"
 #include "fmdlg.h"
+#include <QInputDialog>
 //=================================================================
 DialogConfig::DialogConfig(QWidget *parent) :
     QDialog(parent),
@@ -22,7 +23,10 @@ DialogConfig::DialogConfig(QWidget *parent) :
     connect(ui->buttonOpenCsvFile,SIGNAL(clicked()),this,SLOT(ButtonOpenCsvFile()));
     ui->buttonOpenCsvFile->setVisible(false); //нельзя открывать файл, пишущийся в данный момент, пока не решено
 
-    connect(ui->lineEditAdminPass,&QLineEdit::textChanged,[&](QString pass){if (pass=="784523") {ui->groupBoxAdminSettings->setEnabled(true);} else {ui->groupBoxAdminSettings->setEnabled(false);} });
+    //connect(ui->lineEditAdminPass,&QLineEdit::textChanged,[&](QString pass){if (pass=="784523") {ui->groupBoxAdminSettings->setEnabled(true);} else {ui->groupBoxAdminSettings->setEnabled(false);} });
+
+    connect(ui->buttonConfigAdmin,SIGNAL(clicked()),this,SLOT(ButtonConfigAdmin()));
+    connect(ui->buttonConfigAdminBack,SIGNAL(clicked()),this,SLOT(ButtonConfigAdminBack()));
 
     pmbReader=nullptr;
 
@@ -96,4 +100,21 @@ void DialogConfig::ButtonOpenCsvFile()
 }
 
 //=======================================================================================
-
+void DialogConfig::ButtonConfigAdmin()
+{
+     bool ok;
+     // Ask for birth date as a string.
+     QString text = QInputDialog::getText(0, "Конфігурація",
+                                          "Пароль доступу:", QLineEdit::Password,
+                                          "", &ok);
+     if (ok && text=="784523")
+     {
+         ui->stackedWidgetConfig->setCurrentIndex(1);
+     }
+}
+//=======================================================================================
+void DialogConfig::ButtonConfigAdminBack()
+{
+     ui->stackedWidgetConfig->setCurrentIndex(0);
+}
+//=======================================================================================

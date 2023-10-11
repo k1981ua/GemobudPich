@@ -180,7 +180,7 @@ private:
     QHash<QString, AnalogInputChannel *> hashAnalogInputChannels;
 
     void LoadIniFile(QString iniFileName);
-    void SaveIniFile();
+    void SaveIniFileComPort();
     void SaveIniFileOperator();
 
     //reports
