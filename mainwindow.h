@@ -21,7 +21,7 @@
 #define X_RANGETEST_MAX 1800  //seconds стартовая ширина полотна графика по х для режима тестов 30 minutes
 
 //#define X_RANGEVIEW 3600   //стартовая ширина полотна графика по х для режима просмотра
-#define X_TICKSTEP 200  //20  //деления на шкале интервал 20 минут
+#define X_TICKSTEP 200  //20  //деления на шкале интервал 5 минут
 
 //#define Y_MOVEMENT_RANGE_MAX 50  //стартовая ширина полотна графика по y  units mm
 //#define Y_MOVEMENT_RANGE_MIN -50
@@ -105,6 +105,8 @@ private:
     QCPGraph *graphicRegress_2;
     bool temp1_PreTestStabilized=false;
     bool temp2_PreTestStabilized=false;
+    double temp1_PreTestTavg_stabilized=0.0;
+    double temp2_PreTestTavg_stabilized=0.0;
 
     //ModeTest regression
     QCPGraph *graphicTestRegress_1[7]; //всего надо 7 графиков, на 7 интервалов:
@@ -118,9 +120,11 @@ private:
     int num_interval=0;   //num_interval=0..6 , всего 7 интервалов
     bool temp1_TestStabilized=false;
     bool temp2_TestStabilized=false;
-    QString testStopReason;
 
     QString temp1TestStabilizationInfo,temp2TestStabilizationInfo;
+
+
+    QString testStopReason;
 
 //calibration page graphics
     bool isCalibrationPageEnabled=false;
@@ -206,6 +210,7 @@ private:
 private slots:
 
     void Timer1000ms();
+    void AddCsvMessageColumns();
     void AddCsvMessage(QString message="");
 
     double calcAverage(QVector<double> vec);

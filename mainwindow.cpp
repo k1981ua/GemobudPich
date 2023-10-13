@@ -719,6 +719,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->buttonInterfaceAutoMode, &QPushButton::toggled,[&](bool toggle){interfaceAutoMode=toggle; temp1_PreTestStabilized=false; temp2_PreTestStabilized=false;});
     ui->buttonInterfaceAutoMode->setStyleSheet("QPushButton{font-size: 12pt;} QPushButton:checked{font-size: 12pt;border: 3px solid red; border-radius:3px;}");
 
+    AddCsvMessageColumns();
 
 }
 //=====================================================================
@@ -726,6 +727,19 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+//=====================================================================
+void MainWindow::AddCsvMessageColumns()
+{
+    //Logging to file - make hat
+    QFile csvfile(csvFileName);
+
+    if (csvfile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
+    {
+        QString record="DateTime;T1;T2;T3;T4;T5;T6;T1avg;T1_T1avg;T1reg;T2avg;T2_t2avg;T2reg;Message\n";
+        csvfile.write( record.toStdString().c_str());
+        csvfile.close();
+    }
 }
 //=====================================================================
 void MainWindow::AddCsvMessage(QString message)
@@ -1107,6 +1121,14 @@ void MainWindow::ButtonPageCalibr(bool toggled)
 {
     ui->stackedWidget->setCurrentIndex(toggled?1:0);
     isCalibrationPageEnabled=toggled;
+    if (isCalibrationPageEnabled)
+    {
+        AddCsvMessage("switch to calibration page");
+    }
+    else
+    {
+        AddCsvMessage("switch to test page");
+    }
 }
 //=======================================================================================
 void MainWindow::ViewDialogConfig()
@@ -1322,12 +1344,12 @@ void MainWindow::Timer1000ms()
     //wGraphic_1->yAxis->setLabel(movement_1.GetChName()+", "+movement_1.GetEU());
     //wGraphic_2->yAxis->setLabel(movement_2.GetChName()+", "+movement_2.GetEU());
 
-    ui->lineEditValueTemperature_1->setText(temperature_1.GetValueString(2));
-    ui->lineEditValueTemperature_2->setText(temperature_2.GetValueString(2));
-    ui->lineEditValueTemperature_3->setText(temperature_3.GetValueString(2));
-    ui->lineEditValueTemperature_4->setText(temperature_4.GetValueString(2));
-    ui->lineEditValueTemperature_5->setText(temperature_5.GetValueString(2));
-    ui->lineEditValueTemperature_6->setText(temperature_6.GetValueString(2));
+    ui->lineEditValueTemperature_1->setText(temperature_1.GetValueString(1));
+    ui->lineEditValueTemperature_2->setText(temperature_2.GetValueString(1));
+    ui->lineEditValueTemperature_3->setText(temperature_3.GetValueString(1));
+    ui->lineEditValueTemperature_4->setText(temperature_4.GetValueString(1));
+    ui->lineEditValueTemperature_5->setText(temperature_5.GetValueString(1));
+    ui->lineEditValueTemperature_6->setText(temperature_6.GetValueString(1));
 
 
 
@@ -1578,9 +1600,10 @@ void MainWindow::Timer1000ms()
          }
 
 
-         if (temp_1_data.size()==0 || temp_2_data.size()==0)
+         if (temp_1_data.size()<=1 || temp_2_data.size()<=1)
          {
-            ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+"\n n/d");
+            QString plainText=infoText+QString("\nЧАС: ") + viewRunningStr;
+            ui->labelInfo->setText(plainText.replace("\n","<br>"));
             return;
          }
 
@@ -1608,42 +1631,73 @@ void MainWindow::Timer1000ms()
 
          // Tavg=(750±5)°C  |T-Tavg|≤10°C  Treg≤2°C  на протязі 10 хв.
 
-         QString temp1StabilizationInfo,temp2StabilizationInfo;
+         QString temp1StabilizationInfo,temp2StabilizationInfo,temp1StabilizationResult,temp2StabilizationResult;
 
-         if (temp1_PreTestStabilized || ((seconds_from_start-600>=0) && (fabs(avgT1-750.0)<=5.0) && ((std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)))<=10.0) && (fabs(regressT1)<=2.0)))
+
+         if (temp1_PreTestStabilized==false && ((seconds_from_start-600>=0) && (fabs(avgT1-750.0)<=5.0) && ((std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)))<=10.0) && (fabs(regressT1)<=2.0)))
          {
             temp1_PreTestStabilized=true;
-            if (interfaceAutoMode) temp1StabilizationInfo=QString("\n")+temperature_1.GetChName() +  " - стабілізації досягнуто.";
             AddCsvMessage("T1-stabilized");
+            temp1_PreTestTavg_stabilized=avgT1; //сохраним для отчета
          }
-         else
+
+         if (temp1_PreTestStabilized)
          {
+            if (interfaceAutoMode) temp1StabilizationResult=QString("\n")+temperature_1.GetChName() +  " - стабілізації досягнуто.";
+         }
+
+         //else
+         //{
             if (interfaceTavg || interfaceT_Tavg || interfaceTreg)
             {
                 temp1StabilizationInfo=QString("\n")+temperature_1.GetChName()+":";
-                if (interfaceTavg) temp1StabilizationInfo+=" Tavg="+QString::number(avgT1,'f',2);
-                if (interfaceT_Tavg) temp1StabilizationInfo+=" |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2);
-                if (interfaceTreg) temp1StabilizationInfo+=" Treg="+QString::number(regressT1,'f',3);
+                if (interfaceTavg) { if (fabs(avgT1-750.0)<=5.0) {temp1StabilizationInfo+="<font color=\"green\"> Tavg="+QString::number(avgT1,'f',2)+"</font>";}
+                                                            else {temp1StabilizationInfo+="<font color=\"red\"> Tavg="+QString::number(avgT1,'f',2)+"</font>";}
+                }
+
+                if (interfaceT_Tavg) {if (fabs(avgT1-750.0)<=5.0) {temp1StabilizationInfo+="<font color=\"green\"> |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"</font>";}
+                                                            else  {temp1StabilizationInfo+="<font color=\"red\"> |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"</font>";}
+
+                }
+
+                if (interfaceTreg) {if (fabs(regressT1)<=2.0) {temp1StabilizationInfo+="<font color=\"green\"> Treg="+QString::number(regressT1,'f',3)+"</font>";}
+                                                         else {temp1StabilizationInfo+="<font color=\"red\"> Treg="+QString::number(regressT1,'f',3)+"</font>";}
+                }
             }
 
-         }
+         //}
 
-         if (temp2_PreTestStabilized || ((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
+         if (temp2_PreTestStabilized==false && ((seconds_from_start-600>=0) && (fabs(avgT2-750.0)<=5.0) && ((std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)))<=10.0) && (fabs(regressT2)<=2.0)))
          {
             temp2_PreTestStabilized=true;
-            if (interfaceAutoMode) temp2StabilizationInfo=QString("\n")+temperature_2.GetChName() +  " - стабілізації досягнуто.";
+
             AddCsvMessage("T2-stabilized");
+            temp2_PreTestTavg_stabilized=avgT2; //сохраним для отчета
          }
-         else
+
+         if (temp2_PreTestStabilized)
          {
+            if (interfaceAutoMode) temp2StabilizationResult=QString("\n")+temperature_2.GetChName() +  " - стабілізації досягнуто.";
+         }
+         //else
+         //{
             if (interfaceTavg || interfaceT_Tavg || interfaceTreg)
             {
                 temp2StabilizationInfo=QString("\n")+temperature_2.GetChName()+":";
-                if (interfaceTavg) temp2StabilizationInfo+=" Tavg="+QString::number(avgT2,'f',2);
-                if (interfaceT_Tavg) temp2StabilizationInfo+=" |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2);
-                if (interfaceTreg) temp2StabilizationInfo+=" Treg="+QString::number(regressT2,'f',3);
+                if (interfaceTavg) { if (fabs(avgT2-750.0)<=5.0) {temp2StabilizationInfo+="<font color=\"green\"> Tavg="+QString::number(avgT2,'f',2)+"</font>";}
+                    else {temp2StabilizationInfo+="<font color=\"red\"> Tavg="+QString::number(avgT2,'f',2)+"</font>";}
+                }
+
+                if (interfaceT_Tavg) {if (fabs(avgT2-750.0)<=5.0) {temp2StabilizationInfo+="<font color=\"green\"> |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"</font>";}
+                    else  {temp2StabilizationInfo+="<font color=\"red\"> |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"</font>";}
+
+                }
+
+                if (interfaceTreg) {if (fabs(regressT2)<=2.0) {temp2StabilizationInfo+="<font color=\"green\"> Treg="+QString::number(regressT2,'f',3)+"</font>";}
+                    else {temp2StabilizationInfo+="<font color=\"red\"> Treg="+QString::number(regressT2,'f',3)+"</font>";}
+                }
             }
-         }
+         //}
 
 
 
@@ -1651,9 +1705,13 @@ void MainWindow::Timer1000ms()
 
         if (interfaceStabConditions) interfaceStabConditions_str="\nУмови: Tavg=750±5°C, |T-Tavg|≤10°C, Treg≤2°C, 10 хв.";
 
-         ui->labelInfo->setText(infoText+QString("\nЧАС: ") + viewRunningStr+interfaceStabConditions_str+
-                                                                             temp1StabilizationInfo+
-                                                                             temp2StabilizationInfo);
+
+        QString plainText=infoText+QString("\nЧАС: ") + viewRunningStr+interfaceStabConditions_str+
+                                   temp1StabilizationInfo+
+                                   temp1StabilizationResult+
+                                   temp2StabilizationInfo+
+                                   temp2StabilizationResult;
+         ui->labelInfo->setText(plainText.replace("\n","<br>"));
 
 
 
@@ -1941,11 +1999,13 @@ void MainWindow::Timer1000ms()
 
         }
 
-        ui->labelInfo->setText(infoText+QString("\nЧАС: ") + testRunningStr+"\n"+
+
+        QString plainText=infoText+QString("\nЧАС: ") + testRunningStr+"\n"+
                                         QString("ОЧІКУЄМ ")+QString::number(30+num_interval*5)+" хвилину..."+"\n"+
                                         temp1TestStabilizationInfo+"\n"+
-                                        temp2TestStabilizationInfo+"\n"+
-                                        testStopReason);
+                            temp2TestStabilizationInfo+"\n"+
+                            testStopReason;
+        ui->labelInfo->setText(plainText.replace("\n","<br>"));
 
 
         if (runningMode==ModeTestStopped)
@@ -1970,11 +2030,13 @@ void MainWindow::Timer1000ms()
 
             //QProcess::startDetached(QString("aplay ")+QApplication::applicationDirPath() + "/stop.wav");
             testStopReason=QString("ЗАВЕРШЕНО... Зупинено оператором");
-            ui->labelInfo->setText(infoText+QString("\nЧАС: ") + testRunningStr+"\n"+
+
+            QString plainText=infoText+QString("\nЧАС: ") + testRunningStr+"\n"+
                                         QString("ОЧІКУЄМ ")+QString::number(30+num_interval*5)+" хвилину..."+"\n"+
                                         temp1TestStabilizationInfo+"\n"+
-                                   temp2TestStabilizationInfo+"\n"+
-                                   testStopReason);
+                                temp2TestStabilizationInfo+"\n"+
+                                testStopReason;
+            ui->labelInfo->setText(plainText.replace("\n","<br>"));
 
 
             AddCsvMessage("stop test -  stopped by the operator");
@@ -2479,7 +2541,7 @@ void MainWindow::CreateTestReport()
     QString fileName=qApp->applicationDirPath()+"/reports/"+dtReport.toString("yyyy.MM.dd_hh.mm.ss")+".odt";
 
 
-  QTextDocument *document = new QTextDocument();
+    QTextDocument *document = new QTextDocument();
 
 
 
@@ -2557,6 +2619,33 @@ void MainWindow::CreateTestReport()
 
   cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
   cursor.movePosition(QTextCursor::End);
+
+
+
+
+  double Tf=temperature_1.GetValue();
+  double Tmax=0.0;
+
+  foreach(QCPData cpdata, graphicTemperature_1->data()->values())
+  {
+        if (cpdata.key >= 0)
+        {
+            if (cpdata.value>Tmax) Tmax=cpdata.value;
+        }
+  }
+
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+  cursor.insertText("Ti = " + QString::number(temp1_PreTestTavg_stabilized,'f',2)+" °C\n" , charFormat(14, true));//12
+  cursor.insertText("Tmax = " + QString::number(Tmax,'f',2)+" °C\n" , charFormat(14, true));//12
+  cursor.insertText("Tf = " + QString::number(Tf,'f',2)+" °C\n" , charFormat(14, true));//12
+  cursor.insertText("Tmax-Tf = " + QString::number(Tmax-Tf,'f',2)+" °C\n" , charFormat(14, true));//12
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+  cursor.movePosition(QTextCursor::End);
+
+
+
 
   qDebug() << fileName;
   QTextDocumentWriter writer(fileName);
