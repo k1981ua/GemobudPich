@@ -211,7 +211,8 @@ private slots:
 
     void Timer1000ms();
     void AddCsvMessageColumns();
-    void AddCsvMessage(QString message="");
+    void AddCsvMessage(QString message="",bool addTParams=false, double T1avg=0.0, double T1_T1avg=0.0, double T1reg=0.0,
+                                                                 double T2avg=0.0, double T2_T2avg=0.0, double T2reg=0.0);
 
     double calcAverage(QVector<double> vec);
 

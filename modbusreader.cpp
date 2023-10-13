@@ -2,7 +2,7 @@
 #include <QProcess>
 #include <QMessageBox>
 
-#define ICP7017_SIMULATE
+//#define ICP7017_SIMULATE
 
 //=======================================================================
 bool ModbusReader::Init(QString serialport, int registratoraddress)

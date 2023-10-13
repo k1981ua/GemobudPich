@@ -742,7 +742,8 @@ void MainWindow::AddCsvMessageColumns()
     }
 }
 //=====================================================================
-void MainWindow::AddCsvMessage(QString message)
+void MainWindow::AddCsvMessage(QString message, bool addTParams, double T1avg, double T1_T1avg, double T1reg,
+                                                                 double T2avg, double T2_T2avg, double T2reg)
 {
 
     QString strDateTime;
@@ -759,27 +760,65 @@ void MainWindow::AddCsvMessage(QString message)
     if (csvfile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
     {
         QString record;
-        if (message=="")
+
+
+        record.sprintf("%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;",strDateTime.toStdString().c_str(),
+                      temperature_1.GetValue(),
+                      temperature_2.GetValue(),
+                      temperature_3.GetValue(),
+                      temperature_4.GetValue(),
+                      temperature_5.GetValue(),
+                      temperature_6.GetValue());
+
+        QString tparams;
+        if (addTParams)
         {
-            record.sprintf("%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f\n",strDateTime.toStdString().c_str(),
-                                                                temperature_1.GetValue(),
-                                                                temperature_2.GetValue(),
-                                                                temperature_3.GetValue(),
-                                                                temperature_4.GetValue(),
-                                                                temperature_5.GetValue(),
-                                                                temperature_6.GetValue());
+
+            tparams.sprintf("%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;",T1avg, T1_T1avg, T1reg, T2avg, T2_T2avg, T2reg);
+
         }
         else
         {
-            record.sprintf("%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%s\n",strDateTime.toStdString().c_str(),
-                                                                   temperature_1.GetValue(),
-                                                                   temperature_2.GetValue(),
-                                                                   temperature_3.GetValue(),
-                                                                   temperature_4.GetValue(),
-                                                                   temperature_5.GetValue(),
-                                                                   temperature_6.GetValue(),
-                                                                   message.toStdString().c_str());
+            tparams=";;;;;;";
         }
+
+        record+=tparams;
+
+        if (message!="")
+        {
+            record+=message+";\n";
+        }
+        else
+        {
+            record+=";\n";
+        }
+
+
+/*
+            if (message=="")
+            {
+                record.sprintf("%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f\n",strDateTime.toStdString().c_str(),
+                                                                    temperature_1.GetValue(),
+                                                                    temperature_2.GetValue(),
+                                                                    temperature_3.GetValue(),
+                                                                    temperature_4.GetValue(),
+                                                                    temperature_5.GetValue(),
+                                                                    temperature_6.GetValue());
+            }
+            else
+            {
+                record.sprintf("%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%s\n",strDateTime.toStdString().c_str(),
+                                                                       temperature_1.GetValue(),
+                                                                       temperature_2.GetValue(),
+                                                                       temperature_3.GetValue(),
+                                                                       temperature_4.GetValue(),
+                                                                       temperature_5.GetValue(),
+                                                                       temperature_6.GetValue(),
+                                                                       message.toStdString().c_str());
+            }
+*/
+
+
         csvfile.write( record.toStdString().c_str());
         csvfile.close();
     }
@@ -1500,7 +1539,7 @@ void MainWindow::Timer1000ms()
          graphicTemperature_5->addData(seconds_from_start,temperature_5.GetValue());
          graphicTemperature_6->addData(seconds_from_start,temperature_6.GetValue());
 
-         AddCsvMessage();
+
 
          if (!ui->buttonTrendZoom->isChecked())
          {
@@ -1628,6 +1667,8 @@ void MainWindow::Timer1000ms()
          calcAvgMinMaxRegress(temp_1_data,avgT1,minT1,maxT1,regressT1,regressT1_koeff_a,regressT1_koeff_b);
          calcAvgMinMaxRegress(temp_2_data,avgT2,minT2,maxT2,regressT2,regressT2_koeff_a,regressT2_koeff_b);
 
+         AddCsvMessage("",true,avgT1,std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),regressT1,
+                               avgT2,std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),regressT2);
 
          // Tavg=(750±5)°C  |T-Tavg|≤10°C  Treg≤2°C  на протязі 10 хв.
 
@@ -1927,6 +1968,8 @@ void MainWindow::Timer1000ms()
             calcAvgMinMaxRegress(temp_1_data,avgT1,minT1,maxT1,regressT1,regressT1_koeff_a,regressT1_koeff_b);
             calcAvgMinMaxRegress(temp_2_data,avgT2,minT2,maxT2,regressT2,regressT2_koeff_a,regressT2_koeff_b);
 
+            AddCsvMessage("",true,avgT1,std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),regressT1,
+                          avgT2,std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),regressT2);
 
             // Tavg=(750±5)°C  |T-Tavg|≤10°C  Treg≤2°C  на протязі 10 хв.
 
