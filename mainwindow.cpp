@@ -856,11 +856,11 @@ void MainWindow::SetTablePoint(QLineEdit *lineEdit)
             if (!lineEdit->text().isEmpty())
             {
                 double value=lineEdit->text().replace(",",".").toDouble();  // по пути заменим запятую на точку дя удобства ввода
-                lineEdit->setText(QString::number(value,'f',2));
+                lineEdit->setText(QString::number(value,'f',1));
             }
             else
             {
-                lineEdit->setText(temperature_5.GetValueString_noEU(2));
+                lineEdit->setText(temperature_5.GetValueString_noEU(1));
             }
             lineEdit->setReadOnly(true);
         }
@@ -929,18 +929,18 @@ void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3
 
     if (lineEdit->isReadOnly())
     {
-        lineEdit->setText(temperature_6.GetValueString_noEU(2));
+        lineEdit->setText(temperature_6.GetValueString_noEU(1));
     }
     else
     {
         if (!lineEdit->text().isEmpty())
         {
             value=lineEdit->text().replace(",",".").toDouble();
-            lineEdit->setText(QString::number(value,'f',2));
+            lineEdit->setText(QString::number(value,'f',1));
         }
         else
         {
-            lineEdit->setText(temperature_6.GetValueString_noEU(2));
+            lineEdit->setText(temperature_6.GetValueString_noEU(1));
         }
         lineEdit->setReadOnly(true);
     }
@@ -1696,7 +1696,7 @@ void MainWindow::Timer1000ms()
                                                             else {temp1StabilizationInfo+="<font color=\"red\"> Tavg="+QString::number(avgT1,'f',2)+"</font>";}
                 }
 
-                if (interfaceT_Tavg) {if (fabs(avgT1-750.0)<=5.0) {temp1StabilizationInfo+="<font color=\"green\"> |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"</font>";}
+                if (interfaceT_Tavg) {if (std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1))<=10.0) {temp1StabilizationInfo+="<font color=\"green\"> |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"</font>";}
                                                             else  {temp1StabilizationInfo+="<font color=\"red\"> |T-Tavg|="+QString::number(std::max(fabs(maxT1-avgT1),fabs(minT1-avgT1)),'f',2)+"</font>";}
 
                 }
@@ -1729,7 +1729,7 @@ void MainWindow::Timer1000ms()
                     else {temp2StabilizationInfo+="<font color=\"red\"> Tavg="+QString::number(avgT2,'f',2)+"</font>";}
                 }
 
-                if (interfaceT_Tavg) {if (fabs(avgT2-750.0)<=5.0) {temp2StabilizationInfo+="<font color=\"green\"> |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"</font>";}
+                if (interfaceT_Tavg) {if (std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2))<=10.0) {temp2StabilizationInfo+="<font color=\"green\"> |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"</font>";}
                     else  {temp2StabilizationInfo+="<font color=\"red\"> |T-Tavg|="+QString::number(std::max(fabs(maxT2-avgT2),fabs(minT2-avgT2)),'f',2)+"</font>";}
 
                 }
@@ -2742,13 +2742,13 @@ void MainWindow::CreateTableReport()
   setCurrentBlockAlignment(cursor, Qt::AlignCenter);
   cursor.insertText("Звіт по калібруванню печі згідно ДСТУ EN ISO 1182:2022", charFormat(16, true));
 
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+ // cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
   cursor.insertBlock();
   setCurrentBlockAlignment(cursor, Qt::AlignLeft);
   cursor.insertText("Звіт сформовано: " + dtReport.toString("yyyy.MM.dd hh:mm:ss") , charFormat(14, true));//12
   cursor.movePosition(QTextCursor::End);
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+ // cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
 
 //  cursor.insertText("Умова закінчення: " + stopCondition , charFormat(14, true));//12
@@ -2782,6 +2782,16 @@ void MainWindow::CreateTableReport()
   //cursor.movePosition(QTextCursor::NextCell);
 
 
+  double T1a=ui->lineEditT1a->text().toDouble();
+  double T1b=ui->lineEditT1b->text().toDouble();
+  double T1c=ui->lineEditT1c->text().toDouble();
+  double T2a=ui->lineEditT2a->text().toDouble();
+  double T2b=ui->lineEditT2b->text().toDouble();
+  double T2c=ui->lineEditT2c->text().toDouble();
+  double T3a=ui->lineEditT3a->text().toDouble();
+  double T3b=ui->lineEditT3b->text().toDouble();
+  double T3c=ui->lineEditT3c->text().toDouble();
+
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
   cursor.insertText("Рівень а на висоті 30 мм.", charFormat(12, true));
@@ -2801,15 +2811,15 @@ void MainWindow::CreateTableReport()
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(11,'f',2));
+  cursor.insertText(QString::number(T1a,'f',2));
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(12,'f',2));
+  cursor.insertText(QString::number(T1b,'f',2));
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(13,'f',2));
+  cursor.insertText(QString::number(T1c,'f',2));
   cursor.movePosition(QTextCursor::NextCell);
 
   //2(під кутом 120°)
@@ -2818,15 +2828,15 @@ void MainWindow::CreateTableReport()
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(21,'f',2));
+  cursor.insertText(QString::number(T2a,'f',2));
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(22,'f',2));
+  cursor.insertText(QString::number(T2b,'f',2));
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(23,'f',2));
+  cursor.insertText(QString::number(T2c,'f',2));
   cursor.movePosition(QTextCursor::NextCell);
 
   //3(під кутом 240°)
@@ -2835,15 +2845,15 @@ void MainWindow::CreateTableReport()
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(31,'f',2));
+  cursor.insertText(QString::number(T3a,'f',2));
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(32,'f',2));
+  cursor.insertText(QString::number(T3b,'f',2));
   cursor.movePosition(QTextCursor::NextCell);
 
   setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
-  cursor.insertText(QString::number(33,'f',2));
+  cursor.insertText(QString::number(T3c,'f',2));
   //cursor.movePosition(QTextCursor::NextCell);
 
 
@@ -2893,15 +2903,7 @@ void MainWindow::CreateTableReport()
 
 
 
-  double T1a=ui->lineEditT1a->text().toDouble();
-  double T1b=ui->lineEditT1b->text().toDouble();
-  double T1c=ui->lineEditT1c->text().toDouble();
-  double T2a=ui->lineEditT2a->text().toDouble();
-  double T2b=ui->lineEditT2b->text().toDouble();
-  double T2c=ui->lineEditT2c->text().toDouble();
-  double T3a=ui->lineEditT3a->text().toDouble();
-  double T3b=ui->lineEditT3b->text().toDouble();
-  double T3c=ui->lineEditT3c->text().toDouble();
+
 
   double Tavg=(T1a+T1b+T1c+T2a+T2b+T2c+T3a+T3b+T3c)/9.0;
   double Tavg_axis1=(T1a+T1b+T1c)/3.0;
@@ -3011,8 +3013,211 @@ void MainWindow::CreateTableReport()
 
 
 
-  cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
+  cursor.insertBlock();
+  setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+  cursor.insertText("\n\n\n\n\n\n\n\n\n\n\n\n\n", charFormat(12, true));//next pagfe
+  cursor.insertText("Значення профілю температури в печі:", charFormat(12, true));//12
   cursor.movePosition(QTextCursor::End);
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+
+
+
+
+
+  //get 1st graph
+
+  wGraphic_Curve->replot();
+  wGraphic_Curve->savePng(qApp->applicationDirPath()+"/png/"+dtReport.toString("yyyy_MM_dd_hh_mm_ss")+"_1.png",640,480);
+  QImage img_1(qApp->applicationDirPath()+"/png/"+dtReport.toString("yyyy_MM_dd_hh_mm_ss")+"_1.png");
+
+
+  //graphic
+  cursor.movePosition(QTextCursor::End);
+  cursor.insertBlock();
+
+  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
+
+
+  //adding image to document
+
+  //cursor.insertImage(plot_movement_1);
+
+  document->addResource(QTextDocument::ImageResource, QUrl("plot_curve_1.png"), img_1);
+  QTextImageFormat imageFormat_1;
+  imageFormat_1.setQuality(100);
+  imageFormat_1.setName("plot_curve_1.png");
+  cursor.insertImage(imageFormat_1);
+  cursor.movePosition(QTextCursor::End);
+
+
+
+
+
+
+  //cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
+  //cursor.movePosition(QTextCursor::End);
+
+
+
+
+
+
+
+
+
+
+
+
+  double T145=(ui->lineEditT2_145->text().toDouble()+ui->lineEditT3_145->text().toDouble()) / 2.0;
+  double T135=(ui->lineEditT2_135->text().toDouble()+ui->lineEditT3_135->text().toDouble()) / 2.0;
+  double T125=(ui->lineEditT2_125->text().toDouble()+ui->lineEditT3_125->text().toDouble()) / 2.0;
+  double T115=(ui->lineEditT2_115->text().toDouble()+ui->lineEditT3_115->text().toDouble()) / 2.0;
+  double T105=(ui->lineEditT2_105->text().toDouble()+ui->lineEditT3_105->text().toDouble()) / 2.0;
+  double T95=(ui->lineEditT2_95->text().toDouble()+ui->lineEditT3_95->text().toDouble()) / 2.0;
+  double T85=(ui->lineEditT2_85->text().toDouble()+ui->lineEditT3_85->text().toDouble()) / 2.0;
+  double T75=(ui->lineEditT1_75->text().toDouble()+ui->lineEditT2_75->text().toDouble()+ui->lineEditT3_75->text().toDouble()) / 3.0;
+  double T65=(ui->lineEditT1_65->text().toDouble()+ui->lineEditT2_65->text().toDouble()) / 2.0;
+  double T55=(ui->lineEditT1_55->text().toDouble()+ui->lineEditT2_55->text().toDouble()) / 2.0;
+  double T45=(ui->lineEditT1_45->text().toDouble()+ui->lineEditT2_45->text().toDouble()) / 2.0;
+  double T35=(ui->lineEditT1_35->text().toDouble()+ui->lineEditT2_35->text().toDouble()) / 2.0;
+  double T25=(ui->lineEditT1_25->text().toDouble()+ui->lineEditT2_25->text().toDouble()) / 2.0;
+  double T15=(ui->lineEditT1_15->text().toDouble()+ui->lineEditT2_15->text().toDouble()) / 2.0;
+  double T5=(ui->lineEditT1_5->text().toDouble()+ui->lineEditT2_5->text().toDouble()) / 2.0;
+
+  //table
+  cursor.movePosition(QTextCursor::End);
+
+
+  //QTextTable *table=
+  cursor.insertTable(16,2);
+
+  //table->mergeCells(0,0,2,1);
+  //table->mergeCells(2,1,1,3);
+
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("Висота печі h, мм", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("   T, °C    ", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+
+  //145
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("145", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T145,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //135
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("135", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T135,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //125
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("125", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T125,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //115
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("115", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T115,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //105
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("105", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T105,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //95
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("95", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T95,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //85
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("85", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T85,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //75
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("75", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T75,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //65
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("65", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T65,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //55
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("55", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T55,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //45
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("45", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T45,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //35
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("35", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T35,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //25
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("25", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T25,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //15
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("15", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T15,'f',1), charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  //5
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText("5", charFormat(10, true));
+  cursor.movePosition(QTextCursor::NextCell);
+  setCurrentBlockAlignment(cursor, Qt::AlignHCenter | Qt::AlignVCenter);
+  cursor.insertText(QString::number(T5,'f',1), charFormat(10, true));
+  //cursor.movePosition(QTextCursor::NextCell);
+
+
+  cursor.movePosition(QTextCursor::End);
+  //cursor.insertBlock();
+  //setCurrentBlockAlignment(cursor, Qt::AlignLeft);
+
+
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+  //cursor.movePosition(QTextCursor::End);
 
   qDebug() << fileName;
   QTextDocumentWriter writer(fileName);
