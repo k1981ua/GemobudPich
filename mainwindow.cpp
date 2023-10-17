@@ -29,8 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
     appDir.mkdir("png");
     appDir.mkdir("csv");
 
-    temp_1_data.reserve(100000);
-    temp_2_data.reserve(100000);
+    temp_1_data.reserve(86400); //day in seconds reserve data
+    temp_2_data.reserve(86400);
     //connect(ui->lineEditOperatorPoint_1,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
     //connect(ui->lineEditOperatorPoint_2,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
 
