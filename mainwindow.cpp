@@ -1096,13 +1096,18 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
 
         wGraphic_1->setInteractions(NULL);
 
+
+
+        double newMinRange;
         if (runningMode==ModePreTest)
         {
             wGraphic_1->xAxis->setRange(X_RANGEPRETEST_MIN,X_RANGEPRETEST_MAX);//xInterval);
+            newMinRange=X_RANGEPRETEST_MIN;
         }
         else
         {
             wGraphic_1->xAxis->setRange(X_RANGETEST_MIN,X_RANGETEST_MAX);//xInterval);
+            newMinRange=X_RANGETEST_MIN;
         }
 
         wGraphic_1->xAxis->setTickStep(X_TICKSTEP);
@@ -1116,7 +1121,7 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
         if ((graphicTemperature_1->data()->size()>0) && (graphicTemperature_1->data()->last().key >= wGraphic_1->xAxis->range().upper))
         {
             double newMaxRange=wGraphic_1->xAxis->range().upper + ( (int)((graphicTemperature_1->data()->last().key - wGraphic_1->xAxis->range().upper)/100.0) + 1)*100;
-            wGraphic_1->xAxis->setRange(0,newMaxRange);
+            wGraphic_1->xAxis->setRange(newMinRange,newMaxRange);
 
         }
 
