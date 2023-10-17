@@ -107,6 +107,8 @@ private:
     bool temp2_PreTestStabilized=false;
     double temp1_PreTestTavg_stabilized=0.0;
     double temp2_PreTestTavg_stabilized=0.0;
+    QVector<QCPData> temp_1_data;
+    QVector<QCPData> temp_2_data;
 
     //ModeTest regression
     QCPGraph *graphicTestRegress_1[7]; //всего надо 7 графиков, на 7 интервалов:
@@ -216,7 +218,7 @@ private slots:
 
     double calcAverage(QVector<double> vec);
 
-    bool calcAvgMinMaxRegress(const QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b);
+    bool calcAvgMinMaxRegress(const QVector<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b);
 
     void SliderSetVoltage(int value);
     void DoubleSpinBoxSetVoltage(double value);

@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
     appDir.mkdir("png");
     appDir.mkdir("csv");
 
+    temp_1_data.reserve(100000);
+    temp_2_data.reserve(100000);
     //connect(ui->lineEditOperatorPoint_1,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
     //connect(ui->lineEditOperatorPoint_2,SIGNAL(textEdited(QString)),this,SLOT(ValueChanged(QString)));
 
@@ -1307,7 +1309,7 @@ void MainWindow::VoltageSettedError()
     ui->labelCirclePowerSetCheck->setStyleSheet("QLabel{border: 2px solid red; border-radius:10px; background-color:red;}");
 }
 //=======================================================================================
-bool MainWindow::calcAvgMinMaxRegress(const QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b)
+bool MainWindow::calcAvgMinMaxRegress(const QVector<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b)
 {
     double accuT1=0.0;
     double avgT1=0.0;
@@ -1432,13 +1434,15 @@ void MainWindow::Timer1000ms()
 
          double seconds_from_start=startPreTestDT.msecsTo(startTestDT)/1000.0;
 
-         QList<QCPData> temp_1_data;
+         //QList<QCPData> temp_1_data;
+         temp_1_data.clear();
          foreach(QCPData cpdata, graphicTemperature_1->data()->values())
          {
             cpdata.key=cpdata.key-seconds_from_start;
             temp_1_data.append(cpdata);
          }
-         QList<QCPData> temp_2_data;
+         //QList<QCPData> temp_2_data;
+         temp_2_data.clear();
          foreach(QCPData cpdata, graphicTemperature_2->data()->values())
          {
             cpdata.key=cpdata.key-seconds_from_start;
@@ -1630,12 +1634,14 @@ void MainWindow::Timer1000ms()
 
 
          //данные за последние 10 минут
-         QList<QCPData> temp_1_data;
+         //QList<QCPData> temp_1_data;
+         temp_1_data.clear();
          foreach(QCPData cpdata, graphicTemperature_1->data()->values())
          {
             if (cpdata.key >= seconds_from_start - 600) temp_1_data.append(cpdata);
          }
-         QList<QCPData> temp_2_data;
+         //QList<QCPData> temp_2_data;
+         temp_2_data.clear();
          foreach(QCPData cpdata, graphicTemperature_2->data()->values())
          {
             if (cpdata.key >= seconds_from_start - 600) temp_2_data.append(cpdata);
@@ -1935,12 +1941,14 @@ void MainWindow::Timer1000ms()
 
             //взять данные за последние 10 минут, рассчитать среднее, регрессию, построить графики регрессий
             //данные за последние 10 минут
-            QList<QCPData> temp_1_data;
+            //QList<QCPData> temp_1_data;
+            temp_1_data.clear();
             foreach(QCPData cpdata, graphicTemperature_1->data()->values())
             {
                 if (cpdata.key >= seconds_from_start - 600) temp_1_data.append(cpdata);
             }
-            QList<QCPData> temp_2_data;
+            //QList<QCPData> temp_2_data;
+            temp_2_data.clear();
             foreach(QCPData cpdata, graphicTemperature_2->data()->values())
             {
                 if (cpdata.key >= seconds_from_start - 600) temp_2_data.append(cpdata);
@@ -2056,6 +2064,7 @@ void MainWindow::Timer1000ms()
 
         if (runningMode==ModeTestStopped)
         {
+            ui->buttonTrendZoom->setChecked(false);
             CreateTestReport();
         }
 
@@ -2104,6 +2113,7 @@ void MainWindow::Timer1000ms()
             //img_2.save(qApp->applicationDirPath()+"/png/"+startTestDT_str+"_2_ttt.png");
 
 
+            ui->buttonTrendZoom->setChecked(false);
             CreateTestReport();
             //createReport(qApp->applicationDirPath()+"/reports/"+startTestDT_str, startTestDT.toString("dd.MM.yyyy hh:mm:ss") ,
             //             testRunningStr, img_1, temperature_1.GetValue(), temperature_2.GetValue());
@@ -2669,26 +2679,46 @@ void MainWindow::CreateTestReport()
 
 
 
-  double Tf=temperature_1.GetValue();
-  double Tmax=0.0;
+  double T1f=temperature_1.GetValue();
+  double T1max=0.0;
+  double T2f=temperature_2.GetValue();
+  double T2max=0.0;
 
   foreach(QCPData cpdata, graphicTemperature_1->data()->values())
   {
         if (cpdata.key >= 0)
         {
-            if (cpdata.value>Tmax) Tmax=cpdata.value;
+            if (cpdata.value>T1max) T1max=cpdata.value;
         }
   }
 
+  foreach(QCPData cpdata, graphicTemperature_2->data()->values())
+  {
+        if (cpdata.key >= 0)
+        {
+            if (cpdata.value>T2max) T2max=cpdata.value;
+        }
+  }
+
+
   cursor.insertBlock();
   setCurrentBlockAlignment(cursor, Qt::AlignLeft);
-  cursor.insertText("Ti = " + QString::number(temp1_PreTestTavg_stabilized,'f',2)+" °C\n" , charFormat(14, true));//12
-  cursor.insertText("Tmax = " + QString::number(Tmax,'f',2)+" °C\n" , charFormat(14, true));//12
-  cursor.insertText("Tf = " + QString::number(Tf,'f',2)+" °C\n" , charFormat(14, true));//12
-  cursor.insertText("Tmax-Tf = " + QString::number(Tmax-Tf,'f',2)+" °C\n" , charFormat(14, true));//12
+
+  cursor.insertHtml("T1<sub>i</sub> = " + QString::number(temp1_PreTestTavg_stabilized,'f',2)+" °C<br>");// + , charFormat(14, true));//12
+  cursor.insertHtml("T1<sub>max</sub> = " + QString::number(T1max,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  cursor.insertHtml("T1<sub>f</sub> = " + QString::number(T1f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  cursor.insertHtml("T1<sub>max</sub>-T1<sub>f</sub> = " + QString::number(T1max-T1f,'f',2)+" °C<br>");// , charFormat(14, true));//12
   cursor.movePosition(QTextCursor::End);
   cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+
+  cursor.insertHtml("T2<sub>i</sub> = " + QString::number(temp2_PreTestTavg_stabilized,'f',2)+" °C<br>");// + , charFormat(14, true));//12
+  cursor.insertHtml("T2<sub>max</sub> = " + QString::number(T2max,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  cursor.insertHtml("T2<sub>f</sub> = " + QString::number(T2f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  cursor.insertHtml("T2<sub>max</sub>-T2<sub>f</sub> = " + QString::number(T2max-T2f,'f',2)+" °C<br>");// , charFormat(14, true));//12
   cursor.movePosition(QTextCursor::End);
+
+
+  //cursor.movePosition(QTextCursor::End);
 
 
 
