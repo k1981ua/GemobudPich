@@ -216,7 +216,7 @@ private slots:
 
     double calcAverage(QVector<double> vec);
 
-    bool calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b);
+    bool calcAvgMinMaxRegress(const QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b);
 
     void SliderSetVoltage(int value);
     void DoubleSpinBoxSetVoltage(double value);

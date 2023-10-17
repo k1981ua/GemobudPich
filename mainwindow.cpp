@@ -1307,10 +1307,13 @@ void MainWindow::VoltageSettedError()
     ui->labelCirclePowerSetCheck->setStyleSheet("QLabel{border: 2px solid red; border-radius:10px; background-color:red;}");
 }
 //=======================================================================================
-bool MainWindow::calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b)
+bool MainWindow::calcAvgMinMaxRegress(const QList<QCPData> &data, double &avg, double &min, double &max, double &regress, double &regress_koeff_a, double &regress_koeff_b)
 {
     double accuT1=0.0;
     double avgT1=0.0;
+
+    if (data.size()==0) return false;
+
     double minT1=data.first().value;
     double maxT1=data.first().value;
 
@@ -1321,7 +1324,7 @@ bool MainWindow::calcAvgMinMaxRegress(QList<QCPData> &data, double &avg, double 
     double S4=0.0;
     double S5=0.0;
 
-    if (data.size()==0) return false;
+
 
     foreach(QCPData cpdata, data)
     {
