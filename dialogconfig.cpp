@@ -107,7 +107,7 @@ void DialogConfig::ButtonConfigAdmin()
      QString text = QInputDialog::getText(0, "Конфігурація",
                                           "Пароль доступу:", QLineEdit::Password,
                                           "", &ok);
-     if (ok && text=="784523")
+     if (ok && text=="31415")
      {
          ui->stackedWidgetConfig->setCurrentIndex(1);
      }

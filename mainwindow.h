@@ -148,7 +148,7 @@ private:
     struct CurvePoint
     {
         int h;
-        int val;
+        double val;
         bool operator==(const CurvePoint &other) const
         {
             if (this == &other) {
@@ -158,7 +158,8 @@ private:
         }
     };
 
-    QMap<int, QList<CurvePoint> > curveData;
+    QMap<int, QList<CurvePoint> > curveData; // данные для отрисовки всех точек "восьмеркой", int-колонка,
+                                             // QList<CurvePoint> - точки в колонке
 
     void SetTablePoint(QLineEdit *lineEdit);
     void SetCurvePoint(int row, int h, QLineEdit *lineEdit);

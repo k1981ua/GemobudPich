@@ -992,13 +992,25 @@ void MainWindow::SetCurvePoint(int row, int h, QLineEdit *lineEdit) //row==1,2,3
     graphicCurve->clearData();
     //graphicCurve->addData(temperature_5.GetValue(),h);
 
+    //curve data
+    QMap<int, QList<double> > curveLineData;
+
     foreach(QList<CurvePoint> rowlst, curveData)
     {
         foreach(CurvePoint crvpnt, rowlst)
         {
-            graphicCurve->addData(crvpnt.val,crvpnt.h);
+            //graphicCurve->addData(crvpnt.val,crvpnt.h);  //для построения "первичного" графика по всем точкам
+                                                           //в виде "восьмерки"
+            curveLineData[crvpnt.h].append(crvpnt.val);    //для построения графика по усредненным точкам каждой высоты
         }
 
+    }
+
+    foreach(int hval,curveLineData.keys())
+    {
+        //среднее значение
+        double lineval=std::accumulate(curveLineData[hval].begin(),curveLineData[hval].end(),0.0)/curveLineData[hval].size();
+        graphicCurve->addData(lineval,hval);   //для построения графика по усредненным точкам каждой высоты
     }
 
 
@@ -1130,7 +1142,7 @@ void MainWindow::ButtonTrendZoomOnOff(bool toggled)
 
 
         wGraphic_56->setInteractions(NULL);
-        wGraphic_56->xAxis->setRange(X_RANGEPRETEST_MIN,X_RANGEPRETEST_MIN);//xInterval);
+        wGraphic_56->xAxis->setRange(X_RANGEPRETEST_MIN,X_RANGEPRETEST_MAX);//xInterval);
         wGraphic_56->xAxis->setTickStep(X_TICKSTEP);
         wGraphic_56->xAxis->setAutoTickStep(false);
         wGraphic_56->yAxis->setRange(Y_TEMPERATURE_RANGE_MIN,Y_TEMPERATURE_RANGE_MAX);
@@ -2621,22 +2633,27 @@ void MainWindow::CreateTestReport()
 //  setCurrentBlockAlignment(cursor, Qt::AlignCenter);
 //  cursor.insertText(company, charFormat(11, false));//12
 
+
+//
+
+
   cursor.insertBlock();
   setCurrentBlockAlignment(cursor, Qt::AlignCenter);
-  cursor.insertText("Звіт згідно ДСТУ EN ISO 1182:2022", charFormat(16, true));
+  cursor.insertText("Звіт про результати випробування згідно ДСТУ EN ISO 1182:2022\n", charFormat(14, true));
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+  cursor.insertText("No00....... (або 17102300......)\n", charFormat(14, true));
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-
-  cursor.insertBlock();
+  //cursor.insertBlock();
   setCurrentBlockAlignment(cursor, Qt::AlignLeft);
-  cursor.insertText("Звіт сформовано: " + dtReport.toString("yyyy.MM.dd hh:mm:ss") , charFormat(14, true));//12
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+  cursor.insertText("Звіт сформовано: " + dtReport.toString("dd.MM.yyyy hh:mm:ss")+"\n" , charFormat(12, true));//12
+  //cursor.movePosition(QTextCursor::End);
+  //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
 
-  cursor.insertText("Умова закінчення: " + testStopReason.replace("ЗАВЕРШЕНО...","") , charFormat(14, true));//12  //просто уберем из строки префикс "ЗАВЕРШЕНО..."
+  cursor.insertText("Умова закінчення: " + testStopReason.replace("ЗАВЕРШЕНО...","") , charFormat(12, true));//12  //просто уберем из строки префикс "ЗАВЕРШЕНО..."
   cursor.movePosition(QTextCursor::End);
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+//  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
 /*
   cursor.insertBlock();
@@ -2645,7 +2662,7 @@ void MainWindow::CreateTestReport()
 */
 
 
-  cursor.movePosition(QTextCursor::End);
+  //cursor.movePosition(QTextCursor::End);
   //cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
   //get 1st graph
@@ -2674,20 +2691,16 @@ void MainWindow::CreateTestReport()
   cursor.movePosition(QTextCursor::End);
 
 
+//  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
+//  cursor.movePosition(QTextCursor::End);
 
 
 
-
-  cursor.insertText(QObject::tr("\n\n"), charFormat(12, true));//casey - line \n
-  cursor.movePosition(QTextCursor::End);
-
-
-
-
+//=====T1
   double T1f=temperature_1.GetValue();
+  double T1f_sum=0.0;
+  int T1f_cnt=0;
   double T1max=0.0;
-  double T2f=temperature_2.GetValue();
-  double T2max=0.0;
 
   foreach(QCPData cpdata, graphicTemperature_1->data()->values())
   {
@@ -2695,7 +2708,21 @@ void MainWindow::CreateTestReport()
         {
             if (cpdata.value>T1max) T1max=cpdata.value;
         }
+
+        //среднее значение за последнюю минуту
+        if (cpdata.key>=graphicTemperature_1->data()->values().last().key-60)
+        {
+            T1f_sum+=cpdata.value;
+            T1f_cnt++;
+        }
   }
+  if (T1f_cnt>0) T1f=T1f_sum/T1f_cnt;
+
+//=====T2
+  double T2f=temperature_2.GetValue();
+  double T2f_sum=0.0;
+  int T2f_cnt=0;
+  double T2max=0.0;
 
   foreach(QCPData cpdata, graphicTemperature_2->data()->values())
   {
@@ -2703,27 +2730,117 @@ void MainWindow::CreateTestReport()
         {
             if (cpdata.value>T2max) T2max=cpdata.value;
         }
-  }
 
+        //среднее значение за последнюю минуту
+        if (cpdata.key>=graphicTemperature_2->data()->values().last().key-60)
+        {
+            T2f_sum+=cpdata.value;
+            T2f_cnt++;
+        }
+  }
+  if (T2f_cnt>0) T2f=T2f_sum/T2f_cnt;
+
+
+//=====T3
+  double T3f=temperature_3.GetValue();
+  double T3f_sum=0.0;
+  int T3f_cnt=0;
+  double T3max=0.0;
+
+  foreach(QCPData cpdata, graphicTemperature_3->data()->values())
+  {
+        if (cpdata.key >= 0)
+        {
+            if (cpdata.value>T3max) T3max=cpdata.value;
+        }
+
+        //среднее значение за последнюю минуту
+        if (cpdata.key>=graphicTemperature_3->data()->values().last().key-60)
+        {
+            T3f_sum+=cpdata.value;
+            T3f_cnt++;
+        }
+  }
+  if (T3f_cnt>0) T3f=T3f_sum/T3f_cnt;
+
+
+//=====T4
+  double T4f=temperature_4.GetValue();
+  double T4f_sum=0.0;
+  int T4f_cnt=0;
+  double T4max=0.0;
+
+  foreach(QCPData cpdata, graphicTemperature_4->data()->values())
+  {
+        if (cpdata.key >= 0)
+        {
+            if (cpdata.value>T4max) T4max=cpdata.value;
+        }
+
+        //среднее значение за последнюю минуту
+        if (cpdata.key>=graphicTemperature_4->data()->values().last().key-60)
+        {
+            T4f_sum+=cpdata.value;
+            T4f_cnt++;
+        }
+  }
+  if (T4f_cnt>0) T4f=T4f_sum/T4f_cnt;
 
   cursor.insertBlock();
   setCurrentBlockAlignment(cursor, Qt::AlignLeft);
 
-  cursor.insertHtml("T1<sub>i</sub> = " + QString::number(temp1_PreTestTavg_stabilized,'f',2)+" °C<br>");// + , charFormat(14, true));//12
+  cursor.insertHtml("T1 = " + QString::number(temp1_PreTestTavg_stabilized,'f',2)+" °C<br>");// + , charFormat(14, true));//12
+  cursor.insertHtml("T2 = " + QString::number(temp2_PreTestTavg_stabilized,'f',2)+" °C<br>");// + , charFormat(14, true));//12
+  cursor.insertHtml("(що є середніми значеннями температури за 10 хв проміжку часу стабілізації, визначеного у 7.2.4)<br>");
+
   cursor.insertHtml("T1<sub>max</sub> = " + QString::number(T1max,'f',2)+" °C<br>");// , charFormat(14, true));//12
-  cursor.insertHtml("T1<sub>f</sub> = " + QString::number(T1f,'f',2)+" °C<br>");// , charFormat(14, true));//12
-  cursor.insertHtml("T1<sub>max</sub>-T1<sub>f</sub> = " + QString::number(T1max-T1f,'f',2)+" °C<br>");// , charFormat(14, true));//12
-  cursor.movePosition(QTextCursor::End);
-  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
-
-  cursor.insertHtml("T2<sub>i</sub> = " + QString::number(temp2_PreTestTavg_stabilized,'f',2)+" °C<br>");// + , charFormat(14, true));//12
   cursor.insertHtml("T2<sub>max</sub> = " + QString::number(T2max,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  cursor.insertHtml("(що є дискретними значеннями за максимальної температури в будь-якій точці упродовж усього проміжку часу випробування)<br>");
+
+
+  cursor.insertHtml("T1<sub>f</sub> = " + QString::number(T1f,'f',2)+" °C<br>");// , charFormat(14, true));//12
   cursor.insertHtml("T2<sub>f</sub> = " + QString::number(T2f,'f',2)+" °C<br>");// , charFormat(14, true));//12
-  cursor.insertHtml("T2<sub>max</sub>-T2<sub>f</sub> = " + QString::number(T2max-T2f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  cursor.insertHtml("(що є середніми значеннями температури упродовж останньої хвилини проміжку часу випробування відповідно до 7.4.7)<br>");
+
+  cursor.insertHtml("&Delta;T1 = T1<sub>max</sub>-T1<sub>f</sub> = " + QString::number(T1max-T1f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  cursor.insertHtml("&Delta;T2 = T2<sub>max</sub>-T2<sub>f</sub> = " + QString::number(T2max-T2f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  cursor.insertHtml("&Delta;T = (&Delta;T1 - &Delta;T2) / 2  = " + QString::number((T1max-T1f+T2max-T2f)/2.0,'f',2)+" °C<br>");// , charFormat(14, true));//12
+
+
+  if (ui->checkBoxTemperature3->isChecked() || ui->checkBoxTemperature3->isChecked()) cursor.insertHtml("<br>");
+
+  if (ui->checkBoxTemperature3->isChecked())
+  {
+      cursor.insertHtml("TC<sub>max</sub> = " + QString::number(T3max,'f',2)+" °C<br>");// , charFormat(14, true));//12
+      cursor.insertHtml("(максимальна температура за показами термопари, встановленої в центрі зразка)<br>");
+      cursor.insertHtml("TC<sub>final</sub> = " + QString::number(T3f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+      cursor.insertHtml("(кінцева температура за показами термопари, встановленої в центрі зразка,)<br>");
+  }
+
+  if (ui->checkBoxTemperature4->isChecked())
+  {
+      cursor.insertHtml("TS<sub>max</sub> = " + QString::number(T4max,'f',2)+" °C<br>");// , charFormat(14, true));//12
+      cursor.insertHtml("(максимальна температуру за показами термопари, встановленої на поверхні зразка)<br>");
+      cursor.insertHtml("TS<sub>final</sub> = " + QString::number(T4f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+      cursor.insertHtml("(кінцева температуру за показами термопари, встановленої на поверхні зразка)<br>");
+  }
+
+  if (ui->checkBoxTemperature3->isChecked())
+  {
+    cursor.insertHtml("&Delta;TC = TC<sub>max</sub>-TC<sub>final</sub> = " + QString::number(T3max-T3f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  }
+
+  if (ui->checkBoxTemperature4->isChecked())
+  {
+    cursor.insertHtml("&Delta;TS = TS<sub>max</sub>-TS<sub>final</sub> = " + QString::number(T4max-T4f,'f',2)+" °C<br>");// , charFormat(14, true));//12
+  }
+
+
+
+
   cursor.movePosition(QTextCursor::End);
+//  cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
-
-  //cursor.movePosition(QTextCursor::End);
 
 
 
@@ -2784,7 +2901,7 @@ void MainWindow::CreateTableReport()
 
   cursor.insertBlock();
   setCurrentBlockAlignment(cursor, Qt::AlignLeft);
-  cursor.insertText("Звіт сформовано: " + dtReport.toString("yyyy.MM.dd hh:mm:ss") , charFormat(14, true));//12
+  cursor.insertText("Звіт сформовано: " + dtReport.toString("dd.MM.yyyy hh:mm:ss") , charFormat(14, true));//12
   cursor.movePosition(QTextCursor::End);
  // cursor.insertText(QObject::tr("\n"), charFormat(12, true));//casey - line \n
 
