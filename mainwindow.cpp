@@ -2807,7 +2807,7 @@ void MainWindow::CreateTestReport()
   cursor.insertHtml("&Delta;T = (&Delta;T1 - &Delta;T2) / 2  = " + QString::number((T1max-T1f+T2max-T2f)/2.0,'f',2)+" °C<br>");// , charFormat(14, true));//12
 
 
-  if (ui->checkBoxTemperature3->isChecked() || ui->checkBoxTemperature3->isChecked()) cursor.insertHtml("<br>");
+  if (ui->checkBoxTemperature3->isChecked() || ui->checkBoxTemperature4->isChecked()) cursor.insertHtml("<br>");
 
   if (ui->checkBoxTemperature3->isChecked())
   {
